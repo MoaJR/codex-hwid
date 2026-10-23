@@ -5,3 +5,9 @@ Preservar index.html e servir cópia em public/demonstracao.html. Iniciar Next.j
 Política centralizada, contexto confiável e vínculo explícito para médico. Admin e secretaria não recebem acesso clínico por herança.
 ## 2026-10-23 — Banco somente planejado
 Prisma/PostgreSQL conforme especificação, sem executar migration ou criar persistência local de dados sensíveis. Integrações e autenticação exigem implementação e verificação próprias.
+
+## 2026-10-23 — Build público independente de geração de banco
+npm run build compila Next.js; npm run typecheck verifica TypeScript; npm run db:generate gera Prisma explicitamente. A experiência pública não precisa de conexão ao banco ou do download do motor Prisma para renderizar. Antes de integrar endpoints de banco, geração, schema e migrations precisam ser validados separadamente. Não há bypass de checksums ou erros de tipo.
+
+## 2026-10-23 — Primeiro fluxo de agendamento é demonstrativo
+A interface não recebe identificação nem apresenta disponibilidade real. O objetivo é validar UX enquanto autenticação e agenda transacional são construídas. Estado somente em memória; nenhuma submissão externa.

@@ -1,29 +1,42 @@
 # Dr. Douglas Vaz — Plataforma de Psiquiatria
 
-## Ver a demonstração
-Baixe Code → Download ZIP, extraia e abra index.html no navegador. Dados fictícios, sem backend. A mesma demonstração está em public/demonstracao.html.
+Site público em Next.js App Router + React + TypeScript, com direção visual verde/off-white e páginas educativas. Base PostgreSQL/Prisma e autorização planejadas para os próximos módulos.
 
-## Aplicação em desenvolvimento
-Base Next.js App Router + React + TypeScript, com modelo PostgreSQL/Prisma e política centralizada de autorização. Node.js 22 ou superior.
+## Acompanhar no VS Code
+Node.js 22.15 ou superior. No terminal da pasta do projeto:
 
 ```sh
+git pull --ff-only origin main
 npm ci
 npm run dev
 ```
 
-Abra http://localhost:3000. O endpoint /api/health verifica somente a aplicação. Para configuração futura do banco, use .env.example como referência e configure DATABASE_URL no ambiente; nenhuma migration é aplicada automaticamente.
+Abra http://localhost:3000. Alterações locais têm atualização automática. Para receber novos commits, execute git pull em outro terminal. Se dependências ou scripts mudarem, pare o servidor com Ctrl+C, execute npm ci e inicie novamente.
+
+Páginas: /sobre, /tratamentos, /consulta-online, /agendar, /contato e /privacidade. A home agora é a versão React. O protótipo antigo continua em /demonstracao.html; para abri-lo sem Node, extraia o ZIP e abra index.html.
+
+## Verificações
 
 ```sh
 npm test
 npm run typecheck
-npm run db:validate
 npm run build
+npm start
 ```
 
-## Estado verificado
-Dependências instaladas, lockfile gerado e testes de autorização passando. TypeScript isolado sem erros. Geração Prisma bloqueada por 403 no download de binários; build Next.js falhou ao ler --showConfig do TypeScript. Ver docs/PROGRESS.md para os limites da validação. Não há versão de produção aprovada.
+No marco atual: 9 testes passaram, TypeScript e build público passaram. Smoke HTTP de 12 páginas, healthcheck e 404 também passou. O build usa Webpack explicitamente. Revisão visual e testes E2E no navegador ainda pendentes.
 
-## Segurança e escopo
-Sem login, API clínica ou banco conectado. A política de autorização deve receber ator de sessão verificada e escopo obtido do servidor antes de futuras operações. Admin e secretaria não recebem acesso clínico implícito. Nunca inserir dados de saúde reais na demonstração. Foto, biografia e CRM/RQE aguardam confirmação.
+## Banco de dados — ainda não operacional
+O frontend pode rodar sem configurar o banco. Para o desenvolvimento futuro do backend, configure DATABASE_URL no ambiente usando .env.example como referência e execute:
 
-Documentação: docs/phases/PHASE-0.md, docs/ARCHITECTURE.md, docs/DATABASE.md, docs/PERMISSIONS.md e docs/SECURITY.md.
+```sh
+npm run db:generate
+npm run db:validate
+```
+
+A geração/validação do Prisma permanece pendente neste ambiente por restrição no download dos binários. Nenhuma migration foi aplicada. Não rodar migrations em produção sem revisão. Segredos nunca devem ser commitados.
+
+## Limites
+/agendar é uma simulação: não pede dados pessoais, não reserva horários e não realiza pagamentos. Não há login, API clínica ou banco conectado. A demonstração dos portais usa dados fictícios em memória. Não usar dados de saúde reais. Foto, biografia, CRM/RQE, valores e contatos oficiais aguardam confirmação.
+
+Progresso e próximos passos em docs/PROGRESS.md. Escopo do marco em docs/phases/PHASE-1-2.md.

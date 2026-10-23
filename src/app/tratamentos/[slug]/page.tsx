@@ -1,0 +1,8 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import {notFound} from 'next/navigation';
+import {SiteHeader,SiteFooter} from '@/components/site/site-shell';
+import {treatments} from '@/content/treatments';
+export function generateStaticParams(){return treatments.map(t=>({slug:t.slug}))}
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const {slug}=await params;const t=treatments.find(t=>t.slug===slug);return {title:t?`${t.title} | Dr. Douglas Vaz`:'Tratamento não encontrado'}}
+export default async function Treatment({params}:{params:Promise<{slug:string}>}){const {slug}=await params;const t=treatments.find(t=>t.slug===slug);if(!t)notFound();return <><SiteHeader/><main id="main-content"><section className="page-intro container"><Link className="text-link" href="/tratamentos">← Áreas de cuidado</Link><h1>{t.title}</h1><p>{t.intro}</p></section><section className="container section"><div className="two-column"><article className="panel"><h2>Um olhar para o que você vive.</h2><p>{t.description}</p><h3>Sinais que podem motivar uma conversa</h3><ul>{t.signs.map(s=><li key={s}>{s}</li>)}</ul><p>Esses sinais não confirmam um diagnóstico. Condições clínicas, contexto e outras causas também precisam ser considerados.</p></article><aside className="panel soft-panel"><h2>Como funciona o acompanhamento?</h2><p>O médico conversa sobre sua história, avalia o impacto dos sintomas e discute um plano de cuidado. As opções podem incluir orientações, psicoterapia e medicação, quando indicada.</p><Link className="button" href="/agendar">Conhecer as consultas →</Link></aside></div></section></main><SiteFooter/></>}
