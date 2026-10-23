@@ -1,0 +1,3 @@
+# Segurança
+Nenhum dado real nesta fase. Antes de APIs sensíveis: sessão HTTPOnly/Secure/SameSite, provedor de identidade e MFA equipe, limite de tentativas, validação servidor, autorização em toda operação, auditoria sem conteúdo clínico, uploads privados e URLs temporárias. Sem cartão completo, rastreadores clínicos ou assinatura eletrônica própria. Segredos somente no ambiente; .env ignorado.
+Política pura não é middleware e não autentica usuário. Consumidores devem fornecer apenas escopo obtido de query confiável. Backups, restore, retenção, incidentes e revisão LGPD antecedem operação com dados reais.
