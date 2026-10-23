@@ -12,21 +12,23 @@
     "db:migrate:dev": "node --env-file-if-exists=.env.local node_modules/prisma/build/index.js migrate dev",
     "db:generate": "node --env-file-if-exists=.env.local node_modules/prisma/build/index.js generate",
     "services:check": "node --env-file-if-exists=.env.local scripts/check-services.mjs",
-    "db:check": "node --env-file-if-exists=.env.local scripts/check-database.mjs"
+    "db:check": "node --env-file-if-exists=.env.local scripts/check-database.mjs",
+    "auth:check": "node --env-file-if-exists=.env.local scripts/check-auth.mjs"
   },
   "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "better-auth": "1.7.12",
     "next": "^16.0.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "@prisma/client": "^6.19.0",
     "server-only": "^0.0.1"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "prisma": "^6.19.0",
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.0",
-    "@types/react-dom": "^19.2.0"
+    "@types/react-dom": "^19.2.0",
+    "prisma": "^6.19.0",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=22.15.0"

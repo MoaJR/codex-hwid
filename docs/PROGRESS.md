@@ -1,35 +1,32 @@
 # Progresso — 23/10/2026
 
-## Fase atual: 3A — Blog público, implementado
-- Índice /blog com busca por termo e categoria, páginas de artigo e leituras relacionadas.
-- Três textos educativos de demonstração, sem autoria ou revisão médica atribuída.
-- Provider server-only read-only e API GET /api/articles.
-- Rascunhos, datas inválidas e publicações futuras excluídos antes da busca e das leituras por slug; rascunho retorna 404.
-- Conteúdo versionado no Git, sem painel CMS ou edição autenticada. Rascunhos no repositório público não são confidenciais; a filtragem protege somente a superfície pública do site/API.
+## Fase atual: 4A — Base de autenticação preparada, ainda inativa
+- Better Auth 1.7.12 com adaptador Prisma, sessão em banco e plugin TOTP.
+- /login, /verificar-acesso e /conta; handlers /api/auth/[...all].
+- AUTH_ENABLED desabilitado por padrão. Sem signup público, account linking ou contas/senhas padrão.
+- Papéis obtidos do banco a partir da sessão; guard com MFA da sessão específica para staff.
+- Schema com 11 modelos validado por getDMMF/getConfig WASM; sem migration ou geração do cliente novo neste marco.
+- Falta ativação e testes reais com banco e usuários, portanto não declarar login operacional.
 
-## Foto e site público
-- PNG original fornecido pelo usuário incluído em public/images/dr-douglas-vaz.png, sem alterações no arquivo.
-- Foto aplicada no hero e apresentação da home e na página Sobre, com Next Image e CSS responsivo.
-- Biografia, formação, CRM/RQE, valores e contato oficial continuam pendentes de confirmação.
-- Site público, páginas de tratamento e agendamento demonstrativo da etapa anterior preservados.
+## Entregas anteriores preservadas
+- Site público React, tratamentos, consulta online, contato, privacidade e agendamento demonstrativo.
+- Foto original integrada na home e Sobre.
+- Fase 3A: blog público, busca/categorias/artigos e API read-only; rascunhos não aparecem no site/API, mas código-fonte é público.
 
-## Backend e storage — evidência e limite
-- Publicação anterior Vercel confirmada por status GitHub; domínio informado pelo usuário: https://drdouglasvaz.vercel.app.
-- Screenshot identifica Prisma Postgres Available associado ao projeto vaz. Há banco provisionado.
-- Não há credenciais de Vercel ou DATABASE_URL neste executor; nenhuma consulta real no banco da Vercel foi executada. Não concluir que o schema ou o backend clínico estão operacionais.
-- services:check detecta somente presença de variáveis; db:check executa SELECT 1 em terminal confiável quando configurado e com cliente gerado, sem imprimir credenciais ou erros brutos.
-- db:check neste ambiente respondeu DATABASE_URL_MISSING, esperado na ausência de configuração local. Nenhuma migration aplicada.
+## Integração Vercel — evidência atual
+- Plugin instalado e ferramentas disponíveis. list_projects localizou o projeto vaz.
+- Detalhes do projeto e listagem de variáveis retornaram 403 para equipe moajrs-projects. A conta precisa autorizar esse escopo; não é necessário reinstalar o plugin.
+- O erro sugere authorize_team_access, mas essa ferramenta não está disponível nesta sessão. Não foi aplicado contorno de autenticação.
+- Prisma Postgres provisionado confirmado pelo screenshot anterior; a conexão e o schema do banco não foram inspecionados.
 
-## Verificações deste marco
-- npm test: 15 testes reais passaram (autorização, datas/agendamento, publicação/busca e saída segura dos diagnósticos).
-- npm run typecheck: passou.
-- npm run build: passou.
-- Smoke HTTP: blog, filtros, três artigos, API com campos permitidos, rascunho e slug inexistente 404, busca vazia e foto PNG original/otimizada passaram.
-- Sem revisão visual/E2E em navegador nesta execução. A foto original foi inspecionada; enquadramento responsivo ainda precisa ser conferido visualmente no site.
+## Verificações
+- 23 testes reais passaram: autorização, configuração/origem, MFA, datas, publicação e diagnósticos seguros.
+- TypeScript e build público/auth inativa passaram.
+- Schema parseado e validado em WASM: 11 modelos; sem conexão ao banco.
+- Smoke HTTP: 6 páginas abriram, login/conta exibem modo inativo e 4 endpoints auth responderam 503 sem cookie/detalhes de configuração.
+- Modos operacionais de login/MFA, rate limit entre instâncias e CRUD de banco continuam sem E2E.
+- Sem revisão visual no navegador nesta execução.
 
-## Próximos marcos
-3B — CMS persistente: depende de banco acessível e identidade/RBAC da fase 4; ainda não implementado.
-4 — Autenticação e autorização integradas, sessões e MFA da equipe.
-5 — Agendamento real com disponibilidade transacional; a interface atual continua demonstrativa.
-
-Sem dados clínicos reais, prontuário operacional, uploads privados ou pagamentos. Documentação do escopo em docs/phases/PHASE-3.md e docs/INTEGRATIONS.md.
+## Próximos passos
+4B: acesso à equipe Vercel, conexão/migrations revisadas, provisionamento de acesso e onboarding MFA, E2E e auditoria. Depois CMS persistente 3B e agendamento real da fase 5.
+Não usar dados reais de saúde até os controles operacionais estarem validados.

@@ -17,3 +17,9 @@ Fase 3 dividida em 3A e 3B. Leitura pública versionada no Git implementada prim
 
 ## 2026-10-23 — Prisma Postgres confirmado por evidência visual
 Screenshot identifica serviço provisionado, mas credenciais e conexão ainda não verificadas. Diagnósticos somente no terminal, sem valores de variáveis nem erros brutos do provedor. Não executar migrations em banco conectado automaticamente.
+
+## 2026-10-23 — Better Auth e ativação explícita
+Escolhida biblioteca pronta para login/sessões/TOTP, sem criptografia ou hashing próprios. Auth permanece desabilitada até conexão, schema e provisionamento confiável. Não há conta padrão nem signup público.
+
+## 2026-10-23 — MFA vinculado à sessão
+User.twoFactorEnabled não garante que uma sessão antiga tenha passado por MFA. Session.mfaVerifiedAt só é gravado após verificação TOTP bem-sucedida no servidor e é exigido pelo guard de staff. Sem confiar em campo enviado pelo cliente.

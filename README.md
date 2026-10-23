@@ -24,7 +24,7 @@ npm run build
 npm start
 ```
 
-No marco atual: 15 testes passaram, TypeScript e build público passaram. Smoke HTTP do site anterior e do novo blog, API e imagem otimizada também passou. O build usa Webpack explicitamente. Revisão visual e testes E2E no navegador ainda pendentes.
+No marco atual: 23 testes passaram, TypeScript e build público passaram. Smoke HTTP do site anterior e do novo blog, API e imagem otimizada também passou. O build usa Webpack explicitamente. Revisão visual e testes E2E no navegador ainda pendentes.
 
 ## Banco de dados — ainda não operacional
 O frontend pode rodar sem configurar o banco. Para o desenvolvimento futuro do backend, configure DATABASE_URL no ambiente usando .env.example como referência e execute:
@@ -45,4 +45,15 @@ Progresso e próximos passos em docs/PROGRESS.md. Escopo do marco em docs/phases
 ## Integrações
 Prisma Postgres identificado no painel enviado pelo usuário, conectado ao projeto Vercel. A conexão real e o schema ainda não foram verificados. npm run services:check mostra apenas presença de variáveis no terminal atual. Detalhes em docs/INTEGRATIONS.md.
 
-Fase atual: 3A (blog público). Próximo marco: persistência e CMS autenticado (3B), dependentes da autenticação/RBAC da fase 4.
+Fase atual: 4A — base de autenticação preparada, ainda desabilitada. Fase 3A (blog público) preservada; CMS 3B depende de conexão, schema e acesso autenticado operacional.
+
+## Autenticação — marco 4A
+/login, /verificar-acesso e /conta estão preparadas com Better Auth. O acesso é desabilitado por padrão e as APIs respondem 503 enquanto não configurado. Não há conta/senha padrão ou cadastro público.
+
+```sh
+npm run auth:check
+```
+
+AUTH_ENABLED só deve ser habilitado após a conexão e o schema serem validados, cliente gerado, contas provisionadas e login/MFA testados. Não aplicar migrations automaticamente no deploy. Veja docs/phases/PHASE-4.md para critérios. Não publicar segredos em NEXT_PUBLIC_*.
+
+A integração Vercel já foi instalada; o acesso aos detalhes/variáveis está bloqueado com 403 no escopo da equipe moajrs-projects. A conta precisa autorizar essa equipe pela conexão existente.

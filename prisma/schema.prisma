@@ -15,6 +15,12 @@ model User {
   id String @id @default(uuid()) @db.Uuid
   email String @unique
   name String
+  emailVerified Boolean @default(false)
+  image String?
+  twoFactorEnabled Boolean @default(false)
+  sessions Session[]
+  accounts Account[]
+  twoFactors TwoFactor[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   roles UserRole[]
@@ -59,4 +65,64 @@ model MoodEntry {
   recordedAt DateTime @default(now())
   createdAt DateTime @default(now())
   @@index([patientId, recordedAt])
+}
+
+model Session {
+  id        String   @id @default(uuid()) @db.Uuid
+  expiresAt DateTime
+  token     String   @unique
+  mfaVerifiedAt DateTime? // App-owned marker, set only after successful server-side TOTP verification.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+}
+model Account {
+  id                    String    @id @default(uuid()) @db.Uuid
+  accountId             String
+  providerId            String
+  userId                String    @db.Uuid
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  @@index([userId])
+  // This uniqueness matches one account per provider identity; confirm generated schema.
+  @@unique([providerId, accountId])
+}
+model Verification {
+  id         String   @id @default(uuid()) @db.Uuid
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  @@index([identifier])
+}
+model RateLimit {
+  id          String @id @default(uuid()) @db.Uuid
+  key         String @unique
+  count       Int
+  lastRequest BigInt
+}
+model TwoFactor {
+  id                      String    @id @default(uuid()) @db.Uuid
+  secret                  String
+  backupCodes             String
+  userId                  String    @db.Uuid
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verified                Boolean   @default(true)
+  failedVerificationCount Int       @default(0)
+  lockedUntil             DateTime?
+  @@index([secret])
+  @@index([userId])
 }

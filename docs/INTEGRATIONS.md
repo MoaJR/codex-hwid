@@ -28,3 +28,9 @@ Não aplicar fallbacks silenciosos entre aliases POSTGRES_* e DATABASE_URL. Nunc
 
 ## Foto institucional
 PNG original extraído do Doutor.zip enviado pelo usuário. Asset em public/images/dr-douglas-vaz.png. Enquadramento por CSS/Next Image, sem alterar o original. Biografia e credenciais ainda aguardam confirmação.
+
+## Atualização — integração Vercel instalada
+A conexão listou o projeto vaz. get_project e filter_project_envs retornaram 403 porque falta acesso à equipe moajrs-projects. A recuperação indicada é autorizar esse escopo pela conexão existente; não solicitar senhas/tokens no chat. A ferramenta authorize_team_access mencionada pelo erro não está disponível no conjunto atual. Nenhuma variável foi descriptografada, alterada ou criada.
+
+## Autenticação preparada
+Better Auth usa DATABASE_URL, BETTER_AUTH_SECRET e BETTER_AUTH_URL, além do gate AUTH_ENABLED=true. Manter gate false até schema, contas e fluxos estarem verificados. auth:check informa somente nomes ausentes/inválidos e flags; não exibe valores e não testa login/banco.
