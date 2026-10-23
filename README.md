@@ -1,19 +1,29 @@
-# Dr. Douglas Vaz — Psiquiatria
+# Dr. Douglas Vaz — Plataforma de Psiquiatria
 
-Demonstração visual interativa baseada na referência fornecida. Inclui site institucional e ambientes demonstrativos de paciente, médico e administração.
+## Ver a demonstração
+Baixe Code → Download ZIP, extraia e abra index.html no navegador. Dados fictícios, sem backend. A mesma demonstração está em public/demonstracao.html.
 
-## Como visualizar
+## Aplicação em desenvolvimento
+Base Next.js App Router + React + TypeScript, com modelo PostgreSQL/Prisma e política centralizada de autorização. Node.js 22 ou superior.
 
-1. Clique em **Code → Download ZIP** neste repositório.
-2. Extraia o ZIP no computador.
-3. Abra **index.html** no navegador. Não requer instalação.
+```sh
+npm ci
+npm run dev
+```
 
-O HTML contém CSS e JavaScript incorporados. Fontes externas são opcionais; existe fallback local.
+Abra http://localhost:3000. O endpoint /api/health verifica somente a aplicação. Para configuração futura do banco, use .env.example como referência e configure DATABASE_URL no ambiente; nenhuma migration é aplicada automaticamente.
 
-## Limites
+```sh
+npm test
+npm run typecheck
+npm run db:validate
+npm run build
+```
 
-Protótipo com dados fictícios e estado somente em memória. Sem autenticação, banco, prontuário real, pagamentos ou integrações. Não inserir dados de saúde reais. A publicação em hospedagem ainda não foi concluída.
+## Estado verificado
+Dependências instaladas, lockfile gerado e testes de autorização passando. TypeScript isolado sem erros. Geração Prisma bloqueada por 403 no download de binários; build Next.js falhou ao ler --showConfig do TypeScript. Ver docs/PROGRESS.md para os limites da validação. Não há versão de produção aprovada.
 
-## Verificação
+## Segurança e escopo
+Sem login, API clínica ou banco conectado. A política de autorização deve receber ator de sessão verificada e escopo obtido do servidor antes de futuras operações. Admin e secretaria não recebem acesso clínico implícito. Nunca inserir dados de saúde reais na demonstração. Foto, biografia e CRM/RQE aguardam confirmação.
 
-Sintaxe JavaScript e smoke de oito rotas, diário e registro demonstrativo de tomada validados em ambiente simulado. Revisão visual no navegador pendente.
+Documentação: docs/phases/PHASE-0.md, docs/ARCHITECTURE.md, docs/DATABASE.md, docs/PERMISSIONS.md e docs/SECURITY.md.
