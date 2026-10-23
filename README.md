@@ -24,7 +24,7 @@ npm run build
 npm start
 ```
 
-No marco atual: 23 testes passaram, TypeScript e build público passaram. Smoke HTTP do site anterior e do novo blog, API e imagem otimizada também passou. O build usa Webpack explicitamente. Revisão visual e testes E2E no navegador ainda pendentes.
+No marco atual: 23 testes passaram, TypeScript e build público passaram. Smoke HTTP do site anterior e do novo blog, API e imagem otimizada também passou. O build regenera o cliente Prisma e usa Webpack explicitamente. Essa geração não conecta ao banco nem aplica migrations. Revisão visual e testes E2E no navegador ainda pendentes.
 
 ## Banco de dados — ainda não operacional
 O frontend pode rodar sem configurar o banco. Para o desenvolvimento futuro do backend, configure DATABASE_URL no ambiente usando .env.example como referência e execute:

@@ -23,3 +23,6 @@ Escolhida biblioteca pronta para login/sessões/TOTP, sem criptografia ou hashin
 
 ## 2026-10-23 — MFA vinculado à sessão
 User.twoFactorEnabled não garante que uma sessão antiga tenha passado por MFA. Session.mfaVerifiedAt só é gravado após verificação TOTP bem-sucedida no servidor e é exigido pelo guard de staff. Sem confiar em campo enviado pelo cliente.
+
+## 2026-10-23 — Regenerar Prisma no build a partir da fase 4
+A autenticação usa tipos dos novos modelos. O build agora gera o cliente Prisma antes de compilar Next.js para evitar cliente cacheado de schema antigo. Isso substitui a decisão anterior de build público independente de codegen. A geração não conecta ao banco nem aplica migrations.

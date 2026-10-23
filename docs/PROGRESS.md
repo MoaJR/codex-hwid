@@ -21,7 +21,9 @@
 
 ## Verificações
 - 23 testes reais passaram: autorização, configuração/origem, MFA, datas, publicação e diagnósticos seguros.
-- TypeScript e build público/auth inativa passaram.
+- TypeScript passou também com declarações geradas do schema atual via DMMF. O build Next.js local passou.
+- O primeiro deploy da fase 4A falhou na Vercel; logs bloqueados com 403, causa ainda não confirmada. A etapa oficial de geração Prisma foi acrescentada antes de Next build para garantir consistência do cliente com o schema.
+- A geração oficial usa os binários Prisma e depende do acesso ao servidor de distribuição; no executor esse download permanece restrito. A geração de tipos via WASM não valida o runtime.
 - Schema parseado e validado em WASM: 11 modelos; sem conexão ao banco.
 - Smoke HTTP: 6 páginas abriram, login/conta exibem modo inativo e 4 endpoints auth responderam 503 sem cookie/detalhes de configuração.
 - Modos operacionais de login/MFA, rate limit entre instâncias e CRUD de banco continuam sem E2E.

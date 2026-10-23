@@ -34,3 +34,6 @@ Não considerar autenticação operacional apenas porque a UI compila.
 5. Completar onboarding TOTP e recuperação por backup codes de forma auditada. Rotacionar/revogar sessões quando necessário.
 6. Testar login/sair, CSRF/origem, rate limit entre instâncias, expiração/revogação, isolamento e MFA com contas fictícias. Implementar auditoria antes de operações sensíveis.
 7. Só depois habilitar AUTH_ENABLED e implementar CMS 3B/portais.
+
+## Empacotamento
+A partir deste marco, build gera o cliente Prisma antes de Next.js. Evita reutilizar cliente gerado de schema antigo no cache da plataforma. Geração não conecta ao banco ou aplica migrations. Tipos do schema novo foram gerados via DMMF no ambiente local e typecheck passou; runtime e conexão continuam pendentes. Primeiro deploy4A falhou, sem logs acessíveis pelo escopo atual; não atribuir causa antes de observá-los.
