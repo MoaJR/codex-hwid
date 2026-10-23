@@ -1,0 +1,8 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {publishedArticles,filterArticles,normalizeQuery} from '../src/modules/content/publication.mjs';
+const sample=(slug,overrides={})=>({slug,title:'Primeira avaliação',excerpt:'Prepare sua consulta',category:'Atendimento',status:'PUBLISHED',publishedAt:'2026-10-22T12:00:00Z',...overrides});
+test('drafts, future publications and missing/invalid dates never enter public reads',()=>{const input=[sample('public'),sample('draft',{status:'DRAFT'}),sample('future',{publishedAt:'2027-01-01'}),sample('invalid',{publishedAt:'invalid'}),sample('missing',{publishedAt:undefined})];assert.deepEqual(publishedArticles(input,new Date('2026-10-23T15:00:00Z')).map(a=>a.slug),['public']);});
+test('public search ignores accents, combines category and query, and leaves source untouched',()=>{const source=[sample('one'),sample('two',{category:'Online',title:'Privacidade'})];assert.equal(filterArticles(source,{query:'AVALIACAO',category:'Atendimento'})[0].slug,'one');assert.equal(filterArticles(source,{query:'AVALIACAO',category:'Online'}).length,0);assert.equal(filterArticles(source,{query:'<script>'}).length,0);assert.equal(source.length,2);});
+test('publication order is deterministic without mutating source',()=>{const source=[sample('older'),sample('b',{publishedAt:'2026-10-23T12:00:00Z'}),sample('a',{publishedAt:'2026-10-23T12:00:00Z'})];assert.deepEqual(publishedArticles(source,new Date('2026-10-24')).map(a=>a.slug),['a','b','older']);assert.equal(source[0].slug,'older');});
+test('query rejects arrays and bounds excessively long input',()=>{assert.equal(normalizeQuery(['consulta']),'');assert.equal(normalizeQuery(' x '),'x');assert.equal(normalizeQuery('a'.repeat(1000)).length,120);});

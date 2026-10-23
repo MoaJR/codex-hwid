@@ -13,6 +13,9 @@
 | /agendar | Fluxo demonstrativo, sem reserva |
 | /contato | Informações; canais oficiais a confirmar |
 | /privacidade | Transparência da versão de desenvolvimento |
+| /blog | Índice com busca e categorias |
+| /blog/[slug] | Artigo publicado; rascunhos retornam 404 |
+| /api/articles | Lista pública de metadados; sem escrita |
 | /api/health | Saúde da aplicação, não verifica banco |
 | /demonstracao.html | Protótipo antigo com hash routes ilustrativas |
 

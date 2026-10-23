@@ -11,3 +11,9 @@ npm run build compila Next.js; npm run typecheck verifica TypeScript; npm run db
 
 ## 2026-10-23 — Primeiro fluxo de agendamento é demonstrativo
 A interface não recebe identificação nem apresenta disponibilidade real. O objetivo é validar UX enquanto autenticação e agenda transacional são construídas. Estado somente em memória; nenhuma submissão externa.
+
+## 2026-10-23 — Blog público antes do editor CMS
+Fase 3 dividida em 3A e 3B. Leitura pública versionada no Git implementada primeiro. Escrita administrativa depende de identidade, autorização e banco; nenhum editor público ou endpoint de escrita será simulado como operacional.
+
+## 2026-10-23 — Prisma Postgres confirmado por evidência visual
+Screenshot identifica serviço provisionado, mas credenciais e conexão ainda não verificadas. Diagnósticos somente no terminal, sem valores de variáveis nem erros brutos do provedor. Não executar migrations em banco conectado automaticamente.

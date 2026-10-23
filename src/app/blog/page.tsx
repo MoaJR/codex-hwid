@@ -1,0 +1,16 @@
+import type {Metadata} from 'next';
+import Link from 'next/link';
+import {SiteHeader,SiteFooter} from '@/components/site/site-shell';
+import {articleReader} from '@/modules/content/repository';
+import {normalizeQuery} from '@/modules/content/publication.mjs';
+export const metadata:Metadata={title:'Blog | Dr. Douglas Vaz',description:'Informações educativas para conhecer o acompanhamento em saúde mental.'};
+export const dynamic='force-dynamic';
+type Search=Record<string,string|string[]|undefined>;
+export default async function Blog({searchParams}:{searchParams:Promise<Search>}){
+  const params=await searchParams;
+  const query=normalizeQuery(params.q);
+  const category=typeof params.categoria==='string'?params.categoria.slice(0,80):'';
+  const categories=articleReader.categories();
+  const articles=articleReader.list({query,category});
+  return <><SiteHeader/><main id="main-content"><section className="page-intro container"><span className="eyebrow">Informação também é cuidado</span><h1>Um espaço para compreender.</h1><p>Leituras para conhecer o atendimento e preparar suas próximas conversas.</p></section><section className="container section"><form className="blog-search panel" action="/blog" method="get" role="search"><div><label htmlFor="article-search">Buscar no blog</label><input id="article-search" name="q" maxLength={120} type="search" defaultValue={query} placeholder="Sobre o que você quer ler?"/></div><div><label htmlFor="article-category">Categoria</label><select name="categoria" id="article-category" defaultValue={category}><option value="">Todas as categorias</option>{category&&!categories.includes(category)&&<option value={category}>Categoria não encontrada</option>}{categories.map(c=><option key={c}>{c}</option>)}</select></div><button className="button" type="submit">Buscar →</button>{(query||category)&&<Link href="/blog" className="text-link">Limpar filtros</Link>}</form><p className="blog-results">{articles.length} {articles.length===1?'leitura encontrada':'leituras encontradas'}{query&&<> para “{query}”</>}{category&&<> · {category}</>}</p>{articles.length?<div className="article-grid">{articles.map(article=><article key={article.slug} className="panel article-card"><span className="eyebrow">{article.category}</span><h2><Link href={`/blog/${article.slug}`}>{article.title}</Link></h2><p>{article.excerpt}</p><div className="article-meta"><span>{article.readingMinutes} min de leitura</span><span>Conteúdo de demonstração</span></div><Link className="text-link" href={`/blog/${article.slug}`}>Ler artigo <span aria-hidden="true">↗</span></Link></article>)}</div>:<div className="panel blog-empty"><h2>Vamos tentar outro caminho?</h2><p>Nenhuma leitura corresponde aos filtros. Tente outro termo ou explore todas as categorias.</p><Link className="button button-outline" href="/blog">Ver todas as leituras</Link></div>}<div className="notice demo-notice"><strong>Conteúdo editorial de demonstração.</strong> Os textos ainda precisam de revisão clínica antes de compor a versão definitiva. Informação educativa não substitui avaliação individual.</div></section></main><SiteFooter/></>;
+}

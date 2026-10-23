@@ -1,30 +1,35 @@
 # Progresso — 23/10/2026
 
-## Entregue neste marco
-- Home pública em React com hero, benefícios, tratamentos, apresentação, etapas, CTA e FAQ.
-- Header/Footer reutilizáveis, navegação móvel, tokens CSS e componentes visuais iniciais.
-- Páginas /sobre, /tratamentos, quatro tratamentos individuais, /consulta-online, /agendar, /contato e /privacidade.
-- Agendamento demonstrativo com três etapas, validação e datas no fuso de Brasília; sem reserva ou coleta de dados pessoais.
-- Demonstração antiga preservada para referência dos portais.
+## Fase atual: 3A — Blog público, implementado
+- Índice /blog com busca por termo e categoria, páginas de artigo e leituras relacionadas.
+- Três textos educativos de demonstração, sem autoria ou revisão médica atribuída.
+- Provider server-only read-only e API GET /api/articles.
+- Rascunhos, datas inválidas e publicações futuras excluídos antes da busca e das leituras por slug; rascunho retorna 404.
+- Conteúdo versionado no Git, sem painel CMS ou edição autenticada. Rascunhos no repositório público não são confidenciais; a filtragem protege somente a superfície pública do site/API.
 
-## Validação
-- npm test: 9 testes reais passaram (7 autorização, 2 datas/seleção). Execução sem isolamento torna os casos visíveis mesmo em ambientes com subprocessos limitados.
+## Foto e site público
+- PNG original fornecido pelo usuário incluído em public/images/dr-douglas-vaz.png, sem alterações no arquivo.
+- Foto aplicada no hero e apresentação da home e na página Sobre, com Next Image e CSS responsivo.
+- Biografia, formação, CRM/RQE, valores e contato oficial continuam pendentes de confirmação.
+- Site público, páginas de tratamento e agendamento demonstrativo da etapa anterior preservados.
+
+## Backend e storage — evidência e limite
+- Publicação anterior Vercel confirmada por status GitHub; domínio informado pelo usuário: https://drdouglasvaz.vercel.app.
+- Screenshot identifica Prisma Postgres Available associado ao projeto vaz. Há banco provisionado.
+- Não há credenciais de Vercel ou DATABASE_URL neste executor; nenhuma consulta real no banco da Vercel foi executada. Não concluir que o schema ou o backend clínico estão operacionais.
+- services:check detecta somente presença de variáveis; db:check executa SELECT 1 em terminal confiável quando configurado e com cliente gerado, sem imprimir credenciais ou erros brutos.
+- db:check neste ambiente respondeu DATABASE_URL_MISSING, esperado na ausência de configuração local. Nenhuma migration aplicada.
+
+## Verificações deste marco
+- npm test: 15 testes reais passaram (autorização, datas/agendamento, publicação/busca e saída segura dos diagnósticos).
 - npm run typecheck: passou.
-- npm run build: passou; build público separado da geração Prisma, que tem comando próprio db:generate.
-- O erro antigo de --showConfig foi reproduzido como restrição de execução de subprocessos. O build passou no contexto de execução permitido, sem ignorar erros TypeScript.
-- Smoke HTTP de produção: 12 páginas retornaram 200, healthcheck OK e tratamento inexistente retornou 404.
-- Sem browser QA/E2E visual neste ambiente. Responsividade e menu devem ser revisados no navegador do desenvolvedor.
+- npm run build: passou.
+- Smoke HTTP: blog, filtros, três artigos, API com campos permitidos, rascunho e slug inexistente 404, busca vazia e foto PNG original/otimizada passaram.
+- Sem revisão visual/E2E em navegador nesta execução. A foto original foi inspecionada; enquadramento responsivo ainda precisa ser conferido visualmente no site.
 
-## Situação das fases
-Fase 0: aplicação frontend validada; geração Prisma/schema e banco ainda pendentes.
-Fase 1: design system inicial, não catálogo completo.
-Fase 2: site público parcial entregue; blog, políticas definitivas, fotografia e credenciais dependem de implementação/confirmação.
-Demais fases operacionais: ainda não implementadas.
+## Próximos marcos
+3B — CMS persistente: depende de banco acessível e identidade/RBAC da fase 4; ainda não implementado.
+4 — Autenticação e autorização integradas, sessões e MFA da equipe.
+5 — Agendamento real com disponibilidade transacional; a interface atual continua demonstrativa.
 
-## Próximos passos
-1. Validar a experiência visual em localhost e ampliar componentes conforme necessidade.
-2. Resolver geração Prisma/schema e estabelecer banco de desenvolvimento.
-3. Implementar identidade, sessões, MFA e autorização integrada às APIs.
-4. Só então ligar a interface de agendamento à disponibilidade transacional e iniciar os portais.
-
-Sem autenticação, banco conectado, prontuário, mensagens, pagamento ou reserva real. Não usar dados de saúde reais.
+Sem dados clínicos reais, prontuário operacional, uploads privados ou pagamentos. Documentação do escopo em docs/phases/PHASE-3.md e docs/INTEGRATIONS.md.
