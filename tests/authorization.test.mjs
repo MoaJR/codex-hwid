@@ -1,0 +1,11 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {can,authorize,AuthorizationError} from '../src/server/authorization/policy.mjs';
+const patient={userId:'patient-a',roles:['PATIENT']};
+test('anonymous and unknown permissions are denied',()=>{assert.equal(can(null,'mood.read',{}),false);assert.equal(can(patient,'unknown',{patientUserId:'patient-a'}),false)});
+test('patient can write own diary but cannot read another diary',()=>{assert.equal(can(patient,'mood.write',{patientUserId:'patient-a'}),true);assert.equal(can(patient,'mood.read',{patientUserId:'patient-b'}),false)});
+test('doctor requires explicit care assignment',()=>{const actor={userId:'doctor-a',roles:['DOCTOR']};assert.equal(can(actor,'medical_record.write',{assignedDoctorUserIds:['doctor-a']}),true);assert.equal(can(actor,'medical_record.read',{assignedDoctorUserIds:['doctor-b']}),false)});
+test('secretary and admin have no implicit clinical access',()=>{for(const role of ['SECRETARY','ADMIN'])assert.equal(can({userId:'staff',roles:[role]},'medical_record.read',{assignedDoctorUserIds:['staff']}),false)});
+test('patient cannot change medication or clinical notes',()=>{for(const permission of ['medication.write','medical_record.write','permission.manage'])assert.equal(can(patient,permission,{patientUserId:'patient-a'}),false)});
+test('authorization throws a safe domain error',()=>assert.throws(()=>authorize(patient,'medical_record.read',{}),AuthorizationError));
+test('doctor cannot infer assignment from missing scope',()=>assert.equal(can({userId:'d',roles:['DOCTOR']},'patient.read',{}),false));
