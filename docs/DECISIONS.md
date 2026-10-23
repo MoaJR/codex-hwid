@@ -26,3 +26,6 @@ User.twoFactorEnabled não garante que uma sessão antiga tenha passado por MFA.
 
 ## 2026-10-23 — Regenerar Prisma no build a partir da fase 4
 A autenticação usa tipos dos novos modelos. O build agora gera o cliente Prisma antes de compilar Next.js para evitar cliente cacheado de schema antigo. Isso substitui a decisão anterior de build público independente de codegen. A geração não conecta ao banco nem aplica migrations.
+
+## 2026-10-23 — Migrações somente no build de produção
+A migration inicial foi validada em PostgreSQL 17 descartável antes da publicação. `npm run build` executa `prisma migrate deploy` apenas quando `VERCEL_ENV=production`; builds locais e de preview geram o cliente e compilam sem alterar o banco compartilhado. A ativação de autenticação continua separada da criação do schema.

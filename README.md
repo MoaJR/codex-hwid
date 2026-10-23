@@ -1,6 +1,6 @@
 # Dr. Douglas Vaz — Plataforma de Psiquiatria
 
-Site público em Next.js App Router + React + TypeScript, com direção visual verde/off-white e páginas educativas. Base PostgreSQL/Prisma e autorização planejadas para os próximos módulos.
+Site público em Next.js App Router + React + TypeScript, com direção visual verde/off-white e páginas educativas. A base PostgreSQL/Prisma está conectada e a autenticação permanece protegida por um gate até o provisionamento do primeiro acesso.
 
 ## Acompanhar no VS Code
 Node.js 22.15 ou superior. No terminal da pasta do projeto:
@@ -24,10 +24,10 @@ npm run build
 npm start
 ```
 
-No marco atual: 23 testes passaram, TypeScript e build público passaram. Smoke HTTP do site anterior e do novo blog, API e imagem otimizada também passou. O build regenera o cliente Prisma e usa Webpack explicitamente. Essa geração não conecta ao banco nem aplica migrations. Revisão visual e testes E2E no navegador ainda pendentes.
+No marco atual: 25 testes passaram, TypeScript e build público passaram. A migração inicial também passou em PostgreSQL 17 descartável, com 11 tabelas, 9 chaves estrangeiras e a restrição de humor entre 1 e 10. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes; local e preview não alteram o banco. Revisão visual e testes E2E do login ainda estão pendentes.
 
-## Banco de dados — ainda não operacional
-O frontend pode rodar sem configurar o banco. Para o desenvolvimento futuro do backend, configure DATABASE_URL no ambiente usando .env.example como referência e execute:
+## Banco de dados
+O frontend pode rodar sem configurar o banco. Para desenvolvimento local do backend, configure DATABASE_URL em `.env.local` usando `.env.example` como referência e execute:
 
 ```sh
 npm run db:generate
@@ -35,15 +35,15 @@ npm run db:validate
 npm run db:check
 ```
 
-A geração/validação do Prisma permanece pendente neste ambiente por restrição no download dos binários. Nenhuma migration foi aplicada. Não rodar migrations em produção sem revisão. Segredos nunca devem ser commitados.
+A geração oficial do Prisma depende dos binários distribuídos pelo provedor; a Vercel já executa essa etapa. A primeira migration está versionada e validada em banco descartável. Em produção, `npm run build` executa `prisma migrate deploy` antes do Next.js; preview e desenvolvimento pulam essa etapa. Segredos nunca devem ser commitados.
 
 ## Limites
-/agendar é uma simulação: não pede dados pessoais, não reserva horários e não realiza pagamentos. Não há login, API clínica ou banco conectado. A demonstração dos portais usa dados fictícios em memória. Não usar dados de saúde reais. A foto original fornecida pelo usuário foi integrada na home e na página Sobre. Biografia, CRM/RQE, valores e contatos oficiais aguardam confirmação.
+/agendar é uma simulação: não pede dados pessoais, não reserva horários e não realiza pagamentos. O login continua desabilitado e não há API clínica liberada. A demonstração dos portais usa dados fictícios em memória. Não usar dados de saúde reais. A foto original fornecida pelo usuário foi integrada na home e na página Sobre. Biografia, CRM/RQE, valores e contatos oficiais aguardam confirmação.
 
 Progresso e próximos passos em docs/PROGRESS.md. Escopo do marco em docs/phases/PHASE-1-2.md.
 
 ## Integrações
-Prisma Postgres identificado no painel enviado pelo usuário, conectado ao projeto Vercel. A conexão real e o schema ainda não foram verificados. npm run services:check mostra apenas presença de variáveis no terminal atual. Detalhes em docs/INTEGRATIONS.md.
+Prisma Postgres `prisma-postgres-yellow-helmet` confirmado pela API da Vercel como disponível e conectado ao projeto `vaz`. `DATABASE_URL`, `POSTGRES_URL` e `PRISMA_DATABASE_URL` existem como secrets em preview e produção; nenhum valor foi lido ou exibido. Detalhes em docs/INTEGRATIONS.md.
 
 Fase atual: 4A — base de autenticação preparada, ainda desabilitada. Fase 3A (blog público) preservada; CMS 3B depende de conexão, schema e acesso autenticado operacional.
 
@@ -54,6 +54,6 @@ Fase atual: 4A — base de autenticação preparada, ainda desabilitada. Fase 3A
 npm run auth:check
 ```
 
-AUTH_ENABLED só deve ser habilitado após a conexão e o schema serem validados, cliente gerado, contas provisionadas e login/MFA testados. Não aplicar migrations automaticamente no deploy. Veja docs/phases/PHASE-4.md para critérios. Não publicar segredos em NEXT_PUBLIC_*.
+AUTH_ENABLED só deve ser habilitado após a migration de produção ser confirmada, uma conta ser provisionada por processo confiável e login/MFA serem testados. Veja docs/phases/PHASE-4.md para critérios. Não publicar segredos em NEXT_PUBLIC_*.
 
-A integração Vercel já foi instalada; o acesso aos detalhes/variáveis está bloqueado com 403 no escopo da equipe moajrs-projects. A conta precisa autorizar essa equipe pela conexão existente.
+A integração Vercel já tem acesso à equipe `moajrs-projects`. O projeto, o storage e os nomes das variáveis foram verificados sem descriptografar secrets.

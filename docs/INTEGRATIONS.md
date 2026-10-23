@@ -1,10 +1,10 @@
 # Integrações e estado verificado
 
 ## Vercel
-Publicação da branch main confirmada pelo status de commit Vercel do GitHub. URL fornecida na imagem do usuário: https://drdouglasvaz.vercel.app. A conta Vercel e suas variáveis não estão acessíveis pelos conectores atuais. Um deployment não comprova que o banco está conectado.
+Publicação da branch main confirmada pelo status de commit Vercel do GitHub. URL: https://drdouglasvaz.vercel.app. A integração autorizada acessa a equipe `moajrs-projects` e o projeto `vaz` (`prj_GMLIAzAVl7IAu3fLVP7c7k6cLZVr`).
 
 ## Prisma Postgres
-Serviço identificado em screenshot do usuário como prisma-postgres-yellow-helmet, status Available, associado a vaz. Compatível com o datasource PostgreSQL planejado. Schema atual espera DATABASE_URL, somente no servidor. Uma conexão real e migrations ainda não foram executadas nesta entrega. Não copie credenciais para o chat nem para o repositório.
+Recurso `prisma-postgres-yellow-helmet` confirmado pela API da Vercel como `available`, billing ativo, região `iad1`, associado a `vaz` em preview e produção. Existem secrets `DATABASE_URL`, `POSTGRES_URL` e `PRISMA_DATABASE_URL`; somente nomes, destinos e estado foram consultados. Nenhum valor foi descriptografado. A migration inicial foi validada em PostgreSQL 17 descartável e será aplicada pelo próximo build de produção.
 
 ### Checagens em terminal confiável
 ```sh
@@ -29,8 +29,8 @@ Não aplicar fallbacks silenciosos entre aliases POSTGRES_* e DATABASE_URL. Nunc
 ## Foto institucional
 PNG original extraído do Doutor.zip enviado pelo usuário. Asset em public/images/dr-douglas-vaz.png. Enquadramento por CSS/Next Image, sem alterar o original. Biografia e credenciais ainda aguardam confirmação.
 
-## Atualização — integração Vercel instalada
-A conexão listou o projeto vaz. get_project e filter_project_envs retornaram 403 porque falta acesso à equipe moajrs-projects. A recuperação indicada é autorizar esse escopo pela conexão existente; não solicitar senhas/tokens no chat. A ferramenta authorize_team_access mencionada pelo erro não está disponível no conjunto atual. Nenhuma variável foi descriptografada, alterada ou criada.
+## Atualização — integração Vercel autorizada
+A autorização da equipe foi concluída. `get_project`, metadados do storage e listagem segura de variáveis funcionam para `moajrs-projects`; o bloqueio 403 anterior está resolvido. Nenhuma variável foi descriptografada, alterada ou criada nesta verificação.
 
 ## Autenticação preparada
 Better Auth usa DATABASE_URL, BETTER_AUTH_SECRET e BETTER_AUTH_URL, além do gate AUTH_ENABLED=true. Manter gate false até schema, contas e fluxos estarem verificados. auth:check informa somente nomes ausentes/inválidos e flags; não exibe valores e não testa login/banco.
