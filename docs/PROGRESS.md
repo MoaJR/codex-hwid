@@ -12,6 +12,7 @@
 - Provisionamento confiável implementado em `auth:provision`: sem signup público, sem senha em argumento e com revogação da sessão de bootstrap.
 - Auditoria persistente instalada para provisionamento, TOTP e uso de código de recuperação; sem conteúdo clínico.
 - Build aplica migrations e inspeciona o resultado somente em produção; preview e local não alteram o banco compartilhado.
+- Cabeçalhos de segurança explícitos para todas as rotas: CSP, bloqueio de frame/objeto, `nosniff`, política de referência e Permissions Policy.
 - Primeira conta provisionada em terminal confiável, conforme confirmação do responsável em 24/10/2026; nenhuma credencial foi enviada ou registrada no repositório.
 - `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` e `AUTH_ENABLED=true` configurados somente em Produção; o valor do secret não foi exibido.
 - Falta executar o E2E de login e MFA; portanto ainda não declarar os portais ou fluxos clínicos operacionais.
