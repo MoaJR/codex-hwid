@@ -34,3 +34,6 @@ A autorização da equipe foi concluída. `get_project`, metadados do storage e 
 
 ## Autenticação preparada
 Better Auth usa DATABASE_URL, BETTER_AUTH_SECRET e BETTER_AUTH_URL, além do gate AUTH_ENABLED=true. `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` e o gate ativo estão configurados somente para Produção; o secret foi gerado com entropia criptográfica e enviado sem ser exibido. A primeira conta foi provisionada pelo responsável em terminal confiável. O acesso está liberado apenas para validar login e MFA; operações clínicas continuam indisponíveis. auth:check informa somente nomes ausentes/inválidos e flags; não exibe valores e não testa login/banco. auth:provision exige terminal interativo, recusa senha por argumento, revoga a sessão de bootstrap e grava auditoria.
+
+## CMS persistente
+O deployment `dpl_BXk3pVf4cfrmjJbUBrAd9f3vUQdA` aplicou a migration editorial no Prisma Postgres, confirmou 14/14 tabelas e importou os quatro artigos versionados. A leitura pública passou a usar o banco em Produção; rascunhos permanecem excluídos das páginas e da API pública.

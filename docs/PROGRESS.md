@@ -1,6 +1,6 @@
 # Progresso — 24/10/2026
 
-## Fase atual: 3B — CMS persistente pronto para deployment controlado
+## Fase atual: 3B — CMS persistente publicado; ciclo editorial pendente
 - Better Auth 1.7.12 com adaptador Prisma, sessão em banco e plugin TOTP.
 - /login, /verificar-acesso e /conta; handlers /api/auth/[...all].
 - AUTH_ENABLED desabilitado por padrão no código e habilitado somente em Produção após o provisionamento. Sem signup público, account linking ou contas/senhas padrão.
@@ -18,7 +18,7 @@
 - Login, ativação de TOTP e segundo acesso com MFA concluídos pelo responsável; runtime permaneceu sem erros.
 - CMS 3B implementado com blocos ordenados, rascunho, revisão, publicação, arquivamento reversível, controle de versão e auditoria por artigo.
 - `DOCTOR` publica/retira; `ADMIN` escreve e envia para revisão; paciente e secretaria não recebem permissão editorial.
-- Migration `20261024110000_add_editorial_cms` e importação idempotente dos quatro artigos aguardam confirmação no próximo deployment.
+- Deployment `dpl_BXk3pVf4cfrmjJbUBrAd9f3vUQdA` aplicou `20261024110000_add_editorial_cms`, confirmou 14/14 tabelas e importou quatro artigos (`inserted: 4`, `skipped: 0`).
 
 ## Entregas anteriores preservadas
 - Site público React, tratamentos, consulta online, contato, privacidade e agendamento demonstrativo.
@@ -30,6 +30,7 @@
 - Prisma Postgres `prisma-postgres-yellow-helmet` está disponível, com billing ativo e conectado a preview/produção.
 - `DATABASE_URL`, `POSTGRES_URL` e `PRISMA_DATABASE_URL` existem como secrets; valores não foram lidos.
 - Deploy `dpl_E2kAqStdH6dq81ea91mEZmKgJsrV` concluiu a migration de auditoria, a inspeção das 12 tabelas e a publicação em `drdouglasvaz.vercel.app`.
+- Deploy `dpl_BXk3pVf4cfrmjJbUBrAd9f3vUQdA` publicou o CMS, inspecionou 14/14 tabelas e promoveu o commit `0636c218` ao domínio principal.
 
 ## Verificações
 - 40 testes reais passaram: autorização, configuração/origem, MFA, provisionamento, auditoria, workflow editorial, migrations, datas, publicação, diagnósticos seguros e isolamento por ambiente.
@@ -41,7 +42,8 @@
 - Smoke local atual: home, blog, API pública e login responderam 200; sem sessão, `/medico/conteudos` terminou em `/conta`.
 - Login, ativação TOTP e segundo login com MFA tiveram E2E concluído. Recuperação, expiração/revogação e rate limit entre instâncias ainda precisam da bateria operacional completa.
 - Smoke remoto atual: home, `/login` e `/api/health` responderam 200; `/api/auth/get-session` respondeu 200 com sessão anônima nula e sem cookie; runtime sem erros.
+- Smoke do CMS: blog/API retornaram três artigos publicados, artigo público respondeu 200, rascunho respondeu 404, painel anônimo voltou ao login e API administrativa anônima respondeu 401.
 
 ## Próximos passos
-3B: publicar, confirmar a migration/importação e executar um ciclo rascunho → revisão → publicação → retirada. Depois, iniciar o agendamento real da fase 5. Recuperação, expiração e revogação continuam na bateria operacional de autenticação.
+3B: executar com a conta do médico um ciclo rascunho → revisão → publicação → retirada. Depois, iniciar o agendamento real da fase 5. Recuperação, expiração e revogação continuam na bateria operacional de autenticação.
 Não usar dados reais de saúde até os controles operacionais estarem validados.

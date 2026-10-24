@@ -14,7 +14,7 @@ Article e ArticleBlock persistem metadados e blocos ordenados. O workflow explí
 
 Rotas protegidas: `/medico/conteudos`, `/medico/conteudos/novo`, `/medico/conteudos/[id]` e APIs `/api/admin/articles`. POST/PATCH exigem origem canônica, sessão, RBAC e MFA. Auditoria guarda ator, ação, tipo e UUID do artigo, sem copiar texto editorial para o log. O leitor público consulta somente PUBLISHED com data passada; local sem banco usa os artigos versionados para desenvolvimento.
 
-O build de produção aplica a migration, inspeciona 14 tabelas e importa apenas slugs ausentes. A importação nunca sobrescreve edições feitas no CMS. O deployment e o primeiro ciclo editorial real ainda precisam ser confirmados.
+O build de produção aplica a migration, inspeciona 14 tabelas e importa apenas slugs ausentes. A importação nunca sobrescreve edições feitas no CMS. O deployment `dpl_BXk3pVf4cfrmjJbUBrAd9f3vUQdA` confirmou migration, schema e quatro imports. O primeiro ciclo editorial autenticado ainda precisa ser confirmado.
 
 ## Storage verificado
 Prisma Postgres está conectado ao projeto Vercel `vaz`; migrations e inspeção estrutural executam somente em Produção. Variáveis foram gerenciadas sem exibir valores. O executor local não recebe `DATABASE_URL`, portanto compila com inicialização preguiçosa e conteúdo versionado; isso não substitui o teste do banco no deployment.
