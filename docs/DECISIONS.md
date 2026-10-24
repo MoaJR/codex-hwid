@@ -35,3 +35,6 @@ O Prisma Postgres já continha o schema completo e a migration concluída `20261
 
 ## 2026-10-23 — Provisionamento e MFA exigem auditoria persistente
 O primeiro usuário é criado por comando interativo confiável usando o hash do Better Auth; signup público continua desativado. A sessão criada pelo bootstrap é revogada. Provisionamento, verificação TOTP e consumo de código de recuperação gravam eventos controlados em AuditEvent. As referências a usuários usam `SET NULL` para preservar a trilha após eventual exclusão da identidade.
+
+## 2026-10-24 — Ativar identidade antes dos módulos clínicos
+Após a confirmação do provisionamento da primeira conta em terminal confiável, AUTH_ENABLED foi habilitado somente em Produção para validar login, MFA, recuperação, expiração e revogação. Essa ativação não libera APIs clínicas, CMS ou portais; esses módulos continuam condicionados ao E2E de segurança.

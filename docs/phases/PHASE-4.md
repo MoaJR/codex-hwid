@@ -32,10 +32,10 @@ Não considerar autenticação operacional apenas porque a UI compila.
 1. Concluído: integração Vercel autorizada para `moajrs-projects`.
 2. Concluído: Prisma Postgres e nomes das variáveis confirmados sem expor valores.
 3. Concluído: schema e migration confirmados em produção; builds de preview não alteram o banco.
-4. Em andamento: secret/base URL configurados somente em Produção e processo confiável de provisionamento implementado; falta executar o primeiro acesso. Signup público continua bloqueado.
+4. Concluído: secret/base URL configurados somente em Produção e primeiro acesso provisionado pelo responsável em terminal confiável. Signup público continua bloqueado.
 5. Implementado: onboarding TOTP e recuperação por backup codes com marca de sessão e auditoria; falta E2E no ambiente implantado.
 6. Testar login/sair, CSRF/origem, rate limit entre instâncias, expiração/revogação, isolamento e MFA com contas fictícias. Implementar auditoria antes de operações sensíveis.
-7. Só depois habilitar AUTH_ENABLED e implementar CMS 3B/portais.
+7. AUTH_ENABLED habilitado somente em Produção para o E2E controlado. Implementar CMS 3B/portais somente após concluir os testes.
 
 ## Empacotamento
-A partir deste marco, build gera o cliente Prisma antes de Next.js. Evita reutilizar cliente gerado de schema antigo no cache da plataforma. A geração não conecta ao banco; em produção, `migrate deploy` roda antes da inspeção pós-migration. A autenticação permanece inativa até provisionamento e E2E de login/MFA.
+A partir deste marco, build gera o cliente Prisma antes de Next.js. Evita reutilizar cliente gerado de schema antigo no cache da plataforma. A geração não conecta ao banco; em produção, `migrate deploy` roda antes da inspeção pós-migration. A autenticação está ativa somente em Produção para o E2E controlado de login/MFA; APIs clínicas permanecem ausentes.

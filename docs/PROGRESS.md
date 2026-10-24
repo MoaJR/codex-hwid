@@ -1,9 +1,9 @@
 # Progresso — 23/10/2026
 
-## Fase atual: 4B — Produção preparada para o primeiro acesso controlado
+## Fase atual: 4B — Primeiro acesso em validação controlada
 - Better Auth 1.7.12 com adaptador Prisma, sessão em banco e plugin TOTP.
 - /login, /verificar-acesso e /conta; handlers /api/auth/[...all].
-- AUTH_ENABLED desabilitado por padrão. Sem signup público, account linking ou contas/senhas padrão.
+- AUTH_ENABLED desabilitado por padrão no código e habilitado somente em Produção após o provisionamento. Sem signup público, account linking ou contas/senhas padrão.
 - Papéis obtidos do banco a partir da sessão; guard com MFA da sessão específica para staff.
 - Schema atual com 12 modelos validado por getDMMF/getConfig WASM: 11 modelos anteriores e `AuditEvent`.
 - Prisma Postgres de produção inspecionado após a migration: 12/12 tabelas, colunas, índices, constraints, enum e limite de humor correspondem ao projeto.
@@ -12,8 +12,9 @@
 - Provisionamento confiável implementado em `auth:provision`: sem signup público, sem senha em argumento e com revogação da sessão de bootstrap.
 - Auditoria persistente instalada para provisionamento, TOTP e uso de código de recuperação; sem conteúdo clínico.
 - Build aplica migrations e inspeciona o resultado somente em produção; preview e local não alteram o banco compartilhado.
-- `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` e `AUTH_ENABLED=false` configurados somente em Produção; o valor do secret não foi exibido.
-- Falta provisionar o primeiro acesso e executar o E2E; portanto ainda não declarar login operacional nem habilitar o gate.
+- Primeira conta provisionada em terminal confiável, conforme confirmação do responsável em 24/10/2026; nenhuma credencial foi enviada ou registrada no repositório.
+- `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` e `AUTH_ENABLED=true` configurados somente em Produção; o valor do secret não foi exibido.
+- Falta executar o E2E de login e MFA; portanto ainda não declarar os portais ou fluxos clínicos operacionais.
 
 ## Entregas anteriores preservadas
 - Site público React, tratamentos, consulta online, contato, privacidade e agendamento demonstrativo.
@@ -38,5 +39,5 @@
 - Smoke remoto após o deploy: home, `/login` e `/api/health` responderam 200; `/api/auth/get-session` respondeu 503 genérico, sem expor configuração, enquanto a autenticação continua deliberadamente inativa.
 
 ## Próximos passos
-4B: provisionar o primeiro acesso em terminal confiável; executar E2E de login, MFA, recuperação, expiração e revogação; só então habilitar o gate. Depois, retomar o CMS persistente 3B e o agendamento real da fase 5.
+4B: concluir o novo deployment e executar E2E de login, MFA, recuperação, expiração e revogação. Depois, retomar o CMS persistente 3B e o agendamento real da fase 5.
 Não usar dados reais de saúde até os controles operacionais estarem validados.
