@@ -23,10 +23,17 @@
 | /medico/conteudos | Lista editorial; sessão DOCTOR/ADMIN com MFA |
 | /medico/conteudos/novo | Criação de rascunho protegido |
 | /medico/conteudos/[id] | Editor, versão e workflow protegido |
+| /medico/agenda | Agenda interna protegida para médico/secretaria com MFA |
 | /api/admin/articles | GET/POST editorial protegido |
 | /api/admin/articles/[id] | GET/PATCH editorial protegido |
 | /api/admin/articles/[id]/transition | Transições auditadas do workflow |
+| /api/medico/agenda | GET protegido da janela operacional |
+| /api/medico/appointments | POST protegido, transacional e idempotente |
+| /api/medico/appointments/[id] | PATCH protegido de reagendamento com versão |
+| /api/medico/appointments/[id]/cancel | POST protegido de cancelamento |
+| /api/medico/availability | POST protegido de regra ou exceção |
+| /api/medico/availability/[id] | DELETE protegido e auditado |
 | /api/health | Saúde da aplicação, não verifica banco |
 | /demonstracao.html | Protótipo antigo com hash routes ilustrativas |
 
-/paciente e módulos clínicos de /medico ou /admin ainda não existem como rotas operacionais. A única área interna atual é o CMS editorial protegido. Slugs de tratamento desconhecidos retornam 404.
+/paciente, prontuário e módulos clínicos continuam ausentes. As áreas internas atuais são CMS e agenda operacional controlada. `/agendar` ainda é demonstração pública sem reserva. Slugs de tratamento desconhecidos retornam 404.

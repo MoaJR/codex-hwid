@@ -41,3 +41,9 @@ Após a confirmação do provisionamento da primeira conta em terminal confiáve
 
 ## 2026-10-24 — Workflow editorial com revisão clínica explícita
 Conteúdo persistente usa blocos de texto estruturados, sem HTML arbitrário, e controle otimista por versão. ADMIN pode preparar e enviar textos para revisão; somente DOCTOR com MFA publica ou retira conteúdo público. Arquivamento é reversível. A importação inicial cria apenas slugs ausentes para nunca sobrescrever edições do CMS.
+
+## 2026-10-24 — Agenda interna antes do autoagendamento público
+A Fase 5A opera somente para médico/secretaria com MFA e pacientes previamente provisionados. `/agendar` continua demonstrativo até identidade do paciente, aviso de privacidade, retenção, subprocessadores e confirmação de contato estarem definidos. Agenda própria do médico é um escopo administrativo separado do vínculo clínico e não libera prontuário.
+
+## 2026-10-24 — PostgreSQL como garantia final de concorrência
+Verificação de disponibilidade na aplicação melhora a resposta, mas não evita corrida entre instâncias. Consultas usam intervalos UTC, buffers calculados pelo servidor, lock transacional por médico e exclusion constraints GiST. Criação também exige chave de idempotência; cancelamento preserva histórico e libera o intervalo sem exclusão física.

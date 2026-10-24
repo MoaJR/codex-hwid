@@ -1,6 +1,6 @@
 # Dr. Douglas Vaz — Plataforma de Psiquiatria
 
-Site público e CMS editorial em Next.js App Router + React + TypeScript, com direção visual verde/off-white e páginas educativas. A base PostgreSQL/Prisma está conectada, a primeira conta usa MFA e o painel editorial exige sessão de equipe verificada.
+Site público, CMS editorial e agenda operacional interna em Next.js App Router + React + TypeScript, com direção visual verde/off-white. A base PostgreSQL/Prisma está conectada, a primeira conta usa MFA e as áreas de equipe exigem sessão verificada.
 
 ## Acompanhar no VS Code
 Node.js 22.15 ou superior. No terminal da pasta do projeto:
@@ -13,7 +13,7 @@ npm run dev
 
 Abra http://localhost:3000. Alterações locais têm atualização automática. Para receber novos commits, execute git pull em outro terminal. Se dependências ou scripts mudarem, pare o servidor com Ctrl+C, execute npm ci e inicie novamente.
 
-Páginas: /sobre, /tratamentos, /consulta-online, /agendar, /contato, /privacidade e /blog. O blog tem busca, categorias e páginas de artigo; o CMS protegido fica em /medico/conteudos. A home agora é a versão React. O protótipo antigo continua em /demonstracao.html; para abri-lo sem Node, extraia o ZIP e abra index.html.
+Páginas: /sobre, /tratamentos, /consulta-online, /agendar, /contato, /privacidade e /blog. O blog tem busca, categorias e páginas de artigo; CMS e agenda protegidos ficam em /medico/conteudos e /medico/agenda. A home agora é a versão React. O protótipo antigo continua em /demonstracao.html.
 
 ## Verificações
 
@@ -24,7 +24,7 @@ npm run build
 npm start
 ```
 
-No marco atual: 40 testes passaram, assim como TypeScript e o build Next.js. O schema tem 14 modelos: identidade, domínio inicial, auditoria e as tabelas editoriais `Article`/`ArticleBlock`. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes, inspeciona o resultado e importa artigos iniciais que ainda não existam; local e preview não alteram o banco.
+No marco atual: 57 testes e o TypeScript passaram. O schema tem 20 modelos para identidade, domínio inicial, auditoria, conteúdo e agenda. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes, inspeciona o resultado e executa seeds aditivos; local e preview não alteram o banco.
 
 ## Banco de dados
 O frontend pode rodar sem configurar o banco. Para desenvolvimento local do backend, configure DATABASE_URL em `.env.local` usando `.env.example` como referência e execute:
@@ -38,14 +38,14 @@ npm run db:check
 A geração oficial do Prisma depende dos binários distribuídos pelo provedor; a Vercel já executa essa etapa. A migration inicial foi validada em banco descartável e reconciliada com o schema que já existia no Prisma Postgres. Em produção, `npm run build` executa `prisma migrate deploy` e depois inspeciona o schema antes do Next.js; preview e desenvolvimento pulam essas etapas. Segredos nunca devem ser commitados.
 
 ## Limites
-/agendar é uma simulação: não pede dados pessoais, não reserva horários e não realiza pagamentos. O login está liberado somente para validação controlada do primeiro acesso; não há API clínica liberada. A demonstração dos portais usa dados fictícios em memória. Não usar dados de saúde reais. A foto original fornecida pelo usuário foi integrada na home e na página Sobre. Biografia, CRM/RQE, valores e contatos oficiais aguardam confirmação.
+/agendar é uma simulação: não pede dados pessoais, não reserva horários e não realiza pagamentos. `/medico/agenda` é uma área interna em validação e deve usar somente identidades fictícias. Não há prontuário ou API clínica liberada. Não usar dados pessoais ou de saúde reais. A foto original fornecida pelo usuário foi integrada na home e na página Sobre. Biografia, CRM/RQE, valores e contatos oficiais aguardam confirmação.
 
 Progresso e próximos passos em docs/PROGRESS.md. Escopo do marco em docs/phases/PHASE-1-2.md.
 
 ## Integrações
 Prisma Postgres `prisma-postgres-yellow-helmet` confirmado pela API da Vercel como disponível e conectado ao projeto `vaz`. `DATABASE_URL`, `POSTGRES_URL` e `PRISMA_DATABASE_URL` existem como secrets em preview e produção; nenhum valor foi lido ou exibido. Detalhes em docs/INTEGRATIONS.md.
 
-Fase atual: 3B — login/MFA da fase 4B concluídos e CMS persistente publicado. O blog público mostra apenas itens publicados e com data válida; falta validar o primeiro ciclo editorial autenticado.
+Fase atual: 5A — login/MFA e CMS estão publicados, o ciclo editorial foi validado e a agenda operacional interna está pronta para publicação e validação com dados fictícios.
 
 ## Autenticação — marco 4B
 /login, /verificar-acesso e /conta estão preparadas com Better Auth. A conta permite cadastrar um aplicativo autenticador por QR Code, guardar códigos de recuperação e usar cada código uma única vez. Provisionamento, TOTP e uso de recuperação deixam eventos de auditoria sem conteúdo clínico. O acesso permanece desabilitado por padrão e as APIs respondem 503 enquanto não configurado. Não há conta/senha padrão ou cadastro público.

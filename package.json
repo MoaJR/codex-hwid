@@ -15,6 +15,7 @@
     "db:generate": "node --env-file-if-exists=.env.local node_modules/prisma/build/index.js generate",
     "db:inspect:schema": "node --env-file-if-exists=.env.local scripts/inspect-database-schema.mjs",
     "db:seed:articles": "node --env-file-if-exists=.env.local scripts/seed-articles.mjs",
+    "db:seed:scheduling": "node --env-file-if-exists=.env.local scripts/seed-scheduling.mjs",
     "services:check": "node --env-file-if-exists=.env.local scripts/check-services.mjs",
     "db:check": "node --env-file-if-exists=.env.local scripts/check-database.mjs",
     "auth:check": "node --env-file-if-exists=.env.local scripts/check-auth.mjs",

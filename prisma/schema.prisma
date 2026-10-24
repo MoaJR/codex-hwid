@@ -22,6 +22,27 @@ enum ArticleBlockType {
   HEADING
   LIST
 }
+enum AppointmentMode {
+  IN_PERSON
+  ONLINE
+}
+enum AppointmentStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+enum AvailabilityExceptionKind {
+  AVAILABLE
+  BLOCKED
+}
+enum AppointmentEventType {
+  CREATED
+  RESCHEDULED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
 model User {
   id String @id @default(uuid()) @db.Uuid
   email String @unique
@@ -43,6 +64,10 @@ model User {
   articlesUpdated Article[] @relation("ArticleUpdatedBy")
   articlesReviewed Article[] @relation("ArticleReviewedBy")
   articlesPublished Article[] @relation("ArticlePublishedBy")
+  appointmentsCreated Appointment[] @relation("AppointmentCreatedBy")
+  appointmentsUpdated Appointment[] @relation("AppointmentUpdatedBy")
+  appointmentsCancelled Appointment[] @relation("AppointmentCancelledBy")
+  appointmentEvents AppointmentEvent[] @relation("AppointmentEventActor")
 }
 model UserRole {
   userId String @db.Uuid
@@ -56,6 +81,7 @@ model Patient {
   user User @relation(fields: [userId], references: [id], onDelete: Restrict)
   careAssignments CareAssignment[]
   moodEntries MoodEntry[]
+  appointments Appointment[]
   createdAt DateTime @default(now())
 }
 model Doctor {
@@ -63,6 +89,11 @@ model Doctor {
   userId String @unique @db.Uuid
   user User @relation(fields: [userId], references: [id], onDelete: Restrict)
   careAssignments CareAssignment[]
+  timeZone String @default("America/Sao_Paulo")
+  appointmentServices AppointmentService[]
+  availabilityRules AvailabilityRule[]
+  availabilityExceptions AvailabilityException[]
+  appointments Appointment[]
 }
 model CareAssignment {
   patientId String @db.Uuid
@@ -203,4 +234,120 @@ model ArticleBlock {
 
   @@unique([articleId, position])
   @@index([articleId])
+}
+
+model AppointmentService {
+  id                  String           @id @default(uuid()) @db.Uuid
+  doctorId            String           @db.Uuid
+  code                String
+  name                String
+  mode                AppointmentMode
+  durationMinutes     Int
+  slotIntervalMinutes Int              @default(30)
+  bufferBeforeMinutes Int              @default(0)
+  bufferAfterMinutes  Int              @default(0)
+  active              Boolean          @default(true)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  doctor              Doctor           @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  appointments        Appointment[]
+
+  @@unique([doctorId, code])
+  @@unique([id, doctorId])
+  @@index([doctorId, active])
+}
+
+model AvailabilityRule {
+  id          String    @id @default(uuid()) @db.Uuid
+  doctorId    String    @db.Uuid
+  weekday     Int
+  startMinute Int
+  endMinute   Int
+  validFrom   DateTime  @db.Date
+  validUntil  DateTime? @db.Date
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  doctor      Doctor    @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+
+  @@index([doctorId, weekday, active])
+  @@index([doctorId, validFrom, validUntil])
+}
+
+model AvailabilityException {
+  id        String                    @id @default(uuid()) @db.Uuid
+  doctorId  String                    @db.Uuid
+  kind      AvailabilityExceptionKind
+  startsAt  DateTime                  @db.Timestamptz(3)
+  endsAt    DateTime                  @db.Timestamptz(3)
+  createdAt DateTime                  @default(now())
+  updatedAt DateTime                  @updatedAt
+  doctor    Doctor                    @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+
+  @@index([doctorId, startsAt])
+}
+
+model Appointment {
+  id                  String             @id @default(uuid()) @db.Uuid
+  doctorId            String             @db.Uuid
+  patientId           String             @db.Uuid
+  serviceId           String             @db.Uuid
+  idempotencyKey      String             @unique @db.Uuid
+  serviceLabel        String
+  mode                AppointmentMode
+  status              AppointmentStatus  @default(CONFIRMED)
+  startsAt            DateTime           @db.Timestamptz(3)
+  endsAt              DateTime           @db.Timestamptz(3)
+  durationMinutes     Int
+  bufferBeforeMinutes Int
+  bufferAfterMinutes  Int
+  blockedFrom         DateTime           @db.Timestamptz(3)
+  blockedUntil        DateTime           @db.Timestamptz(3)
+  timeZone            String
+  version             Int                @default(1)
+  createdByUserId     String             @db.Uuid
+  updatedByUserId     String?            @db.Uuid
+  cancelledByUserId   String?            @db.Uuid
+  cancelledAt         DateTime?          @db.Timestamptz(3)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  doctor              Doctor             @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  patient             Patient            @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  service             AppointmentService @relation(fields: [serviceId, doctorId], references: [id, doctorId], onDelete: Restrict)
+  createdBy           User               @relation("AppointmentCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  updatedBy           User?              @relation("AppointmentUpdatedBy", fields: [updatedByUserId], references: [id], onDelete: SetNull)
+  cancelledBy         User?              @relation("AppointmentCancelledBy", fields: [cancelledByUserId], references: [id], onDelete: SetNull)
+  events              AppointmentEvent[]
+
+  @@index([doctorId, startsAt])
+  @@index([patientId, startsAt])
+  @@index([status, startsAt])
+}
+
+model AppointmentEvent {
+  id               String                @id @default(uuid()) @db.Uuid
+  appointmentId    String                @db.Uuid
+  type             AppointmentEventType
+  actorUserId      String?               @db.Uuid
+  previousStartsAt DateTime?              @db.Timestamptz(3)
+  previousEndsAt   DateTime?              @db.Timestamptz(3)
+  nextStartsAt     DateTime?              @db.Timestamptz(3)
+  nextEndsAt       DateTime?              @db.Timestamptz(3)
+  previousStatus   AppointmentStatus?
+  nextStatus       AppointmentStatus?
+  occurredAt       DateTime               @default(now())
+  appointment      Appointment            @relation(fields: [appointmentId], references: [id], onDelete: Restrict)
+  actor            User?                  @relation("AppointmentEventActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([appointmentId, occurredAt])
+  @@index([actorUserId, occurredAt])
+}
+
+model ApiRateLimit {
+  key       String   @id
+  count     Int
+  expiresAt DateTime @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt
+
+  @@index([expiresAt])
 }
