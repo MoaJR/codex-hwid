@@ -5,7 +5,7 @@ import {getBuildScripts} from '../scripts/build.mjs';
 test('build de produção aplica migrations antes de compilar o Next.js',()=>{
   assert.deepEqual(getBuildScripts({VERCEL_ENV:'production'}),[
     'db:generate',
-    'db:inspect:schema',
+    'db:reconcile:initial',
     'db:migrate:deploy',
     'build:next',
   ]);

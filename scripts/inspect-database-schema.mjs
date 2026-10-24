@@ -1,3 +1,5 @@
+import {pathToFileURL} from 'node:url';
+
 /** Read-only production preflight. It reports structure only and never row data or connection details. */
 const expectedTables=[
   'User','UserRole','Patient','Doctor','CareAssignment','MoodEntry',
@@ -30,14 +32,8 @@ const expectedIndexes=[
   'TwoFactor_secret_idx','TwoFactor_userId_idx',
 ];
 
-function report(payload){
-  console.log(JSON.stringify({operation:'SCHEMA_METADATA_READ_ONLY',...payload}));
-}
-
-if(!process.env.DATABASE_URL?.trim()){
-  report({status:'not_configured'});
-  process.exitCode=1;
-}else{
+export async function inspectDatabaseSchema(environment=process.env){
+  if(!environment.DATABASE_URL?.trim())return {operation:'SCHEMA_METADATA_READ_ONLY',status:'not_configured'};
   let client;
   try{
     const {PrismaClient}=await import('@prisma/client');
@@ -89,7 +85,8 @@ if(!process.env.DATABASE_URL?.trim()){
         ORDER BY started_at
       `;
     }
-    report({
+    return {
+      operation:'SCHEMA_METADATA_READ_ONLY',
       status:'connected',
       expectedTables:Object.fromEntries(expectedTables.map((name)=>[name,present.has(name)])),
       expectedTableCount:expectedTables.filter((name)=>present.has(name)).length,
@@ -111,11 +108,23 @@ if(!process.env.DATABASE_URL?.trim()){
         rolledBack:row.rolled_back,
         appliedSteps:Number(row.applied_steps_count),
       })),
-    });
+    };
   }catch{
-    report({status:'failed'});
-    process.exitCode=1;
+    return {operation:'SCHEMA_METADATA_READ_ONLY',status:'failed'};
   }finally{
     try{if(client)await client.$disconnect();}catch{/* no sensitive output */}
   }
+}
+
+async function main(){
+  const result=await inspectDatabaseSchema();
+  console.log(JSON.stringify(result));
+  if(result.status!=='connected')process.exitCode=1;
+}
+
+if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
+  main().catch(()=>{
+    console.log(JSON.stringify({operation:'SCHEMA_METADATA_READ_ONLY',status:'failed'}));
+    process.exitCode=1;
+  });
 }
