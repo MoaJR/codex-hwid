@@ -19,6 +19,8 @@ O PostgreSQL usa `btree_gist` e duas constraints de exclusão. Uma impede sobrep
 
 As quatro migrations foram aplicadas do zero em PostgreSQL 17 descartável. Os testes de banco rejeitaram serviço de outro médico, choque com buffer e choque do paciente entre médicos; cancelamento liberou o período. Um erro forçado antes do `COMMIT` confirmou rollback atômico da migration.
 
+Em produção, o deployment `dpl_DPSck3iYscPuyeoHvATp1QytTok8` aplicou a migration, confirmou 20/20 tabelas sem colunas, constraints ou índices ausentes e inseriu os quatro serviços iniciais. O domínio principal respondeu sem erros de runtime; acesso anônimo à agenda terminou no login.
+
 ### Segurança
 
 Médico acessa somente sua agenda. Secretaria acessa a agenda da clínica única; a resolução falha se houver zero ou mais de um médico. Administrador não recebe agenda por herança. Toda operação de equipe exige MFA da sessão, origem canônica exata, JSON estrito com até 8 KiB, campos conhecidos e limite de dez mutações por minuto. Leitura da API é limitada a sessenta requisições por minuto.

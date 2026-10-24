@@ -23,6 +23,7 @@
 - Fase 5A implementada localmente: agenda interna com serviços, regras semanais, exceções, consultas, histórico, rate limit próprio e bloqueio GiST de sobreposição.
 - Médico opera a própria agenda; secretaria mantém escrita de agenda da clínica única; administrador não recebe acesso. MFA da sessão continua obrigatório para equipe.
 - `/agendar` permanece demonstrativo e sem dados pessoais. A agenda operacional em `/medico/agenda` aceita somente identidades previamente provisionadas e deve usar dados fictícios nesta validação.
+- Deployment `dpl_DPSck3iYscPuyeoHvATp1QytTok8` publicou o commit `2b602a9`, aplicou `20261024180000_add_operational_scheduling`, confirmou 20/20 tabelas e criou quatro serviços (`inserted: 4`, `skipped: 0`).
 
 ## Entregas anteriores preservadas
 - Site público React, tratamentos, consulta online, contato, privacidade e agendamento demonstrativo.
@@ -35,6 +36,7 @@
 - `DATABASE_URL`, `POSTGRES_URL` e `PRISMA_DATABASE_URL` existem como secrets; valores não foram lidos.
 - Deploy `dpl_E2kAqStdH6dq81ea91mEZmKgJsrV` concluiu a migration de auditoria, a inspeção das 12 tabelas e a publicação em `drdouglasvaz.vercel.app`.
 - Deploy `dpl_BXk3pVf4cfrmjJbUBrAd9f3vUQdA` publicou o CMS, inspecionou 14/14 tabelas e promoveu o commit `0636c218` ao domínio principal.
+- Deploy `dpl_DPSck3iYscPuyeoHvATp1QytTok8` publicou a agenda 5A, confirmou o schema de 20 tabelas sem lacunas e promoveu o commit `2b602a9` a `drdouglasvaz.vercel.app`.
 
 ## Verificações
 - 57 testes reais passaram: autorização, configuração/origem, MFA, provisionamento, auditoria, workflow editorial, migrations, disponibilidade, buffers, fuso, entrada estrita, seed, datas, publicação, diagnósticos seguros e isolamento por ambiente.
@@ -48,7 +50,8 @@
 - Login, ativação TOTP e segundo login com MFA tiveram E2E concluído. Recuperação, expiração/revogação e rate limit entre instâncias ainda precisam da bateria operacional completa.
 - Smoke remoto atual: home, `/login` e `/api/health` responderam 200; `/api/auth/get-session` respondeu 200 com sessão anônima nula e sem cookie; runtime sem erros.
 - Smoke do CMS: blog/API retornaram três artigos publicados, artigo público respondeu 200, rascunho respondeu 404, painel anônimo voltou ao login e API administrativa anônima respondeu 401.
+- Smoke 5A: `/agendar` respondeu 200 e continua demonstrativo; `/medico/agenda` anônimo terminou em `/login`; health respondeu produção, API pública manteve três artigos e a janela de runtime não apresentou erros.
 
 ## Próximos passos
-Publicar a Fase 5A, confirmar a migration, as 20 tabelas, o seed de quatro serviços e o acesso MFA à agenda. Depois executar um ciclo fictício: regra semanal → paciente de teste → criação → reagendamento → cancelamento. Recuperação, expiração e revogação continuam na bateria operacional de autenticação.
+Executar com a conta do médico um ciclo fictício: regra semanal → paciente de teste → criação → reagendamento → cancelamento. Depois validar recuperação, expiração e revogação da autenticação e concluir as decisões operacionais de privacidade antes da Fase 5B.
 Não usar dados pessoais ou de saúde reais até os controles operacionais e a política de privacidade estarem validados.

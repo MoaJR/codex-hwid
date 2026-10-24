@@ -45,7 +45,7 @@ Progresso e próximos passos em docs/PROGRESS.md. Escopo do marco em docs/phases
 ## Integrações
 Prisma Postgres `prisma-postgres-yellow-helmet` confirmado pela API da Vercel como disponível e conectado ao projeto `vaz`. `DATABASE_URL`, `POSTGRES_URL` e `PRISMA_DATABASE_URL` existem como secrets em preview e produção; nenhum valor foi lido ou exibido. Detalhes em docs/INTEGRATIONS.md.
 
-Fase atual: 5A — login/MFA e CMS estão publicados, o ciclo editorial foi validado e a agenda operacional interna está pronta para publicação e validação com dados fictícios.
+Fase atual: 5A — login/MFA, CMS e agenda operacional interna estão publicados. O próximo aceite é um ciclo completo da agenda com identidade fictícia; dados pessoais ou clínicos reais continuam bloqueados.
 
 ## Autenticação — marco 4B
 /login, /verificar-acesso e /conta estão preparadas com Better Auth. A conta permite cadastrar um aplicativo autenticador por QR Code, guardar códigos de recuperação e usar cada código uma única vez. Provisionamento, TOTP e uso de recuperação deixam eventos de auditoria sem conteúdo clínico. O acesso permanece desabilitado por padrão e as APIs respondem 503 enquanto não configurado. Não há conta/senha padrão ou cadastro público.

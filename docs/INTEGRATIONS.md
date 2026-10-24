@@ -37,3 +37,5 @@ Better Auth usa DATABASE_URL, BETTER_AUTH_SECRET e BETTER_AUTH_URL, além do gat
 
 ## CMS persistente
 O deployment `dpl_BXk3pVf4cfrmjJbUBrAd9f3vUQdA` aplicou a migration editorial no Prisma Postgres, confirmou 14/14 tabelas e importou os quatro artigos versionados. A leitura pública passou a usar o banco em Produção; rascunhos permanecem excluídos das páginas e da API pública.
+
+O deployment `dpl_DPSck3iYscPuyeoHvATp1QytTok8` aplicou a migration da agenda operacional, confirmou 20/20 tabelas, todas as colunas/constraints/índices esperados e os sete enums. O seed aditivo criou quatro serviços para o Dr. Douglas Vaz sem cadastrar disponibilidade ou pacientes.
