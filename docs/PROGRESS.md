@@ -17,6 +17,7 @@
 - `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` e `AUTH_ENABLED=true` configurados somente em Produção; o valor do secret não foi exibido.
 - Login, ativação de TOTP e segundo acesso com MFA concluídos pelo responsável; runtime permaneceu sem erros.
 - Controle de sessões 4C implementado em `/conta`: encerra somente outros acessos ativos, preserva a sessão atual, exige MFA da equipe, limita tentativas e grava auditoria sem token, IP ou navegador. Endpoints crus de listagem/revogação e troca de senha do provedor ficam desativados até existirem fluxos próprios.
+- Deployment `dpl_93G7PjBHTE2Yw3TDYZeiN2CrEMRJ` publicou o controle de sessões e executou o checker da agenda com todas as invariantes aprovadas; health respondeu 200, rotas cruas desativadas responderam 404 e a janela de runtime ficou sem erros.
 - CMS 3B implementado com blocos ordenados, rascunho, revisão, publicação, arquivamento reversível, controle de versão e auditoria por artigo.
 - `DOCTOR` publica/retira; `ADMIN` escreve e envia para revisão; paciente e secretaria não recebem permissão editorial.
 - Deployment `dpl_BXk3pVf4cfrmjJbUBrAd9f3vUQdA` aplicou `20261024110000_add_editorial_cms`, confirmou 14/14 tabelas e importou quatro artigos (`inserted: 4`, `skipped: 0`).
@@ -41,6 +42,7 @@
 - Deploy `dpl_BXk3pVf4cfrmjJbUBrAd9f3vUQdA` publicou o CMS, inspecionou 14/14 tabelas e promoveu o commit `0636c218` ao domínio principal.
 - Deploy `dpl_DPSck3iYscPuyeoHvATp1QytTok8` publicou a agenda 5A, confirmou o schema de 20 tabelas sem lacunas e promoveu o commit `2b602a9` a `drdouglasvaz.vercel.app`.
 - Deploy `dpl_Dq8KeEsy62RvhGmn2RQJZp26a8EX` confirmou a repetição segura: nenhuma migration pendente, 20/20 tabelas íntegras, seeds sem duplicação e commit `08a933a` promovido ao domínio principal.
+- Deploy `dpl_93G7PjBHTE2Yw3TDYZeiN2CrEMRJ` promoveu o commit `4d40ba0`, confirmou novamente 20/20 tabelas, nenhuma migration pendente, seeds sem duplicação e integridade agregada da agenda em estado `ready`.
 
 ## Verificações
 - 63 testes reais passaram: autorização, configuração/origem, MFA, provisionamento, controle de sessões, auditoria, workflow editorial, migrations, disponibilidade, idempotência, buffers, fuso, entrada estrita, checker agregado, seed, datas, publicação, diagnósticos seguros e isolamento por ambiente.
@@ -55,6 +57,7 @@
 - Smoke remoto atual: home, `/login` e `/api/health` responderam 200; `/api/auth/get-session` respondeu 200 com sessão anônima nula e sem cookie; runtime sem erros.
 - Smoke do CMS: blog/API retornaram três artigos publicados, artigo público respondeu 200, rascunho respondeu 404, painel anônimo voltou ao login e API administrativa anônima respondeu 401.
 - Smoke 5A: `/agendar` respondeu 200 e continua demonstrativo; `/medico/agenda` anônimo terminou em `/login`; health respondeu produção, API pública manteve três artigos e a janela de runtime não apresentou erros.
+- Smoke 4C: `/conta` anônimo terminou em `/login`; `/api/auth/list-sessions` e `/api/auth/change-password` responderam 404; a rota própria rejeitou GET com 405; runtime permaneceu sem erros.
 
 ## Próximos passos
 Executar com a conta do médico um ciclo fictício: regra semanal → paciente de teste → criação → reagendamento → cancelamento, seguido por `npm run scheduling:check` em terminal confiável. Em paralelo, validar o novo encerramento de outros acessos com dois logins, expiração e uso único de código de recuperação. Depois concluir as decisões operacionais de privacidade antes da Fase 5B.
