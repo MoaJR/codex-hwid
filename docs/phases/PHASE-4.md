@@ -25,14 +25,14 @@ O schema atual com 12 modelos passou por getDMMF/getConfig de @prisma/internals 
 - Nenhuma API ou página clínica foi liberada nesta fase.
 
 ## Aceite deste marco
-31 testes passaram; typecheck e build Next.js passaram. Schema de 12 modelos parseado e validado em WASM. Smoke do modo inativo passou: 503 sem cookie em 4 endpoints, campos desabilitados no login e ausência de conteúdo privado. Geração nativa, migration incremental e inspeção pós-migration dependem do próximo build da Vercel.
+31 testes passaram; typecheck e build Next.js passaram. Schema de 12 modelos parseado e validado em WASM. O build Vercel gerou o cliente Prisma, aplicou a migration incremental e confirmou as 12 tabelas na inspeção pós-migration. Smoke remoto do modo inativo passou: home, login e health com 200; sessão com 503 genérico e ausência de conteúdo privado.
 Não considerar autenticação operacional apenas porque a UI compila.
 
 ## Dependências para 4B/ativação
 1. Concluído: integração Vercel autorizada para `moajrs-projects`.
 2. Concluído: Prisma Postgres e nomes das variáveis confirmados sem expor valores.
 3. Concluído: schema e migration confirmados em produção; builds de preview não alteram o banco.
-4. Em andamento: processo confiável de provisionamento implementado; falta configurar secret/base URL e executar o primeiro acesso. Signup público continua bloqueado.
+4. Em andamento: secret/base URL configurados somente em Produção e processo confiável de provisionamento implementado; falta executar o primeiro acesso. Signup público continua bloqueado.
 5. Implementado: onboarding TOTP e recuperação por backup codes com marca de sessão e auditoria; falta E2E no ambiente implantado.
 6. Testar login/sair, CSRF/origem, rate limit entre instâncias, expiração/revogação, isolamento e MFA com contas fictícias. Implementar auditoria antes de operações sensíveis.
 7. Só depois habilitar AUTH_ENABLED e implementar CMS 3B/portais.

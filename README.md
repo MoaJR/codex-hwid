@@ -24,7 +24,7 @@ npm run build
 npm start
 ```
 
-No marco atual: 31 testes passaram, assim como TypeScript e o build Next.js. O schema atual tem 12 modelos: os 11 modelos iniciais e a trilha `AuditEvent`. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes e inspeciona o resultado; local e preview não alteram o banco. O build completo e a migration nova ainda precisam ser confirmados pelo próximo deploy da Vercel, e os testes E2E do login continuam pendentes.
+No marco atual: 31 testes passaram, assim como TypeScript e o build Next.js. O schema atual tem 12 modelos: os 11 modelos iniciais e a trilha `AuditEvent`. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes e inspeciona o resultado; local e preview não alteram o banco. O deploy de produção confirmou a geração nativa, aplicou a migration de auditoria e validou as 12 tabelas. Os testes E2E do login continuam pendentes até o primeiro acesso ser provisionado.
 
 ## Banco de dados
 O frontend pode rodar sem configurar o banco. Para desenvolvimento local do backend, configure DATABASE_URL em `.env.local` usando `.env.example` como referência e execute:
@@ -60,6 +60,15 @@ O primeiro acesso é criado somente em terminal confiável; a senha é solicitad
 npm run auth:provision -- --email usuario@exemplo.com --name "Nome" --role DOCTOR --confirm PROVISIONAR
 ```
 
-AUTH_ENABLED só deve ser habilitado depois do provisionamento e dos testes de login/MFA. Veja docs/phases/PHASE-4.md para critérios. Não publicar segredos em NEXT_PUBLIC_*.
+Na Vercel, `BETTER_AUTH_URL` e `BETTER_AUTH_SECRET` já estão configurados somente para Produção. `AUTH_ENABLED=false` mantém o acesso fechado. Para criar a primeira conta em um terminal confiável, atualize o repositório, autentique o Vercel CLI e carregue as variáveis sem mostrá-las na tela:
+
+```sh
+npx vercel link
+npx vercel env pull .env.local --environment=production --yes
+npm run auth:check
+npm run auth:provision -- --email SEU_EMAIL --name "Dr. Douglas Vaz" --role DOCTOR --confirm PROVISIONAR
+```
+
+O script solicitará a senha duas vezes sem eco. `.env.local` já é ignorado pelo Git; nunca cole a senha ou o conteúdo desse arquivo no chat. `AUTH_ENABLED` só será habilitado depois do provisionamento e dos testes de login/MFA. Veja docs/phases/PHASE-4.md para critérios. Não publicar segredos em `NEXT_PUBLIC_*`.
 
 A integração Vercel já tem acesso à equipe `moajrs-projects`. O projeto, o storage e os nomes das variáveis foram verificados sem descriptografar secrets.

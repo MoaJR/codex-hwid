@@ -4,7 +4,7 @@
 Publicação da branch main confirmada pelo status de commit Vercel do GitHub. URL: https://drdouglasvaz.vercel.app. A integração autorizada acessa a equipe `moajrs-projects` e o projeto `vaz` (`prj_GMLIAzAVl7IAu3fLVP7c7k6cLZVr`).
 
 ## Prisma Postgres
-Recurso `prisma-postgres-yellow-helmet` confirmado pela API da Vercel como `available`, billing ativo, região `iad1`, associado a `vaz` em preview e produção. Existem secrets `DATABASE_URL`, `POSTGRES_URL` e `PRISMA_DATABASE_URL`; somente nomes, destinos e estado foram consultados. Nenhum valor foi descriptografado. O deploy `dpl_3ApiNCDmxBCpcDprKeFuJEpgVbgJ` confirmou conexão, schema completo e migration sem pendências; terminou em `READY` e foi promovido ao domínio principal.
+Recurso `prisma-postgres-yellow-helmet` confirmado pela API da Vercel como `available`, billing ativo, região `iad1`, associado a `vaz` em preview e produção. Existem secrets `DATABASE_URL`, `POSTGRES_URL` e `PRISMA_DATABASE_URL`; somente nomes, destinos e estado foram consultados. Nenhum valor foi descriptografado. O deploy `dpl_E2kAqStdH6dq81ea91mEZmKgJsrV` confirmou conexão, aplicou a migration de auditoria, inspecionou as 12 tabelas e terminou em `READY` no domínio principal.
 
 ### Checagens em terminal confiável
 ```sh
@@ -33,4 +33,4 @@ PNG original extraído do Doutor.zip enviado pelo usuário. Asset em public/imag
 A autorização da equipe foi concluída. `get_project`, metadados do storage e listagem segura de variáveis funcionam para `moajrs-projects`; o bloqueio 403 anterior está resolvido. Nenhuma variável do banco foi descriptografada ou exibida.
 
 ## Autenticação preparada
-Better Auth usa DATABASE_URL, BETTER_AUTH_SECRET e BETTER_AUTH_URL, além do gate AUTH_ENABLED=true. Manter gate false até a migration de auditoria, a primeira conta e os fluxos estarem verificados. auth:check informa somente nomes ausentes/inválidos e flags; não exibe valores e não testa login/banco. auth:provision exige terminal interativo, recusa senha por argumento, revoga a sessão de bootstrap e grava auditoria.
+Better Auth usa DATABASE_URL, BETTER_AUTH_SECRET e BETTER_AUTH_URL, além do gate AUTH_ENABLED=true. `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` e `AUTH_ENABLED=false` estão configurados somente para Produção; o secret foi gerado com entropia criptográfica e enviado sem ser exibido. Manter o gate false até a primeira conta e os fluxos estarem verificados. auth:check informa somente nomes ausentes/inválidos e flags; não exibe valores e não testa login/banco. auth:provision exige terminal interativo, recusa senha por argumento, revoga a sessão de bootstrap e grava auditoria.
