@@ -29,6 +29,33 @@ function version(value){if(!Number.isInteger(value)||value<1)throw new Schedulin
 /** @param {any} value */
 export function validateIdempotencyKey(value){return uuid(value,'Chave de idempotência');}
 
+/**
+ * Decide whether an appointment creation is a new operation or a replay.
+ * The replay check intentionally precedes the scheduling-window check: a
+ * client may safely repeat a completed request after its original slot has
+ * passed and must still receive the original appointment.
+ * @param {{id:string,doctorId:string,patientId:string,serviceId:string,createdStartsAt:string|Date}|null|undefined} existing
+ * @param {{doctorId:string,patientId:string,serviceId:string,startsAt:string}} request
+ * @param {Date} [now]
+ * @returns {{kind:'replay',appointmentId:string}|{kind:'conflict'}|{kind:'create'}}
+ */
+export function evaluateAppointmentCreateIntent(existing,request,now=new Date()){
+  if(existing){
+    const existingStartsAt=existing.createdStartsAt instanceof Date?existing.createdStartsAt.toISOString():existing.createdStartsAt;
+    const matches=existing.doctorId===request.doctorId&&existing.patientId===request.patientId&&existing.serviceId===request.serviceId&&existingStartsAt===request.startsAt;
+    return matches?{kind:'replay',appointmentId:existing.id}:{kind:'conflict'};
+  }
+  validateAppointmentWindow(request.startsAt,now);
+  return {kind:'create'};
+}
+
+/** @param {string} startsAt @param {Date} [now] */
+export function validateAppointmentWindow(startsAt,now=new Date()){
+  const start=new Date(startsAt).getTime();
+  if(!Number.isFinite(start)||start<=now.getTime())throw new SchedulingValidationError('Escolha um horário futuro.');
+  if(start>now.getTime()+90*86400000)throw new SchedulingValidationError('A consulta deve ocorrer nos próximos 90 dias.');
+}
+
 /** @param {any} value */
 export function validateAppointmentCreate(value){
   const input=record(value);exactKeys(input,['patientId','serviceId','date','time']);

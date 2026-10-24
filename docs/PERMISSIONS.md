@@ -7,6 +7,8 @@
 | ADMIN | usuários, permissões, auditoria, configurações | sem prontuário implícito |
 Tudo ausente na lista é negado. Permissão document.shared.read não autoriza acesso a documento privado: query futura deve filtrar publicação e titularidade. Identidades e relacionamentos vêm do servidor. Mudanças de permissões serão auditadas. Granularidade via tabelas Role/Permission é evolução prevista; não existe painel de edição no marco atual.
 
+Todo usuário autenticado pode encerrar somente as próprias outras sessões; nunca escolhe um `userId` ou `sessionId`. Papéis de equipe precisam concluir MFA na sessão atual. A sessão atual é preservada e a operação não concede acesso a outro recurso.
+
 ## Agenda operacional 5A
 
 | Papel | Ler agenda | Criar/reagendar/cancelar | Configurar disponibilidade |

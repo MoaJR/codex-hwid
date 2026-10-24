@@ -4,7 +4,7 @@ import {Prisma,type PrismaClient} from '@prisma/client';
 import {getDb} from '@/server/db';
 import type {SchedulingDoctor} from '@/server/auth/scheduling-access';
 import {generateAvailableSlots,localSelectionToIso} from './availability.mjs';
-import {SchedulingValidationError} from './input.mjs';
+import {evaluateAppointmentCreateIntent,SchedulingValidationError,validateAppointmentWindow} from './input.mjs';
 import type {AppointmentMode,AppointmentStatus,ScheduleAppointment,ScheduleException,SchedulePatient,ScheduleRule,ScheduleService,SchedulingWorkspace} from './types';
 
 type QueryClient=Prisma.TransactionClient|PrismaClient;
@@ -13,6 +13,7 @@ type ServiceRow=ScheduleService&{doctorId:string};
 type RuleRow=Omit<ScheduleRule,'validFrom'|'validUntil'>&{validFrom:string|Date;validUntil:string|Date|null};
 type ExceptionRow={id:string;kind:'AVAILABLE'|'BLOCKED';startsAt:Date;endsAt:Date};
 type AppointmentRow={id:string;doctorId:string;patientId:string;patientUserId:string;patientName:string;serviceId:string;serviceLabel:string;mode:AppointmentMode;status:AppointmentStatus;startsAt:Date;endsAt:Date;durationMinutes:number;bufferBeforeMinutes:number;bufferAfterMinutes:number;timeZone:string;version:number;idempotencyKey:string};
+type AppointmentReplayRow={id:string;doctorId:string;patientId:string;serviceId:string;createdStartsAt:Date};
 
 export class SchedulingConflictError extends Error{
   constructor(message='O horário não está mais disponível.'){super(message);this.name='SchedulingConflictError';}
@@ -95,11 +96,6 @@ async function availabilityFor(client:QueryClient,doctor:SchedulingDoctor,servic
   return generateAvailableSlots({from:date,to:date,timeZone:doctor.timeZone,service,rules:ruleRows.map(row=>({...mapRule(row),validUntil:mapRule(row).validUntil})),exceptions:exceptionRows.map(mapException),appointments:appointmentRows});
 }
 
-function validateAppointmentWindow(startsAt:string,now=new Date()){
-  const start=new Date(startsAt).getTime();
-  if(!Number.isFinite(start)||start<=now.getTime())throw new SchedulingValidationError('Escolha um horário futuro.');
-  if(start>now.getTime()+90*86400000)throw new SchedulingValidationError('A consulta deve ocorrer nos próximos 90 dias.');
-}
 function constraintConflict(error:unknown){
   if(!error||typeof error!=='object')return false;
   const value=error as {code?:unknown;meta?:{code?:unknown;message?:unknown}};
@@ -136,22 +132,23 @@ async function auditConflict(action:string,actorUserId:string,resourceId:string|
 }
 
 export async function createAppointment(doctor:SchedulingDoctor,input:{patientId:string;serviceId:string;date:string;time:string},idempotencyKey:string,actorUserId:string){
-  const startsAt=localSelectionToIso(input.date,input.time,doctor.timeZone);validateAppointmentWindow(startsAt);
+  const startsAt=localSelectionToIso(input.date,input.time,doctor.timeZone);
   const db=getDb();
   try{
     const id=await db.$transaction(async transaction=>{
       await lockDoctor(transaction,doctor.id);
-      const existing=await transaction.$queryRaw<AppointmentRow[]>`
-        SELECT a."id",a."doctorId",a."patientId",p."userId" AS "patientUserId",u."name" AS "patientName",a."serviceId",a."serviceLabel",
-               a."mode"::text AS "mode",a."status"::text AS "status",a."startsAt",a."endsAt",a."durationMinutes",a."bufferBeforeMinutes",
-               a."bufferAfterMinutes",a."timeZone",a."version",a."idempotencyKey"::text AS "idempotencyKey"
-        FROM "Appointment" a JOIN "Patient" p ON p."id"=a."patientId" JOIN "User" u ON u."id"=p."userId"
-        WHERE a."idempotencyKey"=${idempotencyKey}::uuid LIMIT 1
+      const existing=await transaction.$queryRaw<AppointmentReplayRow[]>`
+        SELECT appointment."id",appointment."doctorId",appointment."patientId",appointment."serviceId",
+               created_event."nextStartsAt" AS "createdStartsAt"
+        FROM "Appointment" appointment
+        JOIN "AppointmentEvent" created_event
+          ON created_event."appointmentId"=appointment."id" AND created_event."type"='CREATED'
+        WHERE appointment."idempotencyKey"=${idempotencyKey}::uuid
+        ORDER BY created_event."occurredAt",created_event."id" LIMIT 1
       `;
-      if(existing[0]){
-        if(existing[0].doctorId===doctor.id&&existing[0].patientId===input.patientId&&existing[0].serviceId===input.serviceId&&existing[0].startsAt.toISOString()===startsAt)return existing[0].id;
-        throw new SchedulingConflictError('A chave de repetição já foi usada em outra operação.');
-      }
+      const intent=evaluateAppointmentCreateIntent(existing[0],{doctorId:doctor.id,patientId:input.patientId,serviceId:input.serviceId,startsAt});
+      if(intent.kind==='replay')return intent.appointmentId;
+      if(intent.kind==='conflict')throw new SchedulingConflictError('A chave de repetição já foi usada em outra operação.');
       const service=await findService(transaction,doctor.id,input.serviceId);
       const patient=await transaction.$queryRaw<{id:string;userId:string}[]>`
         SELECT "id","userId" FROM "Patient" WHERE "id"=${input.patientId}::uuid LIMIT 1
@@ -186,7 +183,8 @@ export async function createAppointment(doctor:SchedulingDoctor,input:{patientId
 }
 
 export async function rescheduleAppointment(doctor:SchedulingDoctor,id:string,input:{date:string;time:string;version:number},actorUserId:string){
-  const nextStartsAt=localSelectionToIso(input.date,input.time,doctor.timeZone);validateAppointmentWindow(nextStartsAt);
+  const nextStartsAt=localSelectionToIso(input.date,input.time,doctor.timeZone);
+  validateAppointmentWindow(nextStartsAt);
   const db=getDb();
   try{
     await db.$transaction(async transaction=>{

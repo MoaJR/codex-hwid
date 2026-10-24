@@ -9,6 +9,7 @@ test('build de produção aplica migrations antes de compilar o Next.js',()=>{
     'db:inspect:schema',
     'db:seed:articles',
     'db:seed:scheduling',
+    'scheduling:check',
     'build:next',
   ]);
 });

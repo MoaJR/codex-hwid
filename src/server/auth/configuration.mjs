@@ -16,6 +16,12 @@ export function inspectAuthEnvironment(environment){
 /** @param {readonly string[]} roles */
 export function requiresStaffMfa(roles){return roles.some(role=>['DOCTOR','SECRETARY','ADMIN'].includes(role));}
 
+// The application-owned endpoint projects no tokens, IP addresses or user agents
+// and records revocation in AuditEvent. Disable the provider's raw equivalents.
+export const disabledSessionApiPaths=Object.freeze([
+  '/list-sessions','/revoke-session','/revoke-sessions','/revoke-other-sessions','/change-password',
+]);
+
 /** Uses only a successful server-library result, never submitted body fields.
  * @param {string} path @param {unknown} result @param {unknown} [newSession]
  * @returns {{token:string,userId:string,action:'MFA_TOTP_VERIFIED'|'MFA_BACKUP_CODE_USED'}|null}

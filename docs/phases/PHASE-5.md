@@ -21,6 +21,8 @@ As quatro migrations foram aplicadas do zero em PostgreSQL 17 descartável. Os t
 
 Em produção, o deployment `dpl_DPSck3iYscPuyeoHvATp1QytTok8` aplicou a migration, confirmou 20/20 tabelas sem colunas, constraints ou índices ausentes e inseriu os quatro serviços iniciais. O domínio principal respondeu sem erros de runtime; acesso anônimo à agenda terminou no login.
 
+O redeploy `dpl_Dq8KeEsy62RvhGmn2RQJZp26a8EX` não encontrou migrations pendentes e pulou os quatro serviços já existentes, confirmando a repetição segura do build. `npm run scheduling:check` complementa o ciclo manual com leitura somente agregada de fuso, catálogo, intervalos, estados, sobreposições, eventos e auditoria, sem imprimir dados ou horários individuais.
+
 ### Segurança
 
 Médico acessa somente sua agenda. Secretaria acessa a agenda da clínica única; a resolução falha se houver zero ou mais de um médico. Administrador não recebe agenda por herança. Toda operação de equipe exige MFA da sessão, origem canônica exata, JSON estrito com até 8 KiB, campos conhecidos e limite de dez mutações por minuto. Leitura da API é limitada a sessenta requisições por minuto.

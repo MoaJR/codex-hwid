@@ -24,7 +24,7 @@ npm run build
 npm start
 ```
 
-No marco atual: 57 testes e o TypeScript passaram. O schema tem 20 modelos para identidade, domínio inicial, auditoria, conteúdo e agenda. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes, inspeciona o resultado e executa seeds aditivos; local e preview não alteram o banco.
+No marco atual: 63 testes, o TypeScript e o build Next.js passaram. O schema tem 20 modelos para identidade, domínio inicial, auditoria, conteúdo e agenda. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes, inspeciona o resultado, executa seeds aditivos e roda a checagem agregada da agenda; local e preview não alteram o banco.
 
 ## Banco de dados
 O frontend pode rodar sem configurar o banco. Para desenvolvimento local do backend, configure DATABASE_URL em `.env.local` usando `.env.example` como referência e execute:
@@ -33,6 +33,7 @@ O frontend pode rodar sem configurar o banco. Para desenvolvimento local do back
 npm run db:generate
 npm run db:validate
 npm run db:check
+npm run scheduling:check
 ```
 
 A geração oficial do Prisma depende dos binários distribuídos pelo provedor; a Vercel já executa essa etapa. A migration inicial foi validada em banco descartável e reconciliada com o schema que já existia no Prisma Postgres. Em produção, `npm run build` executa `prisma migrate deploy` e depois inspeciona o schema antes do Next.js; preview e desenvolvimento pulam essas etapas. Segredos nunca devem ser commitados.
@@ -40,7 +41,7 @@ A geração oficial do Prisma depende dos binários distribuídos pelo provedor;
 ## Limites
 /agendar é uma simulação: não pede dados pessoais, não reserva horários e não realiza pagamentos. `/medico/agenda` é uma área interna em validação e deve usar somente identidades fictícias. Não há prontuário ou API clínica liberada. Não usar dados pessoais ou de saúde reais. A foto original fornecida pelo usuário foi integrada na home e na página Sobre. Biografia, CRM/RQE, valores e contatos oficiais aguardam confirmação.
 
-Progresso e próximos passos em docs/PROGRESS.md. Escopo do marco em docs/phases/PHASE-1-2.md.
+Progresso e próximos passos em docs/PROGRESS.md. O escopo atual está em docs/phases/PHASE-5.md; a base visual permanece documentada em docs/phases/PHASE-1-2.md.
 
 ## Integrações
 Prisma Postgres `prisma-postgres-yellow-helmet` confirmado pela API da Vercel como disponível e conectado ao projeto `vaz`. `DATABASE_URL`, `POSTGRES_URL` e `PRISMA_DATABASE_URL` existem como secrets em preview e produção; nenhum valor foi lido ou exibido. Detalhes em docs/INTEGRATIONS.md.
@@ -71,7 +72,7 @@ npm run auth:provision -- --email SEU_EMAIL --name "Dr. Douglas Vaz" --role DOCT
 
 O script solicitará a senha duas vezes sem eco. `.env.local` já é ignorado pelo Git; nunca cole a senha ou o conteúdo desse arquivo no chat. O gate está ativo apenas para testar login, cadastro de MFA e recuperação; operações clínicas continuam bloqueadas. Veja docs/phases/PHASE-4.md para critérios. Não publicar segredos em `NEXT_PUBLIC_*`.
 
-A integração Vercel já tem acesso à equipe `moajrs-projects`. O projeto, o storage e os nomes das variáveis foram verificados sem descriptografar secrets.
+A integração Vercel já tem acesso à equipe `moajrs-projects`. O projeto, o storage e os nomes das variáveis foram verificados sem descriptografar secrets. Em `/conta`, o usuário pode encerrar os outros acessos ativos; a equipe precisa concluir MFA e a ação é auditada sem expor tokens ou detalhes de dispositivo.
 
 ## CMS editorial — marco 3B
 Após login e MFA, médicos e administradores autorizados acessam `/medico/conteudos`. O fluxo usa rascunho, revisão, publicação e arquivamento reversível. Administradores podem escrever e enviar para revisão; somente o papel `DOCTOR` publica ou retira um texto publicado. Toda mutação exige origem canônica, usa controle de versão e grava ator, ação e artigo na auditoria. O conteúdo é renderizado como texto/blocos React, sem HTML arbitrário.

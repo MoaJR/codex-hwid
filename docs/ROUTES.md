@@ -18,8 +18,9 @@
 | /api/articles | Lista pública de metadados; sem escrita |
 | /login | Entrada ativa em Produção para validação controlada |
 | /verificar-acesso | Verificação TOTP ou código de recuperação preparada |
-| /conta | Perfil e ativação do autenticador; sem acesso clínico |
+| /conta | Perfil, ativação do autenticador e encerramento de outros acessos; sem acesso clínico |
 | /api/auth/[...all] | Better Auth GET/POST; ativo somente em Produção após provisionamento |
+| /api/account/sessions/revoke-others | POST próprio, protegido e auditado; preserva a sessão atual |
 | /medico/conteudos | Lista editorial; sessão DOCTOR/ADMIN com MFA |
 | /medico/conteudos/novo | Criação de rascunho protegido |
 | /medico/conteudos/[id] | Editor, versão e workflow protegido |

@@ -1,7 +1,7 @@
 import 'server-only';
 import {isTrustedMutationOrigin} from './request-security.mjs';
 import {SchedulingConflictError,SchedulingNotFoundError} from '@/modules/scheduling/store';
-import {SchedulingRateLimitError} from '@/modules/scheduling/rate-limit';
+import {UserRateLimitError} from './user-rate-limit';
 import {SchedulingValidationError} from '@/modules/scheduling/input.mjs';
 import {AvailabilityValidationError} from '@/modules/scheduling/availability.mjs';
 
@@ -25,6 +25,6 @@ export function schedulingException(error:unknown){
   if(error instanceof SchedulingValidationError||error instanceof AvailabilityValidationError)return schedulingError(400,'INVALID_SCHEDULE_INPUT',error.message);
   if(error instanceof SchedulingNotFoundError)return schedulingError(404,'NOT_FOUND','Recurso não encontrado.');
   if(error instanceof SchedulingConflictError)return schedulingError(409,'SCHEDULE_CONFLICT',error.message);
-  if(error instanceof SchedulingRateLimitError)return schedulingError(429,'RATE_LIMITED','Muitas tentativas. Aguarde e tente novamente.',{'Retry-After':String(error.retryAfter)});
+  if(error instanceof UserRateLimitError)return schedulingError(429,'RATE_LIMITED','Muitas tentativas. Aguarde e tente novamente.',{'Retry-After':String(error.retryAfter)});
   return schedulingError(503,'SCHEDULING_UNAVAILABLE','A agenda está temporariamente indisponível.');
 }

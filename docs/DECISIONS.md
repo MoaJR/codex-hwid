@@ -47,3 +47,6 @@ A Fase 5A opera somente para médico/secretaria com MFA e pacientes previamente 
 
 ## 2026-10-24 — PostgreSQL como garantia final de concorrência
 Verificação de disponibilidade na aplicação melhora a resposta, mas não evita corrida entre instâncias. Consultas usam intervalos UTC, buffers calculados pelo servidor, lock transacional por médico e exclusion constraints GiST. Criação também exige chave de idempotência; cancelamento preserva histórico e libera o intervalo sem exclusão física.
+
+## 2026-10-24 — Revogação de sessões por rota própria
+O painel de conta encerra apenas outros acessos ativos e preserva a sessão que iniciou a operação. A equipe precisa de MFA nessa sessão. A resposta informa somente quantidade; tokens, IP e user-agent não são projetados. Exclusão e auditoria são atômicas, com rate limit compartilhado. Endpoints crus de sessão e troca de senha do Better Auth ficam desativados até receberem wrappers com a mesma autorização e auditoria.

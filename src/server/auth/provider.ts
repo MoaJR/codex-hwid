@@ -5,7 +5,7 @@ import {twoFactor} from 'better-auth/plugins';
 import {createAuthMiddleware,APIError} from 'better-auth/api';
 import {randomUUID} from 'node:crypto';
 import {getDb} from '@/server/db';
-import {verifiedMfaSession} from './configuration.mjs';
+import {disabledSessionApiPaths,verifiedMfaSession} from './configuration.mjs';
 export function createAuth(){
   const db=getDb();
   const origin=new URL(process.env.BETTER_AUTH_URL!).origin;
@@ -14,6 +14,7 @@ export function createAuth(){
     baseURL:origin,
     secret:process.env.BETTER_AUTH_SECRET!,
     trustedOrigins:[origin],
+    disabledPaths:[...disabledSessionApiPaths],
     database:prismaAdapter(db,{provider:'postgresql'}),
     emailAndPassword:{enabled:true,disableSignUp:true,minPasswordLength:12,maxPasswordLength:128,requireEmailVerification:false},
     account:{accountLinking:{enabled:false}},

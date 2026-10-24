@@ -38,3 +38,8 @@ A base ampliada soma 40 testes; typecheck e build Next.js passam. O build Vercel
 
 ## Empacotamento
 A partir deste marco, build gera o cliente Prisma antes de Next.js. Evita reutilizar cliente gerado de schema antigo no cache da plataforma. A geração não conecta ao banco; em produção, `migrate deploy` roda antes da inspeção pós-migration. A autenticação está ativa somente em Produção para o E2E controlado de login/MFA; APIs clínicas permanecem ausentes.
+
+## Marco 4C — controle de sessões
+`/conta` oferece encerramento de todos os outros acessos ativos sem listar dispositivos, tokens, IP ou user-agent. A sessão atual é preservada; equipe precisa concluir MFA na própria sessão. A rota da aplicação valida origem canônica, JSON vazio de até 1 KiB, aplica limite compartilhado de cinco tentativas por minuto e grava `OTHER_SESSIONS_REVOKED` na mesma transação da exclusão.
+
+Os endpoints nativos de listagem e revogação de sessões do Better Auth foram desativados para não contornar a projeção e a auditoria. `/change-password` também permanece desativado até existir um fluxo próprio protegido. O aceite operacional deste marco exige dois logins: executar a ação em um, confirmar que ele continua válido e que o segundo perde acesso. Expiração e uso único do código de recuperação continuam no roteiro controlado.
