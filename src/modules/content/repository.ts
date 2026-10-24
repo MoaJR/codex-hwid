@@ -1,14 +1,21 @@
 import 'server-only';
 import {articles,type Article} from '@/content/articles';
 import {publishedArticles,filterArticles} from './publication.mjs';
-/** This provider is read-only and versioned with the source. No CMS writes yet. */
+import {findPublishedInDatabase,listPublishedFromDatabase} from './store';
 export interface ArticleReader {
-  list(filters?: {query?:string;category?:string}): Article[];
-  findBySlug(slug:string): Article|undefined;
-  categories():string[];
+  list(filters?: {query?:string;category?:string}): Promise<Article[]>;
+  findBySlug(slug:string): Promise<Article|undefined>;
+  categories():Promise<string[]>;
+}
+async function published():Promise<Article[]>{
+  if(!process.env.DATABASE_URL?.trim())return publishedArticles(articles);
+  return publishedArticles(await listPublishedFromDatabase());
 }
 export const articleReader:ArticleReader={
-  list(filters={}){return filterArticles(publishedArticles(articles),filters);},
-  findBySlug(slug){return publishedArticles(articles).find(article=>article.slug===slug);},
-  categories(){return [...new Set(publishedArticles(articles).map(article=>article.category))].sort();},
+  async list(filters={}){return filterArticles(await published(),filters);},
+  async findBySlug(slug){
+    if(!process.env.DATABASE_URL?.trim())return publishedArticles(articles).find(article=>article.slug===slug);
+    return findPublishedInDatabase(slug);
+  },
+  async categories(){return [...new Set((await published()).map(article=>article.category))].sort();},
 };

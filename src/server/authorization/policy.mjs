@@ -9,9 +9,9 @@ export function can(actor, permission, resource = {}) {
   const assigned = resource.assignedDoctorUserIds?.includes(actor.userId) === true;
   return actor.roles.some(role => {
     if (role === 'PATIENT') return own && ['appointment.read','mood.read','mood.write','document.shared.read','message.read','message.write'].includes(permission);
-    if (role === 'DOCTOR') return assigned && ['appointment.read','appointment.write','patient.read','medical_record.read','medical_record.write','mood.read','document.create','document.shared.read','message.read','message.write'].includes(permission);
+    if (role === 'DOCTOR') return ['content.read','content.write','content.submit_review','content.publish'].includes(permission)||(assigned && ['appointment.read','appointment.write','patient.read','medical_record.read','medical_record.write','mood.read','document.create','document.shared.read','message.read','message.write'].includes(permission));
     if (role === 'SECRETARY') return ['appointment.read','appointment.write','patient.demographics.read'].includes(permission);
-    if (role === 'ADMIN') return ['user.manage','permission.manage','audit.read','settings.manage'].includes(permission);
+    if (role === 'ADMIN') return ['user.manage','permission.manage','audit.read','settings.manage','content.read','content.write','content.submit_review'].includes(permission);
     return false;
   });
 }

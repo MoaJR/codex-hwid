@@ -4,9 +4,10 @@ import {prismaAdapter} from 'better-auth/adapters/prisma';
 import {twoFactor} from 'better-auth/plugins';
 import {createAuthMiddleware,APIError} from 'better-auth/api';
 import {randomUUID} from 'node:crypto';
-import {db} from '@/server/db';
+import {getDb} from '@/server/db';
 import {verifiedMfaSession} from './configuration.mjs';
 export function createAuth(){
+  const db=getDb();
   const origin=new URL(process.env.BETTER_AUTH_URL!).origin;
   return betterAuth({
     appName:'Dr. Douglas Vaz',

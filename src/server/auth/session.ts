@@ -12,7 +12,7 @@ export async function getSessionContext():Promise<SessionContext>{
     const auth=await getAuth();if(!auth)return {state:'unavailable'};
     const session=await auth.api.getSession({headers:await headers()});
     if(!session)return {state:'anonymous'};
-    const {db}=await import('@/server/db');
+    const {getDb}=await import('@/server/db');const db=getDb();
     const memberships=await db.userRole.findMany({where:{userId:session.user.id},select:{role:true}});
     const roles:Role[]=memberships.map((membership:{role:Role})=>membership.role);
     const persistedSession=await db.session.findUnique({where:{token:session.session.token},select:{userId:true,createdAt:true,mfaVerifiedAt:true,expiresAt:true}});

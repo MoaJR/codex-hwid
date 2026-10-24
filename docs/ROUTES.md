@@ -20,7 +20,13 @@
 | /verificar-acesso | Verificação TOTP ou código de recuperação preparada |
 | /conta | Perfil e ativação do autenticador; sem acesso clínico |
 | /api/auth/[...all] | Better Auth GET/POST; ativo somente em Produção após provisionamento |
+| /medico/conteudos | Lista editorial; sessão DOCTOR/ADMIN com MFA |
+| /medico/conteudos/novo | Criação de rascunho protegido |
+| /medico/conteudos/[id] | Editor, versão e workflow protegido |
+| /api/admin/articles | GET/POST editorial protegido |
+| /api/admin/articles/[id] | GET/PATCH editorial protegido |
+| /api/admin/articles/[id]/transition | Transições auditadas do workflow |
 | /api/health | Saúde da aplicação, não verifica banco |
 | /demonstracao.html | Protótipo antigo com hash routes ilustrativas |
 
-/paciente, /medico, /admin e autenticação não existem como rotas operacionais. Antes de criá-las, implementar sessão e guard server-side. Slugs de tratamento desconhecidos retornam 404.
+/paciente e módulos clínicos de /medico ou /admin ainda não existem como rotas operacionais. A única área interna atual é o CMS editorial protegido. Slugs de tratamento desconhecidos retornam 404.

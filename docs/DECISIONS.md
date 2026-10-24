@@ -38,3 +38,6 @@ O primeiro usuário é criado por comando interativo confiável usando o hash do
 
 ## 2026-10-24 — Ativar identidade antes dos módulos clínicos
 Após a confirmação do provisionamento da primeira conta em terminal confiável, AUTH_ENABLED foi habilitado somente em Produção para validar login, MFA, recuperação, expiração e revogação. Essa ativação não libera APIs clínicas, CMS ou portais; esses módulos continuam condicionados ao E2E de segurança.
+
+## 2026-10-24 — Workflow editorial com revisão clínica explícita
+Conteúdo persistente usa blocos de texto estruturados, sem HTML arbitrário, e controle otimista por versão. ADMIN pode preparar e enviar textos para revisão; somente DOCTOR com MFA publica ou retira conteúdo público. Arquivamento é reversível. A importação inicial cria apenas slugs ausentes para nunca sobrescrever edições do CMS.

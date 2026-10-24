@@ -9,3 +9,12 @@ test('secretary and admin have no implicit clinical access',()=>{for(const role 
 test('patient cannot change medication or clinical notes',()=>{for(const permission of ['medication.write','medical_record.write','permission.manage'])assert.equal(can(patient,permission,{patientUserId:'patient-a'}),false)});
 test('authorization throws a safe domain error',()=>assert.throws(()=>authorize(patient,'medical_record.read',{}),AuthorizationError));
 test('doctor cannot infer assignment from missing scope',()=>assert.equal(can({userId:'d',roles:['DOCTOR']},'patient.read',{}),false));
+test('conteúdo editorial exige equipe autorizada e publicação clínica exige médico',()=>{
+  assert.equal(can({userId:'d',roles:['DOCTOR']},'content.write'),true);
+  assert.equal(can({userId:'d',roles:['DOCTOR']},'content.publish'),true);
+  assert.equal(can({userId:'a',roles:['ADMIN']},'content.write'),true);
+  assert.equal(can({userId:'a',roles:['ADMIN']},'content.submit_review'),true);
+  assert.equal(can({userId:'a',roles:['ADMIN']},'content.publish'),false);
+  assert.equal(can({userId:'s',roles:['SECRETARY']},'content.read'),false);
+  assert.equal(can(patient,'content.read'),false);
+});

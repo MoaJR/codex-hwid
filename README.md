@@ -1,6 +1,6 @@
 # Dr. Douglas Vaz — Plataforma de Psiquiatria
 
-Site público em Next.js App Router + React + TypeScript, com direção visual verde/off-white e páginas educativas. A base PostgreSQL/Prisma está conectada, a primeira conta foi provisionada em terminal confiável e a autenticação está em ativação controlada.
+Site público e CMS editorial em Next.js App Router + React + TypeScript, com direção visual verde/off-white e páginas educativas. A base PostgreSQL/Prisma está conectada, a primeira conta usa MFA e o painel editorial exige sessão de equipe verificada.
 
 ## Acompanhar no VS Code
 Node.js 22.15 ou superior. No terminal da pasta do projeto:
@@ -13,7 +13,7 @@ npm run dev
 
 Abra http://localhost:3000. Alterações locais têm atualização automática. Para receber novos commits, execute git pull em outro terminal. Se dependências ou scripts mudarem, pare o servidor com Ctrl+C, execute npm ci e inicie novamente.
 
-Páginas: /sobre, /tratamentos, /consulta-online, /agendar, /contato, /privacidade e /blog. O blog tem busca, categorias e páginas de artigo; o conteúdo permanece versionado no código, sem CMS de escrita. A home agora é a versão React. O protótipo antigo continua em /demonstracao.html; para abri-lo sem Node, extraia o ZIP e abra index.html.
+Páginas: /sobre, /tratamentos, /consulta-online, /agendar, /contato, /privacidade e /blog. O blog tem busca, categorias e páginas de artigo; o CMS protegido fica em /medico/conteudos. A home agora é a versão React. O protótipo antigo continua em /demonstracao.html; para abri-lo sem Node, extraia o ZIP e abra index.html.
 
 ## Verificações
 
@@ -24,7 +24,7 @@ npm run build
 npm start
 ```
 
-No marco atual: 31 testes passaram, assim como TypeScript e o build Next.js. O schema atual tem 12 modelos: os 11 modelos iniciais e a trilha `AuditEvent`. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes e inspeciona o resultado; local e preview não alteram o banco. O deploy de produção confirmou a geração nativa, aplicou a migration de auditoria e validou as 12 tabelas. Os testes E2E do login e MFA continuam pendentes após o provisionamento do primeiro acesso.
+No marco atual: 40 testes passaram, assim como TypeScript e o build Next.js. O schema tem 14 modelos: identidade, domínio inicial, auditoria e as tabelas editoriais `Article`/`ArticleBlock`. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes, inspeciona o resultado e importa artigos iniciais que ainda não existam; local e preview não alteram o banco.
 
 ## Banco de dados
 O frontend pode rodar sem configurar o banco. Para desenvolvimento local do backend, configure DATABASE_URL em `.env.local` usando `.env.example` como referência e execute:
@@ -45,7 +45,7 @@ Progresso e próximos passos em docs/PROGRESS.md. Escopo do marco em docs/phases
 ## Integrações
 Prisma Postgres `prisma-postgres-yellow-helmet` confirmado pela API da Vercel como disponível e conectado ao projeto `vaz`. `DATABASE_URL`, `POSTGRES_URL` e `PRISMA_DATABASE_URL` existem como secrets em preview e produção; nenhum valor foi lido ou exibido. Detalhes em docs/INTEGRATIONS.md.
 
-Fase atual: 4B — banco de produção confirmado, primeira conta provisionada e autenticação ativada para validação controlada. Fase 3A (blog público) preservada; CMS 3B depende da conclusão dos testes de segurança.
+Fase atual: 3B — login/MFA da fase 4B concluídos e CMS persistente pronto para o deployment de validação. O blog público continua mostrando apenas itens publicados e com data válida.
 
 ## Autenticação — marco 4B
 /login, /verificar-acesso e /conta estão preparadas com Better Auth. A conta permite cadastrar um aplicativo autenticador por QR Code, guardar códigos de recuperação e usar cada código uma única vez. Provisionamento, TOTP e uso de recuperação deixam eventos de auditoria sem conteúdo clínico. O acesso permanece desabilitado por padrão e as APIs respondem 503 enquanto não configurado. Não há conta/senha padrão ou cadastro público.
@@ -72,3 +72,6 @@ npm run auth:provision -- --email SEU_EMAIL --name "Dr. Douglas Vaz" --role DOCT
 O script solicitará a senha duas vezes sem eco. `.env.local` já é ignorado pelo Git; nunca cole a senha ou o conteúdo desse arquivo no chat. O gate está ativo apenas para testar login, cadastro de MFA e recuperação; operações clínicas continuam bloqueadas. Veja docs/phases/PHASE-4.md para critérios. Não publicar segredos em `NEXT_PUBLIC_*`.
 
 A integração Vercel já tem acesso à equipe `moajrs-projects`. O projeto, o storage e os nomes das variáveis foram verificados sem descriptografar secrets.
+
+## CMS editorial — marco 3B
+Após login e MFA, médicos e administradores autorizados acessam `/medico/conteudos`. O fluxo usa rascunho, revisão, publicação e arquivamento reversível. Administradores podem escrever e enviar para revisão; somente o papel `DOCTOR` publica ou retira um texto publicado. Toda mutação exige origem canônica, usa controle de versão e grava ator, ação e artigo na auditoria. O conteúdo é renderizado como texto/blocos React, sem HTML arbitrário.

@@ -1,6 +1,6 @@
 # Fase 4 — Autenticação e autorização
 
-## Marco 4A implementado: base protegida, ainda inativa
+## Marco 4B concluído: primeiro acesso com MFA
 Objetivo: preparar login, sessão e MFA sem expor acesso operacional antes da configuração confiável.
 Stack: Better Auth 1.7.12, adaptador Prisma/PostgreSQL, plugin TOTP. Não implementar hash de senha, cookies ou OTP próprios. Cadastro público e vinculação automática de contas desativados; sem senha ou conta padrão.
 
@@ -9,7 +9,7 @@ src/server/auth concentra configuração, provider lazy, sessão e guard. src/co
 
 ## Schema e migrations
 User adiciona emailVerified, image, twoFactorEnabled e relações. Session, Account, Verification, RateLimit e TwoFactor sustentam o provedor. Session.mfaVerifiedAt identifica a sessão que concluiu MFA. AuditEvent registra ações de acesso controladas sem conteúdo clínico. UserRole e domínios anteriores foram preservados.
-O schema atual com 12 modelos passou por getDMMF/getConfig de @prisma/internals 6.19.3 via WASM. A migration inicial de 11 tabelas foi validada em PostgreSQL 17 descartável; a estrutura equivalente em produção foi confirmada e o histórico reconciliado. Uma migration incremental cria AuditEvent com índices por data/ator/alvo e referências `SET NULL`, preservando o evento se uma identidade vier a ser removida. Produção aplica migrations e inspeciona o resultado antes do build Next.js; preview e local não executam essas etapas.
+No fechamento da fase 4, o schema de 12 modelos passou por getDMMF/getConfig de @prisma/internals 6.19.3 via WASM. A migration inicial de 11 tabelas foi validada em PostgreSQL 17 descartável; a estrutura equivalente em produção foi confirmada e o histórico reconciliado. Uma migration incremental cria AuditEvent com índices por data/ator/alvo e referências `SET NULL`, preservando o evento se uma identidade vier a ser removida. Produção aplica migrations e inspeciona o resultado antes do build Next.js; preview e local não executam essas etapas.
 
 ## Controles
 - AUTH_ENABLED precisa ser true e DATABASE_URL/BETTER_AUTH_SECRET/BETTER_AUTH_URL precisam passar pela validação antes de inicializar o provider.
@@ -25,17 +25,16 @@ O schema atual com 12 modelos passou por getDMMF/getConfig de @prisma/internals 
 - Nenhuma API ou página clínica foi liberada nesta fase.
 
 ## Aceite deste marco
-31 testes passaram; typecheck e build Next.js passaram. Schema de 12 modelos parseado e validado em WASM. O build Vercel gerou o cliente Prisma, aplicou a migration incremental e confirmou as 12 tabelas na inspeção pós-migration. Smoke remoto do modo inativo passou: home, login e health com 200; sessão com 503 genérico e ausência de conteúdo privado.
-Não considerar autenticação operacional apenas porque a UI compila.
+A base ampliada soma 40 testes; typecheck e build Next.js passam. O build Vercel gerou o cliente Prisma, aplicou a migration de auditoria e confirmou as 12 tabelas existentes no fechamento da fase. O responsável concluiu provisionamento, ativação TOTP e um segundo login com MFA; sessão anônima permanece sem cookie e runtime ficou sem erros. APIs clínicas continuam ausentes.
 
 ## Dependências para 4B/ativação
 1. Concluído: integração Vercel autorizada para `moajrs-projects`.
 2. Concluído: Prisma Postgres e nomes das variáveis confirmados sem expor valores.
 3. Concluído: schema e migration confirmados em produção; builds de preview não alteram o banco.
 4. Concluído: secret/base URL configurados somente em Produção e primeiro acesso provisionado pelo responsável em terminal confiável. Signup público continua bloqueado.
-5. Implementado: onboarding TOTP e recuperação por backup codes com marca de sessão e auditoria; falta E2E no ambiente implantado.
-6. Testar login/sair, CSRF/origem, rate limit entre instâncias, expiração/revogação, isolamento e MFA com contas fictícias. Implementar auditoria antes de operações sensíveis.
-7. AUTH_ENABLED habilitado somente em Produção para o E2E controlado. Implementar CMS 3B/portais somente após concluir os testes.
+5. Concluído: onboarding TOTP, marca de sessão e segundo login com MFA. Recuperação por backup code permanece implementada e aguarda exercício operacional controlado.
+6. Concluído para login/origem/MFA; permanecem pendentes rate limit entre instâncias, expiração/revogação e recuperação em rotina operacional.
+7. AUTH_ENABLED habilitado somente em Produção. CMS 3B iniciado depois do E2E; módulos clínicos continuam bloqueados.
 
 ## Empacotamento
 A partir deste marco, build gera o cliente Prisma antes de Next.js. Evita reutilizar cliente gerado de schema antigo no cache da plataforma. A geração não conecta ao banco; em produção, `migrate deploy` roda antes da inspeção pós-migration. A autenticação está ativa somente em Produção para o E2E controlado de login/MFA; APIs clínicas permanecem ausentes.

@@ -4,6 +4,7 @@ import {pathToFileURL} from 'node:url';
 const expectedTables=[
   'User','UserRole','Patient','Doctor','CareAssignment','MoodEntry',
   'Session','Account','Verification','RateLimit','TwoFactor','AuditEvent',
+  'Article','ArticleBlock',
 ];
 const expectedColumns={
   User:['id','email','name','emailVerified','image','twoFactorEnabled','createdAt','updatedAt'],
@@ -17,15 +18,21 @@ const expectedColumns={
   Verification:['id','identifier','value','expiresAt','createdAt','updatedAt'],
   RateLimit:['id','key','count','lastRequest'],
   TwoFactor:['id','secret','backupCodes','userId','verified','failedVerificationCount','lockedUntil'],
-  AuditEvent:['id','action','outcome','source','actorUserId','subjectUserId','occurredAt'],
+  AuditEvent:['id','action','outcome','source','actorUserId','subjectUserId','resourceType','resourceId','occurredAt'],
+  Article:['id','slug','title','excerpt','category','readingMinutes','status','editorialLabel','reviewNotice','publishedAt','version','createdById','updatedById','reviewedById','publishedById','reviewedAt','createdAt','updatedAt'],
+  ArticleBlock:['id','articleId','position','type','text','items'],
 };
 const expectedConstraints=[
   'User_pkey','UserRole_pkey','Patient_pkey','Doctor_pkey','CareAssignment_pkey','MoodEntry_pkey',
   'Session_pkey','Account_pkey','Verification_pkey','RateLimit_pkey','TwoFactor_pkey','AuditEvent_pkey',
+  'Article_pkey','ArticleBlock_pkey','Article_slug_format_check','Article_reading_minutes_check',
+  'Article_version_check','Article_published_at_check','ArticleBlock_position_check','ArticleBlock_content_check',
   'UserRole_userId_fkey','Patient_userId_fkey','Doctor_userId_fkey',
   'CareAssignment_patientId_fkey','CareAssignment_doctorId_fkey','MoodEntry_patientId_fkey',
   'Session_userId_fkey','Account_userId_fkey','TwoFactor_userId_fkey',
   'AuditEvent_actorUserId_fkey','AuditEvent_subjectUserId_fkey',
+  'Article_createdById_fkey','Article_updatedById_fkey','Article_reviewedById_fkey','Article_publishedById_fkey',
+  'ArticleBlock_articleId_fkey',
 ];
 const expectedIndexes=[
   'User_email_key','Patient_userId_key','Doctor_userId_key','CareAssignment_doctorId_endedAt_idx',
@@ -33,6 +40,9 @@ const expectedIndexes=[
   'Account_providerId_accountId_key','Verification_identifier_idx','RateLimit_key_key',
   'TwoFactor_secret_idx','TwoFactor_userId_idx','AuditEvent_occurredAt_idx',
   'AuditEvent_actorUserId_occurredAt_idx','AuditEvent_subjectUserId_occurredAt_idx',
+  'AuditEvent_resourceType_resourceId_occurredAt_idx',
+  'Article_slug_key','Article_status_publishedAt_idx','Article_category_status_publishedAt_idx',
+  'ArticleBlock_articleId_position_key','ArticleBlock_articleId_idx',
 ];
 
 export async function inspectDatabaseSchema(environment=process.env){
@@ -54,6 +64,14 @@ export async function inspectDatabaseSchema(environment=process.env){
       JOIN pg_namespace ON pg_namespace.oid = pg_type.typnamespace
       WHERE pg_namespace.nspname = 'public' AND pg_type.typname = 'Role'
       ORDER BY enumsortorder
+    `;
+    const editorialLabels=await client.$queryRaw`
+      SELECT pg_type.typname,pg_enum.enumlabel
+      FROM pg_enum
+      JOIN pg_type ON pg_type.oid = pg_enum.enumtypid
+      JOIN pg_namespace ON pg_namespace.oid = pg_type.typnamespace
+      WHERE pg_namespace.nspname = 'public' AND pg_type.typname IN ('ArticleStatus','ArticleBlockType')
+      ORDER BY pg_type.typname,pg_enum.enumsortorder
     `;
     const columns=await client.$queryRaw`
       SELECT table_name,column_name
@@ -104,6 +122,16 @@ export async function inspectDatabaseSchema(environment=process.env){
       missingIndexes:expectedIndexes.filter((name)=>!actualIndexes.has(name)),
       moodScoreCheck:actualConstraints.get('MoodEntry_score_check')??null,
       roleLabels:roleLabels.map(({enumlabel})=>enumlabel),
+      articleStatusLabels:editorialLabels.filter(({typname})=>typname==='ArticleStatus').map(({enumlabel})=>enumlabel),
+      articleBlockTypeLabels:editorialLabels.filter(({typname})=>typname==='ArticleBlockType').map(({enumlabel})=>enumlabel),
+      articleChecks:{
+        slug:actualConstraints.get('Article_slug_format_check')??null,
+        readingMinutes:actualConstraints.get('Article_reading_minutes_check')??null,
+        version:actualConstraints.get('Article_version_check')??null,
+        publishedAt:actualConstraints.get('Article_published_at_check')??null,
+        blockPosition:actualConstraints.get('ArticleBlock_position_check')??null,
+        blockContent:actualConstraints.get('ArticleBlock_content_check')??null,
+      },
       migrations:migrationState.map((row)=>({
         name:row.migration_name,
         checksum:row.checksum,
