@@ -9,7 +9,7 @@ src/server/auth concentra configuração, provider lazy, sessão e guard. src/co
 
 ## Schema e migration inicial
 User adiciona emailVerified, image, twoFactorEnabled e relações. Novos Session, Account, Verification, RateLimit, TwoFactor. UUID consistente; RateLimit.lastRequest BigInt; Session.mfaVerifiedAt opcional. UserRole e domínios anteriores preservados.
-Schema validado por getDMMF/getConfig de @prisma/internals 6.19.3 via WASM: 11 modelos válidos. A migration inicial foi aplicada em PostgreSQL 17 descartável, com 11 tabelas, 9 chaves estrangeiras e `CHECK` de humor entre 1 e 10. O próximo deploy de produção aplicará migrations pendentes antes do build Next.js; preview e local não executam essa etapa.
+Schema validado por getDMMF/getConfig de @prisma/internals 6.19.3 via WASM: 11 modelos válidos. A migration inicial foi aplicada em PostgreSQL 17 descartável, com 11 tabelas, 9 chaves estrangeiras e `CHECK` de humor entre 1 e 10. A estrutura equivalente já existente no Prisma Postgres foi confirmada por inspeção somente leitura e o histórico foi reconciliado pelo Prisma. Produção inspeciona o schema e aplica migrations pendentes antes do build Next.js; preview e local não executam essas etapas.
 
 ## Controles
 - AUTH_ENABLED precisa ser true e DATABASE_URL/BETTER_AUTH_SECRET/BETTER_AUTH_URL precisam passar pela validação antes de inicializar o provider.
@@ -29,11 +29,11 @@ Não considerar autenticação operacional apenas porque a UI compila.
 ## Dependências para 4B/ativação
 1. Concluído: integração Vercel autorizada para `moajrs-projects`.
 2. Concluído: Prisma Postgres e nomes das variáveis confirmados sem expor valores.
-3. Publicar e confirmar a migration no ambiente de produção; builds de preview não alteram o banco.
+3. Concluído: schema e migration confirmados em produção; builds de preview não alteram o banco.
 4. Configurar secret/base URL e processo confiável para provisionar o primeiro acesso. Não ativar signup público para bootstrap.
 5. Completar onboarding TOTP e recuperação por backup codes de forma auditada. Rotacionar/revogar sessões quando necessário.
 6. Testar login/sair, CSRF/origem, rate limit entre instâncias, expiração/revogação, isolamento e MFA com contas fictícias. Implementar auditoria antes de operações sensíveis.
 7. Só depois habilitar AUTH_ENABLED e implementar CMS 3B/portais.
 
 ## Empacotamento
-A partir deste marco, build gera o cliente Prisma antes de Next.js. Evita reutilizar cliente gerado de schema antigo no cache da plataforma. Geração não conecta ao banco ou aplica migrations. Tipos do schema novo foram gerados via DMMF no ambiente local e typecheck passou; runtime e conexão continuam pendentes. Primeiro deploy4A falhou, sem logs acessíveis pelo escopo atual; não atribuir causa antes de observá-los.
+A partir deste marco, build gera o cliente Prisma antes de Next.js. Evita reutilizar cliente gerado de schema antigo no cache da plataforma. Geração não conecta ao banco nem aplica migrations; a etapa de produção seguinte executa inspeção segura e `migrate deploy`. Runtime, conexão e schema foram confirmados no deploy de produção. A autenticação permanece inativa até provisionamento e E2E de login/MFA.

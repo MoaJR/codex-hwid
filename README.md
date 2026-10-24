@@ -35,7 +35,7 @@ npm run db:validate
 npm run db:check
 ```
 
-A geração oficial do Prisma depende dos binários distribuídos pelo provedor; a Vercel já executa essa etapa. A primeira migration está versionada e validada em banco descartável. Em produção, `npm run build` executa `prisma migrate deploy` antes do Next.js; preview e desenvolvimento pulam essa etapa. Segredos nunca devem ser commitados.
+A geração oficial do Prisma depende dos binários distribuídos pelo provedor; a Vercel já executa essa etapa. A migration versionada foi validada em banco descartável e reconciliada com o schema que já existia no Prisma Postgres. Em produção, `npm run build` inspeciona o schema e executa `prisma migrate deploy` antes do Next.js; preview e desenvolvimento pulam essas etapas. Segredos nunca devem ser commitados.
 
 ## Limites
 /agendar é uma simulação: não pede dados pessoais, não reserva horários e não realiza pagamentos. O login continua desabilitado e não há API clínica liberada. A demonstração dos portais usa dados fictícios em memória. Não usar dados de saúde reais. A foto original fornecida pelo usuário foi integrada na home e na página Sobre. Biografia, CRM/RQE, valores e contatos oficiais aguardam confirmação.
@@ -45,7 +45,7 @@ Progresso e próximos passos em docs/PROGRESS.md. Escopo do marco em docs/phases
 ## Integrações
 Prisma Postgres `prisma-postgres-yellow-helmet` confirmado pela API da Vercel como disponível e conectado ao projeto `vaz`. `DATABASE_URL`, `POSTGRES_URL` e `PRISMA_DATABASE_URL` existem como secrets em preview e produção; nenhum valor foi lido ou exibido. Detalhes em docs/INTEGRATIONS.md.
 
-Fase atual: 4A — base de autenticação preparada, ainda desabilitada. Fase 3A (blog público) preservada; CMS 3B depende de conexão, schema e acesso autenticado operacional.
+Fase atual: 4B — banco de produção confirmado e base de autenticação preparada, ainda desabilitada. Fase 3A (blog público) preservada; CMS 3B depende do primeiro acesso autenticado e dos testes de segurança.
 
 ## Autenticação — marco 4A
 /login, /verificar-acesso e /conta estão preparadas com Better Auth. O acesso é desabilitado por padrão e as APIs respondem 503 enquanto não configurado. Não há conta/senha padrão ou cadastro público.
@@ -54,6 +54,6 @@ Fase atual: 4A — base de autenticação preparada, ainda desabilitada. Fase 3A
 npm run auth:check
 ```
 
-AUTH_ENABLED só deve ser habilitado após a migration de produção ser confirmada, uma conta ser provisionada por processo confiável e login/MFA serem testados. Veja docs/phases/PHASE-4.md para critérios. Não publicar segredos em NEXT_PUBLIC_*.
+AUTH_ENABLED só deve ser habilitado após uma conta ser provisionada por processo confiável e login/MFA serem testados. Veja docs/phases/PHASE-4.md para critérios. Não publicar segredos em NEXT_PUBLIC_*.
 
 A integração Vercel já tem acesso à equipe `moajrs-projects`. O projeto, o storage e os nomes das variáveis foram verificados sem descriptografar secrets.

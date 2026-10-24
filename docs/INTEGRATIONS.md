@@ -4,7 +4,7 @@
 Publicação da branch main confirmada pelo status de commit Vercel do GitHub. URL: https://drdouglasvaz.vercel.app. A integração autorizada acessa a equipe `moajrs-projects` e o projeto `vaz` (`prj_GMLIAzAVl7IAu3fLVP7c7k6cLZVr`).
 
 ## Prisma Postgres
-Recurso `prisma-postgres-yellow-helmet` confirmado pela API da Vercel como `available`, billing ativo, região `iad1`, associado a `vaz` em preview e produção. Existem secrets `DATABASE_URL`, `POSTGRES_URL` e `PRISMA_DATABASE_URL`; somente nomes, destinos e estado foram consultados. Nenhum valor foi descriptografado. A migration inicial foi validada em PostgreSQL 17 descartável e será aplicada pelo próximo build de produção.
+Recurso `prisma-postgres-yellow-helmet` confirmado pela API da Vercel como `available`, billing ativo, região `iad1`, associado a `vaz` em preview e produção. Existem secrets `DATABASE_URL`, `POSTGRES_URL` e `PRISMA_DATABASE_URL`; somente nomes, destinos e estado foram consultados. Nenhum valor foi descriptografado. O deploy `dpl_3ApiNCDmxBCpcDprKeFuJEpgVbgJ` confirmou conexão, schema completo e migration sem pendências; terminou em `READY` e foi promovido ao domínio principal.
 
 ### Checagens em terminal confiável
 ```sh
@@ -30,7 +30,7 @@ Não aplicar fallbacks silenciosos entre aliases POSTGRES_* e DATABASE_URL. Nunc
 PNG original extraído do Doutor.zip enviado pelo usuário. Asset em public/images/dr-douglas-vaz.png. Enquadramento por CSS/Next Image, sem alterar o original. Biografia e credenciais ainda aguardam confirmação.
 
 ## Atualização — integração Vercel autorizada
-A autorização da equipe foi concluída. `get_project`, metadados do storage e listagem segura de variáveis funcionam para `moajrs-projects`; o bloqueio 403 anterior está resolvido. Nenhuma variável foi descriptografada, alterada ou criada nesta verificação.
+A autorização da equipe foi concluída. `get_project`, metadados do storage e listagem segura de variáveis funcionam para `moajrs-projects`; o bloqueio 403 anterior está resolvido. Nenhuma variável do banco foi descriptografada ou exibida.
 
 ## Autenticação preparada
 Better Auth usa DATABASE_URL, BETTER_AUTH_SECRET e BETTER_AUTH_URL, além do gate AUTH_ENABLED=true. Manter gate false até schema, contas e fluxos estarem verificados. auth:check informa somente nomes ausentes/inválidos e flags; não exibe valores e não testa login/banco.
