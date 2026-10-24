@@ -3,7 +3,7 @@ import {pathToFileURL} from 'node:url';
 /** Read-only production preflight. It reports structure only and never row data or connection details. */
 const expectedTables=[
   'User','UserRole','Patient','Doctor','CareAssignment','MoodEntry',
-  'Session','Account','Verification','RateLimit','TwoFactor',
+  'Session','Account','Verification','RateLimit','TwoFactor','AuditEvent',
 ];
 const expectedColumns={
   User:['id','email','name','emailVerified','image','twoFactorEnabled','createdAt','updatedAt'],
@@ -17,19 +17,22 @@ const expectedColumns={
   Verification:['id','identifier','value','expiresAt','createdAt','updatedAt'],
   RateLimit:['id','key','count','lastRequest'],
   TwoFactor:['id','secret','backupCodes','userId','verified','failedVerificationCount','lockedUntil'],
+  AuditEvent:['id','action','outcome','source','actorUserId','subjectUserId','occurredAt'],
 };
 const expectedConstraints=[
   'User_pkey','UserRole_pkey','Patient_pkey','Doctor_pkey','CareAssignment_pkey','MoodEntry_pkey',
-  'Session_pkey','Account_pkey','Verification_pkey','RateLimit_pkey','TwoFactor_pkey',
+  'Session_pkey','Account_pkey','Verification_pkey','RateLimit_pkey','TwoFactor_pkey','AuditEvent_pkey',
   'UserRole_userId_fkey','Patient_userId_fkey','Doctor_userId_fkey',
   'CareAssignment_patientId_fkey','CareAssignment_doctorId_fkey','MoodEntry_patientId_fkey',
   'Session_userId_fkey','Account_userId_fkey','TwoFactor_userId_fkey',
+  'AuditEvent_actorUserId_fkey','AuditEvent_subjectUserId_fkey',
 ];
 const expectedIndexes=[
   'User_email_key','Patient_userId_key','Doctor_userId_key','CareAssignment_doctorId_endedAt_idx',
   'MoodEntry_patientId_recordedAt_idx','Session_token_key','Session_userId_idx','Account_userId_idx',
   'Account_providerId_accountId_key','Verification_identifier_idx','RateLimit_key_key',
-  'TwoFactor_secret_idx','TwoFactor_userId_idx',
+  'TwoFactor_secret_idx','TwoFactor_userId_idx','AuditEvent_occurredAt_idx',
+  'AuditEvent_actorUserId_occurredAt_idx','AuditEvent_subjectUserId_occurredAt_idx',
 ];
 
 export async function inspectDatabaseSchema(environment=process.env){

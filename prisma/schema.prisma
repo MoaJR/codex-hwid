@@ -26,6 +26,8 @@ model User {
   roles UserRole[]
   patient Patient?
   doctor Doctor?
+  auditEventsAsActor AuditEvent[] @relation("AuditEventActor")
+  auditEventsAsSubject AuditEvent[] @relation("AuditEventSubject")
 }
 model UserRole {
   userId String @db.Uuid
@@ -125,4 +127,20 @@ model TwoFactor {
   lockedUntil             DateTime?
   @@index([secret])
   @@index([userId])
+}
+
+model AuditEvent {
+  id            String   @id @default(uuid()) @db.Uuid
+  action        String
+  outcome       String
+  source        String
+  actorUserId   String?  @db.Uuid
+  subjectUserId String?  @db.Uuid
+  occurredAt    DateTime @default(now())
+  actor         User?    @relation("AuditEventActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  subject       User?    @relation("AuditEventSubject", fields: [subjectUserId], references: [id], onDelete: SetNull)
+
+  @@index([occurredAt])
+  @@index([actorUserId, occurredAt])
+  @@index([subjectUserId, occurredAt])
 }

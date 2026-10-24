@@ -1,9 +1,15 @@
+import {pathToFileURL} from 'node:url';
+
 /** Read-only diagnostic, intended for a trusted terminal, never a public route. */
 function report(status,code){console.log(JSON.stringify({status,code,operation:'SELECT 1',schemaChecked:false},null,2));}
-if(!process.env.DATABASE_URL?.trim()){
-  report('not_configured','DATABASE_URL_MISSING');
-  process.exitCode=1;
-}else{
+
+export function getMissingDatabaseReport(environment=process.env){
+  return environment.DATABASE_URL?.trim()?null:{status:'not_configured',code:'DATABASE_URL_MISSING',operation:'SELECT 1',schemaChecked:false};
+}
+
+async function main(){
+  const missing=getMissingDatabaseReport();
+  if(missing){console.log(JSON.stringify(missing,null,2));process.exitCode=1;return;}
   let client;
   const deadline=setTimeout(()=>{report('failed','DATABASE_CHECK_TIMEOUT');process.exit(1);},10000);
   deadline.unref();
@@ -20,4 +26,8 @@ if(!process.env.DATABASE_URL?.trim()){
     try{if(client)await client.$disconnect();}catch{/* no sensitive output */}
     clearTimeout(deadline);
   }
+}
+
+if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
+  await main();
 }

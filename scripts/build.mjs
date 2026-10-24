@@ -4,7 +4,7 @@ import {pathToFileURL} from 'node:url';
 export function getBuildScripts(environment=process.env){
   return [
     'db:generate',
-    ...(environment.VERCEL_ENV==='production'?['db:inspect:schema','db:migrate:deploy']:[]),
+    ...(environment.VERCEL_ENV==='production'?['db:migrate:deploy','db:inspect:schema']:[]),
     'build:next',
   ];
 }

@@ -3,6 +3,7 @@ import {betterAuth} from 'better-auth';
 import {prismaAdapter} from 'better-auth/adapters/prisma';
 import {twoFactor} from 'better-auth/plugins';
 import {createAuthMiddleware,APIError} from 'better-auth/api';
+import {randomUUID} from 'node:crypto';
 import {db} from '@/server/db';
 import {verifiedMfaSession} from './configuration.mjs';
 export function createAuth(){
@@ -22,10 +23,16 @@ export function createAuth(){
     hooks:{before:createAuthMiddleware(async context=>{
       if(context.path.startsWith('/two-factor/')&&context.body?.trustDevice===true){throw new APIError('BAD_REQUEST',{message:'A verificação em duas etapas é necessária neste acesso.'});}
     }),after:createAuthMiddleware(async context=>{
-      const verified=verifiedMfaSession(context.path,context.context.returned);
+      const verified=verifiedMfaSession(context.path,context.context.returned,context.context.newSession);
       if(!verified)return;
-      const result=await db.session.updateMany({where:{token:verified.token,userId:verified.userId},data:{mfaVerifiedAt:new Date()}});
-      if(result.count!==1)throw new APIError('INTERNAL_SERVER_ERROR',{message:'Não foi possível concluir a verificação de acesso.'});
+      await db.$transaction(async transaction=>{
+        const result=await transaction.session.updateMany({where:{token:verified.token,userId:verified.userId},data:{mfaVerifiedAt:new Date()}});
+        if(result.count!==1)throw new APIError('INTERNAL_SERVER_ERROR',{message:'Não foi possível concluir a verificação de acesso.'});
+        await transaction.$executeRaw`
+          INSERT INTO "AuditEvent" ("id", "action", "outcome", "source", "actorUserId", "subjectUserId", "occurredAt")
+          VALUES (${randomUUID()}::uuid, ${verified.action}, 'SUCCESS', 'WEB_SESSION', ${verified.userId}::uuid, ${verified.userId}::uuid, CURRENT_TIMESTAMP)
+        `;
+      });
     })},
     logger:{disabled:true},
   });

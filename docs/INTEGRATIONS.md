@@ -33,4 +33,4 @@ PNG original extraído do Doutor.zip enviado pelo usuário. Asset em public/imag
 A autorização da equipe foi concluída. `get_project`, metadados do storage e listagem segura de variáveis funcionam para `moajrs-projects`; o bloqueio 403 anterior está resolvido. Nenhuma variável do banco foi descriptografada ou exibida.
 
 ## Autenticação preparada
-Better Auth usa DATABASE_URL, BETTER_AUTH_SECRET e BETTER_AUTH_URL, além do gate AUTH_ENABLED=true. Manter gate false até schema, contas e fluxos estarem verificados. auth:check informa somente nomes ausentes/inválidos e flags; não exibe valores e não testa login/banco.
+Better Auth usa DATABASE_URL, BETTER_AUTH_SECRET e BETTER_AUTH_URL, além do gate AUTH_ENABLED=true. Manter gate false até a migration de auditoria, a primeira conta e os fluxos estarem verificados. auth:check informa somente nomes ausentes/inválidos e flags; não exibe valores e não testa login/banco. auth:provision exige terminal interativo, recusa senha por argumento, revoga a sessão de bootstrap e grava auditoria.

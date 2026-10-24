@@ -24,7 +24,7 @@ npm run build
 npm start
 ```
 
-No marco atual: 25 testes passaram, TypeScript e build público passaram. A migração inicial também passou em PostgreSQL 17 descartável, com 11 tabelas, 9 chaves estrangeiras e a restrição de humor entre 1 e 10. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes; local e preview não alteram o banco. Revisão visual e testes E2E do login ainda estão pendentes.
+No marco atual: 31 testes passaram, assim como TypeScript e o build Next.js. O schema atual tem 12 modelos: os 11 modelos iniciais e a trilha `AuditEvent`. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes e inspeciona o resultado; local e preview não alteram o banco. O build completo e a migration nova ainda precisam ser confirmados pelo próximo deploy da Vercel, e os testes E2E do login continuam pendentes.
 
 ## Banco de dados
 O frontend pode rodar sem configurar o banco. Para desenvolvimento local do backend, configure DATABASE_URL em `.env.local` usando `.env.example` como referência e execute:
@@ -35,7 +35,7 @@ npm run db:validate
 npm run db:check
 ```
 
-A geração oficial do Prisma depende dos binários distribuídos pelo provedor; a Vercel já executa essa etapa. A migration versionada foi validada em banco descartável e reconciliada com o schema que já existia no Prisma Postgres. Em produção, `npm run build` inspeciona o schema e executa `prisma migrate deploy` antes do Next.js; preview e desenvolvimento pulam essas etapas. Segredos nunca devem ser commitados.
+A geração oficial do Prisma depende dos binários distribuídos pelo provedor; a Vercel já executa essa etapa. A migration inicial foi validada em banco descartável e reconciliada com o schema que já existia no Prisma Postgres. Em produção, `npm run build` executa `prisma migrate deploy` e depois inspeciona o schema antes do Next.js; preview e desenvolvimento pulam essas etapas. Segredos nunca devem ser commitados.
 
 ## Limites
 /agendar é uma simulação: não pede dados pessoais, não reserva horários e não realiza pagamentos. O login continua desabilitado e não há API clínica liberada. A demonstração dos portais usa dados fictícios em memória. Não usar dados de saúde reais. A foto original fornecida pelo usuário foi integrada na home e na página Sobre. Biografia, CRM/RQE, valores e contatos oficiais aguardam confirmação.
@@ -47,13 +47,19 @@ Prisma Postgres `prisma-postgres-yellow-helmet` confirmado pela API da Vercel co
 
 Fase atual: 4B — banco de produção confirmado e base de autenticação preparada, ainda desabilitada. Fase 3A (blog público) preservada; CMS 3B depende do primeiro acesso autenticado e dos testes de segurança.
 
-## Autenticação — marco 4A
-/login, /verificar-acesso e /conta estão preparadas com Better Auth. O acesso é desabilitado por padrão e as APIs respondem 503 enquanto não configurado. Não há conta/senha padrão ou cadastro público.
+## Autenticação — marco 4B
+/login, /verificar-acesso e /conta estão preparadas com Better Auth. A conta permite cadastrar um aplicativo autenticador por QR Code, guardar códigos de recuperação e usar cada código uma única vez. Provisionamento, TOTP e uso de recuperação deixam eventos de auditoria sem conteúdo clínico. O acesso permanece desabilitado por padrão e as APIs respondem 503 enquanto não configurado. Não há conta/senha padrão ou cadastro público.
 
 ```sh
 npm run auth:check
 ```
 
-AUTH_ENABLED só deve ser habilitado após uma conta ser provisionada por processo confiável e login/MFA serem testados. Veja docs/phases/PHASE-4.md para critérios. Não publicar segredos em NEXT_PUBLIC_*.
+O primeiro acesso é criado somente em terminal confiável; a senha é solicitada interativamente e nunca é aceita como argumento:
+
+```sh
+npm run auth:provision -- --email usuario@exemplo.com --name "Nome" --role DOCTOR --confirm PROVISIONAR
+```
+
+AUTH_ENABLED só deve ser habilitado depois do provisionamento e dos testes de login/MFA. Veja docs/phases/PHASE-4.md para critérios. Não publicar segredos em NEXT_PUBLIC_*.
 
 A integração Vercel já tem acesso à equipe `moajrs-projects`. O projeto, o storage e os nomes das variáveis foram verificados sem descriptografar secrets.

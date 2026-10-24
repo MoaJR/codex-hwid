@@ -16,12 +16,14 @@
     "db:inspect:schema": "node --env-file-if-exists=.env.local scripts/inspect-database-schema.mjs",
     "services:check": "node --env-file-if-exists=.env.local scripts/check-services.mjs",
     "db:check": "node --env-file-if-exists=.env.local scripts/check-database.mjs",
-    "auth:check": "node --env-file-if-exists=.env.local scripts/check-auth.mjs"
+    "auth:check": "node --env-file-if-exists=.env.local scripts/check-auth.mjs",
+    "auth:provision": "node --env-file-if-exists=.env.local scripts/provision-access.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
     "better-auth": "1.7.12",
     "next": "^16.0.0",
+    "qrcode.react": "^4.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "server-only": "^0.0.1"

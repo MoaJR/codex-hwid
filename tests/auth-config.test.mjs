@@ -13,7 +13,9 @@ test('MFA stamp cannot come from password login, submitted role or failed result
  const {verifiedMfaSession}=await import('../src/server/auth/configuration.mjs');
  assert.equal(verifiedMfaSession('/sign-in/email',{token:'t',user:{id:'u'}}),null);
  assert.equal(verifiedMfaSession('/two-factor/verify-totp',{error:'invalid',body:{mfaVerifiedAt:'today'}}),null);
- assert.deepEqual(verifiedMfaSession('/two-factor/verify-totp',{token:'server-token',user:{id:'server-user'}}),{token:'server-token',userId:'server-user'});
+ assert.deepEqual(verifiedMfaSession('/two-factor/verify-totp',{token:'server-token',user:{id:'server-user'}}),{token:'server-token',userId:'server-user',action:'MFA_TOTP_VERIFIED'});
+ assert.deepEqual(verifiedMfaSession('/two-factor/verify-backup-code',{token:'backup-token',user:{id:'server-user'}}),{token:'backup-token',userId:'server-user',action:'MFA_BACKUP_CODE_USED'});
+ assert.deepEqual(verifiedMfaSession('/two-factor/verify-totp',{token:'rotated-old',user:{id:'server-user'}},{session:{token:'rotated-new'},user:{id:'server-user'}}),{token:'rotated-new',userId:'server-user',action:'MFA_TOTP_VERIFIED'});
 });
 test('old password-only sessions stay denied after user enables MFA',async()=>{
  const {hasVerifiedMfa}=await import('../src/server/auth/configuration.mjs');
