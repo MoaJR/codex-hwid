@@ -2,6 +2,8 @@
 
 Site público e portal autenticado em Next.js App Router + React + TypeScript, com direção visual verde/off-white. A base PostgreSQL/Prisma está conectada, a primeira conta usa MFA e as áreas de equipe exigem sessão verificada. O portal reúne área do paciente, agenda operacional, CMS editorial, administração e segurança da conta conforme o papel de cada usuário.
 
+Produção: https://drdouglasvaz.vercel.app
+
 ## Acompanhar no VS Code
 Node.js 22.15 ou superior. No terminal da pasta do projeto:
 

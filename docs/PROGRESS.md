@@ -33,6 +33,7 @@
 - A migration `20261025050000_remove_demo_content` atualiza apenas os textos semeados que ainda correspondem exatamente ao protótipo, incrementa a versão e registra auditoria por artigo.
 - Deployment `dpl_DPSck3iYscPuyeoHvATp1QytTok8` publicou o commit `2b602a9`, aplicou `20261024180000_add_operational_scheduling`, confirmou 20/20 tabelas e criou quatro serviços (`inserted: 4`, `skipped: 0`).
 - Redeploy idempotente `dpl_Dq8KeEsy62RvhGmn2RQJZp26a8EX` publicou o commit `08a933a`, não encontrou migrations pendentes e preservou os quatro serviços (`inserted: 0`, `skipped: 4`).
+- Deployment `dpl_FvkwrsLWqVu8sJ3xJrNRhGuA5vYc` publicou o commit `15b171e` com os portais por papel, aplicou `20261025050000_remove_demo_content`, confirmou 20/20 tabelas, preservou os seeds sem duplicação e terminou em `READY`.
 - `scheduling:check` foi adicionado para validar produção somente por contagens agregadas: fuso, catálogo, intervalos, estados, sobreposição, eventos e auditoria; não imprime nomes, e-mails, IDs ou horários individuais.
 
 ## Entregas anteriores preservadas
@@ -50,6 +51,7 @@
 - Deploy `dpl_Dq8KeEsy62RvhGmn2RQJZp26a8EX` confirmou a repetição segura: nenhuma migration pendente, 20/20 tabelas íntegras, seeds sem duplicação e commit `08a933a` promovido ao domínio principal.
 - Deploy `dpl_93G7PjBHTE2Yw3TDYZeiN2CrEMRJ` promoveu o commit `4d40ba0`, confirmou novamente 20/20 tabelas, nenhuma migration pendente, seeds sem duplicação e integridade agregada da agenda em estado `ready`.
 - Deploy `dpl_BxiSYGnVGejz8gG5hqFso1kMDFk8` promoveu o commit `7de56b6` com a troca própria de senha; o build completo terminou em `READY` e o domínio `drdouglasvaz.vercel.app` recebeu o marco 4D.
+- Deploy `dpl_FvkwrsLWqVu8sJ3xJrNRhGuA5vYc` promoveu o commit `15b171e`, aplicou a retirada do conteúdo legado e publicou `/painel`, `/paciente` e `/admin` no domínio principal.
 
 ## Verificações
 - 72 testes automatizados cobrem autorização, configuração/origem, MFA, provisionamento, controle de sessões e senha, auditoria, workflow editorial, migrations, disponibilidade, idempotência, buffers, fuso, entrada estrita, checker agregado, seed, datas, publicação, diagnósticos seguros e isolamento por ambiente. O marco dos portais acrescenta cobertura para mapa de módulos, titularidade do paciente e retirada das superfícies demonstrativas.
@@ -63,10 +65,10 @@
 - Login, ativação TOTP e segundo login com MFA tiveram E2E concluído. Recuperação, expiração/revogação e rate limit entre instâncias ainda precisam da bateria operacional completa.
 - Smoke remoto atual: home, `/login` e `/api/health` responderam 200; `/api/auth/get-session` respondeu 200 com sessão anônima nula e sem cookie; runtime sem erros.
 - Smoke do CMS: blog/API retornaram três artigos publicados, artigo público respondeu 200, rascunho respondeu 404, painel anônimo voltou ao login e API administrativa anônima respondeu 401.
-- Smoke anterior 5A: `/medico/agenda` anônimo terminou em `/login`; health respondeu produção, API pública manteve três artigos e a janela de runtime não apresentou erros. O smoke da publicação dos novos portais deve confirmar `/agendar` como gateway, `/demonstracao.html` em 404 e `/painel`, `/paciente` e `/admin` redirecionando visitantes ao login.
+- Smoke dos portais: home, `/agendar`, blog, API pública e health responderam 200; `/agendar` exibiu o gateway real sem texto demonstrativo; `/demonstracao.html` retornou 404; `/painel`, `/paciente` e `/admin` anônimos terminaram em `/login`. A janela verificada não apresentou erros de runtime.
 - Smoke 4C: `/conta` anônimo terminou em `/login`; `/api/auth/list-sessions` e `/api/auth/change-password` responderam 404; a rota própria rejeitou GET com 405; runtime permaneceu sem erros.
 - Smoke local 4D: a nova rota rejeitou GET, origem externa e corpo fora do contrato; com origem canônica e autenticação desabilitada falhou fechado em 503. O build Next.js incluiu `/api/account/password`. O E2E autenticado será feito após a publicação, porque o executor não consegue baixar o motor nativo do Prisma; o build Vercel continua sendo a geração oficial confirmada.
 
 ## Próximos passos
-Validar, publicar e executar o smoke dos portais e da migration de retirada da demonstração. Depois, testar uma conta de cada papel: paciente limitado às próprias consultas; médico e secretaria na agenda; administrador limitado à administração editorial; todos com MFA aplicável. Executar com a conta do médico um ciclo controlado: regra semanal → paciente de teste → criação → reagendamento → cancelamento, seguido por `npm run scheduling:check` em terminal confiável. Em paralelo, validar troca de senha e encerramento de outros acessos com dois logins, expiração e uso único de código de recuperação. Depois concluir as decisões operacionais de privacidade antes da Fase 5B.
+Provisionar e testar uma conta de cada papel: paciente limitado às próprias consultas; médico e secretaria na agenda; administrador limitado à administração editorial; todos com MFA aplicável. Executar com a conta do médico um ciclo controlado: regra semanal → paciente de teste → criação → reagendamento → cancelamento, seguido por `npm run scheduling:check` em terminal confiável. Em paralelo, validar troca de senha e encerramento de outros acessos com dois logins, expiração e uso único de código de recuperação. Depois concluir as decisões operacionais de privacidade antes da Fase 5B.
 Não usar dados pessoais ou de saúde reais até os controles operacionais e a política de privacidade estarem validados.
