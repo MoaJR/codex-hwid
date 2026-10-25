@@ -9,6 +9,20 @@ O ambiente recomendado usa PostgreSQL 17 local. Ele permite testar login, MFA e 
 - Docker Desktop
 - VS Code com Cline
 
+## Instalação automatizada no Windows
+
+Se o Cline informar que Node.js, Docker, WSL 2 ou o banco não estão disponíveis, abra o terminal **PowerShell** do VS Code na pasta do projeto e execute:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1 -InstallMissing
+```
+
+O script diagnostica Git, Node.js 22.15+, WSL 2, Docker Desktop e Docker Compose; instala o que estiver ausente pelos canais oficiais do Windows; cria uma configuração local com chave aleatória sem exibi-la; inicia o PostgreSQL 17; instala as dependências; aplica as migrations; e valida schema, seed editorial e autenticação. Ele recusa qualquer `.env.local` que não aponte para o banco local exato.
+
+O Windows pode exibir uma janela de administrador para instalar o WSL 2 e o Docker Desktop. Aceite essa janela. Se o script mostrar `[REINICIO NECESSARIO]`, reinicie o computador, abra novamente o projeto e repita o mesmo comando. Na primeira abertura do Docker Desktop, conclua os termos mostrados pelo próprio aplicativo e repita o comando caso o tempo de espera termine.
+
+Depois que aparecer `Ambiente local preparado com sucesso`, siga a seção **Criar identidades fictícias** abaixo e execute `npm run dev`. O script não cria usuários ou senhas padrão.
+
 ## 1. Atualizar e instalar
 
 No PowerShell, dentro da pasta do projeto:

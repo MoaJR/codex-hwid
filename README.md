@@ -17,6 +17,8 @@ Abra http://localhost:3000. Alterações locais têm atualização automática. 
 
 Para trabalhar com login, MFA e painéis no VS Code, use o PostgreSQL local e o passo a passo em `docs/LOCAL_DEVELOPMENT.md`. O arquivo `CLINE_START.md` contém o handoff atualizado e o primeiro comando para o Cline; o antigo roteiro de iniciar o projeto do zero não se aplica mais.
 
+No Windows, se faltarem Node.js, WSL 2, Docker Desktop ou o banco local, o bootstrap pode preparar o ambiente com `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1 -InstallMissing`. Instalações do sistema ainda podem pedir autorização de administrador e reinicialização; o script informa essas etapas sem acessar credenciais de Produção.
+
 Páginas públicas: `/sobre`, `/tratamentos`, `/consulta-online`, `/agendar`, `/contato`, `/privacidade` e `/blog`. O blog tem busca, categorias e páginas de artigo. `/painel` é a entrada autenticada e mostra somente os módulos autorizados: `/paciente`, `/medico/agenda`, `/medico/conteudos`, `/admin` e `/conta`. O protótipo estático e o fluxo fictício de agendamento foram removidos.
 
 ## Verificações

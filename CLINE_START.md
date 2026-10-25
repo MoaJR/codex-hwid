@@ -40,6 +40,7 @@ Antes de propor código, execute `git status`, leia a implementação relacionad
 - Nunca leia, imprima, edite ou peça o conteúdo de `.env.local`.
 - Use somente PostgreSQL local e identidades fictícias durante o desenvolvimento.
 - Não conecte o Cline ao banco de Produção.
+- Se faltarem dependências no Windows, execute `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1 -InstallMissing`; respeite pedidos visíveis de administrador/reinício e não improvise outro banco.
 - Nunca invente CRM, RQE, biografia, preços, endereço ou contatos do médico.
 - Preserve autorização negada por padrão e validação no servidor.
 - Identidade, papel e titularidade vêm da sessão e do banco, nunca do cliente.
