@@ -1,6 +1,6 @@
 # Dr. Douglas Vaz — Plataforma de Psiquiatria
 
-Site público e portal autenticado em Next.js App Router + React + TypeScript, com direção visual verde/off-white. A base PostgreSQL/Prisma está conectada e as áreas de equipe exigem sessão autenticada. O portal reúne área do paciente, agenda operacional, CMS editorial, administração e segurança da conta conforme o papel de cada usuário.
+Site público e portal autenticado em Next.js App Router + React + TypeScript, com direção visual azul navy/off-white. A base PostgreSQL/Prisma está conectada e as áreas de equipe exigem sessão autenticada. O portal reúne área do paciente, agenda operacional, CMS editorial, administração e segurança da conta conforme o papel de cada usuário.
 
 Produção: https://drdouglasvaz.vercel.app
 
@@ -19,7 +19,7 @@ Para trabalhar com login e painéis no VS Code, use o PostgreSQL local e o passo
 
 No Windows, se faltarem Node.js, WSL 2, Docker Desktop ou o banco local, o bootstrap pode preparar o ambiente com `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1 -InstallMissing`. Instalações do sistema ainda podem pedir autorização de administrador e reinicialização; o script informa essas etapas sem acessar credenciais de Produção.
 
-Páginas públicas: `/sobre`, `/tratamentos`, `/consulta-online`, `/agendar`, `/contato`, `/privacidade` e `/blog`. O blog tem busca, categorias e páginas de artigo. `/painel` é a entrada autenticada e mostra somente os módulos autorizados: `/paciente`, `/medico/agenda`, `/medico/conteudos`, `/admin` e `/conta`. O protótipo estático e o fluxo fictício de agendamento foram removidos.
+A homepage reúne hero navy com retrato profissional, diferenciais, pilares de cuidado, áreas de acompanhamento, apresentação do médico, passo a passo, leituras publicadas do blog, perguntas frequentes e chamada final. Páginas públicas: `/sobre`, `/tratamentos`, `/consulta-online`, `/agendar`, `/contato`, `/privacidade` e `/blog`. O blog tem busca, categorias e páginas de artigo. `/painel` é a entrada autenticada e mostra somente os módulos autorizados: `/paciente`, `/medico/agenda`, `/medico/conteudos`, `/admin` e `/conta`. O protótipo estático e o fluxo fictício de agendamento foram removidos.
 
 ## Verificações
 

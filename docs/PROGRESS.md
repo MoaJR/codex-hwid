@@ -1,5 +1,12 @@
 # Progresso — 25/10/2026
 
+## Homepage navy — 25/10/2026
+- Paleta global trocada de verde/off-white para azul navy: `--primary:#0a1f44`, `--secondary:#1d4ed8`, `--mint:#e9effb`, fundo `#f6f8fc` e superfícies brancas. Cores semânticas de sucesso, alerta, erro e status permaneceram inalteradas.
+- Header ganhou fundo translúcido com blur, indicador de navegação e CTA em pílula; rodapé passou a usar o navy escuro com contraste revisado.
+- Homepage reconstruída com hero escuro, retrato em moldura, cards flutuantes, faixa de diferenciais, pilares de cuidado, bento de áreas de acompanhamento, bloco do médico, timeline de atendimento, leituras do blog, FAQ e CTA final.
+- Conteúdo mantém os limites do projeto: sem CRM/RQE, formação, preços, endereço, disponibilidade ou depoimentos inventados. A vitrine do blog lê somente artigos estáticos `PUBLISHED` e não abre conexão com o banco.
+- Validação local: 91 testes aprovados, `npm run typecheck`, `npm run build:next` e HTTP 200 da homepage renderizada. Revisão visual em navegador permanece recomendada.
+
 ## Fase atual: 5A + 4D — portais por papel, agenda interna e segurança da conta
 - Better Auth 1.7.12 com adaptador Prisma, sessão em banco e plugin TOTP.
 - /login, /verificar-acesso e /conta; handlers /api/auth/[...all].
