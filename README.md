@@ -30,16 +30,17 @@ npm run build
 npm start
 ```
 
-O ciclo da agenda pode ser aceito de ponta a ponta, sem digitação e sem imprimir dados pessoais, com o servidor local no ar e as identidades fictícias provisionadas:
+O ciclo da agenda e a segurança da conta podem ser aceitos de ponta a ponta, sem digitação e sem imprimir dados pessoais, com o servidor local no ar e as identidades fictícias provisionadas:
 
 ```sh
 npm run e2e:scheduling
+npm run e2e:account
 npm run scheduling:check
 ```
 
-O script só aceita `localhost`, `127.0.0.1` ou `::1`, exige `--confirm E2E` e usa as identidades de `.env.local.accounts`. Ele cria uma regra semanal temporária, exercita criação, repetição idempotente, conflito, reagendamento, cancelamento e as negações de paciente e secretaria, e desativa a regra no final.
+Os scripts só aceitam `localhost`, `127.0.0.1` ou `::1`, exigem `--confirm E2E` e usam as identidades de `.env.local.accounts`. A agenda cria uma regra semanal temporária, exercita criação, repetição idempotente, conflito, reagendamento, cancelamento e as negações de paciente e secretaria, e desativa a regra no final. A conta abre dois acessos, revoga os outros preservando o atual, recusa senha atual errada, troca e restaura a senha original; por causa do limite de 5 tentativas por 15 minutos, ela mantém o marcador `.e2e-account.lock` e recusa nova execução antes de 16 minutos.
 
-No marco atual, 99 testes automatizados cobrem identidade, autorização, conta, conteúdo, agenda, os mapas de acesso dos painéis, a matriz de aceite dos quatro papéis e o contrato dos guardas de cada página e API protegida, além das garantias do bootstrap local e do aceite automatizado da agenda. O schema tem 20 modelos para identidade, domínio inicial, auditoria, conteúdo e agenda. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes, inspeciona o resultado, executa seeds aditivos e roda a checagem agregada da agenda; local e preview não alteram o banco.
+No marco atual, 107 testes automatizados cobrem identidade, autorização, conta, conteúdo, agenda, os mapas de acesso dos painéis, a matriz de aceite dos quatro papéis e o contrato dos guardas de cada página e API protegida, além das garantias do bootstrap local e dos aceites automatizados da agenda e da conta. O schema tem 20 modelos para identidade, domínio inicial, auditoria, conteúdo e agenda. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes, inspeciona o resultado, executa seeds aditivos e roda a checagem agregada da agenda; local e preview não alteram o banco.
 
 ## Banco de dados
 O frontend pode rodar sem configurar o banco. Para desenvolvimento local do backend, configure DATABASE_URL em `.env.local` usando `.env.example` como referência e execute:

@@ -22,8 +22,9 @@ Antes de propor código, execute `git status`, leia a implementação relacionad
 - Stack: Next.js 16, React 19, TypeScript, Prisma/PostgreSQL e Better Auth com TOTP.
 - Fases 0 a 4 concluídas; Fase 5A publicada e aguardando a bateria operacional autenticada completa.
 - O schema possui 20 modelos e sete enums.
-- A suíte possui 99 testes; typecheck e build estão aprovados.
+- A suíte possui 107 testes; typecheck e build estão aprovados.
 - O ciclo completo da agenda é aceito por automação local: `npm run e2e:scheduling` (19 verificações, sem imprimir dados pessoais) e `npm run scheduling:check`.
+- A segurança da conta é aceita por `npm run e2e:account` (14 verificações: dois logins, revogação dos outros acessos, troca e restauração da senha), com espera de 16 minutos entre execuções por causa do limite do servidor.
 - `main` publica automaticamente na Vercel.
 - O protótipo estático e o agendamento fictício foram removidos.
 - A bateria E2E autenticada dos quatro papéis está roteirizada em `docs/E2E_5A_ROLES.md` e
@@ -63,18 +64,19 @@ Antes de propor código, execute `git status`, leia a implementação relacionad
 4. Rode `npm run typecheck`.
 5. Rode `npm run build:next`.
 6. Para mudanças de banco, valide a migration em PostgreSQL 17 local e rode os checks relacionados.
-7. Atualize `docs/PROGRESS.md` e registre decisões relevantes em `docs/DECISIONS.md`.
-8. Informe o que mudou, como foi validado, limitações e próximo passo.
+7. Para mudanças de agenda ou conta, rode também `npm run e2e:scheduling` e/ou `npm run e2e:account` com o servidor local no ar.
+8. Atualize `docs/PROGRESS.md` e registre decisões relevantes em `docs/DECISIONS.md`.
+9. Informe o que mudou, como foi validado, limitações e próximo passo.
 
 ## Próximos passos, nesta ordem
 
-1. Validar a troca de senha e a revogação das outras sessões com dois logins simultâneos na mesma máquina local; o roteiro está em `docs/E2E_5A_ROLES.md`.
-2. Documentar e aprovar controlador, bases legais, retenção, subprocessadores, backup/restore e resposta a incidentes.
-3. Planejar a Fase 5B de agendamento para paciente autenticado, sem cadastro anônimo ou pagamento neste primeiro recorte.
-4. Depois da 5B, planejar a Fase 6 do portal do paciente. O painel atual é a fundação; não criar cards falsos para módulos ainda ausentes.
-5. A administração completa de usuários/permissões permanece uma evolução auditada; o `/admin` atual é deliberadamente limitado ao domínio editorial.
+1. Documentar e aprovar controlador, bases legais, retenção, subprocessadores, backup/restore e resposta a incidentes.
+2. Planejar a Fase 5B de agendamento para paciente autenticado, sem cadastro anônimo ou pagamento neste primeiro recorte.
+3. Depois da 5B, planejar a Fase 6 do portal do paciente. O painel atual é a fundação; não criar cards falsos para módulos ainda ausentes.
+4. A administração completa de usuários/permissões permanece uma evolução auditada; o `/admin` atual é deliberadamente limitado ao domínio editorial.
 
-Já cobertos e não precisam ser repetidos manualmente: a bateria por papel (`docs/E2E_5A_ROLES.md`) e o ciclo completo da agenda (`npm run e2e:scheduling` + `npm run scheduling:check`), ambos executados em 25/10/2026 no PostgreSQL local.
+Já cobertos e não precisam ser repetidos manualmente: a bateria por papel (`docs/E2E_5A_ROLES.md`), o ciclo completo da agenda (`npm run e2e:scheduling` + `npm run scheduling:check`) e a segurança da conta (`npm run e2e:account`), executados em 25/10/2026 no PostgreSQL local.
+
 
 
 ## Primeiro pedido para o Cline

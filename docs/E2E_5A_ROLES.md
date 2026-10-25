@@ -111,6 +111,32 @@ Depois da bateria, confirme as invariantes agregadas:
 npm run scheduling:check
 ```
 
+## Segurança da conta (marco 4D)
+
+Com o mesmo servidor local no ar:
+
+```bash
+npm run e2e:account
+```
+
+O script `scripts/e2e-account.mjs` usa somente a identidade `PATIENT` do arquivo de
+identidades fictícias, abre dois acessos simultâneos e confirma:
+
+| Verificação | O que confirma |
+| --- | --- |
+| `twoLogins`, `revokeOthersSucceeded`, `revokedSessionDenied`, `currentSessionPreserved` | dois acessos reais, revogação dos outros e preservação da sessão atual |
+| `unauthenticatedRevokeRejected`, `originRequired` | `401` sem sessão e `403` sem origem canônica |
+| `rawSessionEndpointDisabled`, `rawPasswordEndpointDisabled` | endpoints crus de sessão e senha do provedor continuam em `404` |
+| `wrongCurrentPasswordRejected` | senha atual incorreta devolve `400 INVALID_CURRENT_PASSWORD` |
+| `passwordChanged`, `oldPasswordRejected`, `newPasswordAccepted` | troca efetiva, senha antiga recusada e nova senha aceita |
+| `passwordRestored`, `originalPasswordAccepted` | a senha original do arquivo de identidades volta a funcionar |
+
+A troca de senha tem limite de 5 tentativas por 15 minutos. Por isso o script mantém o
+marcador local `.e2e-account.lock` (ignorado pelo Git) e recusa uma segunda execução antes
+de 16 minutos com `E2E_ACCOUNT_COOLDOWN`; apague o marcador somente se souber que a janela
+já passou. Nenhuma senha é impressa; se a restauração falhar, o resumo traz
+`manualAction: "ROTATE_LOCAL_PATIENT_PASSWORD"`.
+
 ## Registro de execução
 
 | Papel | Data | Login | Módulos conferidos | Negados conferidos | Observações |
@@ -126,9 +152,15 @@ npm run scheduling:check
 | --- | --- | --- | --- |
 | 25/10/2026 | 19/19 em duas rodadas consecutivas | `ready` | consulta criada, reagendada e cancelada; regra do aceite desativada; nenhum dado pessoal impresso |
 
+### Segurança da conta
+
+| Data | `npm run e2e:account` | Observações |
+| --- | --- | --- |
+| 25/10/2026 | 14/14 | dois logins, revogação dos outros, senha atual errada recusada, troca e restauração da senha original; endpoints crus em `404` |
+
 ## Próximos passos
 
-Validar a troca de senha e a revogação das outras sessões com dois logins simultâneos na
-mesma máquina local. Dados clínicos reais continuam bloqueados até as decisões de
-privacidade e os controles operacionais estarem aprovados.
+Concluir as decisões operacionais de privacidade antes da Fase 5B. Dados clínicos reais
+continuam bloqueados até as decisões de privacidade e os controles operacionais estarem
+aprovados.
 

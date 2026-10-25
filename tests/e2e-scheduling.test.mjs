@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
-import {assertLocalBaseUrl,buildSummary,parseAccounts,parseArguments} from '../scripts/e2e-scheduling.mjs';
+import {assertLocalBaseUrl,buildSummary,parseAccounts} from '../scripts/lib/local-e2e.mjs';
+import {parseArguments} from '../scripts/e2e-scheduling.mjs';
 
 // O aceite da agenda pode ser automatizado, mas nunca deve alcançar Produção,
 // imprimir credenciais ou deixar a agenda local suja depois da execução.
@@ -43,11 +44,11 @@ test('aceite da agenda lê as identidades fictícias sem expor o arquivo',()=>{
 
 test('resumo do aceite contém apenas booleanos e nomes de verificação',()=>{
   const checks={doctorLogin:true,appointmentCreated:false};
-  const summary=buildSummary(checks,'CHECK_FAILED_appointmentCreated');
+  const summary=buildSummary('SCHEDULING_E2E',checks,'CHECK_FAILED_appointmentCreated');
   assert.equal(summary.status,'failed');
   assert.deepEqual(summary.failedChecks,['appointmentCreated']);
   assert.equal(summary.failedStep,'CHECK_FAILED_appointmentCreated');
-  assert.equal(buildSummary({doctorLogin:true}).status,'ready');
+  assert.equal(buildSummary('SCHEDULING_E2E',{doctorLogin:true}).status,'ready');
   const serialized=JSON.stringify(summary);
   assert.doesNotMatch(serialized,/@local\.test|senha|password|token/i);
 });

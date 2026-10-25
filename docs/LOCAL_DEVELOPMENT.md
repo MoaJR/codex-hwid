@@ -111,12 +111,15 @@ npm run typecheck
 npm run build:next
 ```
 
-Com o PostgreSQL local no ar e as identidades fictícias provisionadas, o ciclo completo da agenda também pode ser conferido sem digitação e sem imprimir dados pessoais:
+Com o PostgreSQL local no ar e as identidades fictícias provisionadas, o ciclo completo da agenda e a segurança da conta também podem ser conferidos sem digitação e sem imprimir dados pessoais:
 
 ```bash
 npm run e2e:scheduling
+npm run e2e:account
 npm run scheduling:check
 ```
+
+O aceite da conta troca a senha da identidade fictícia e restaura o valor original; por causa do limite de 5 tentativas por 15 minutos, ele mantém `.e2e-account.lock` e recusa uma segunda execução antes de 16 minutos.
 
 Não defina `VERCEL_ENV=production` no computador local. O script `npm run build` usa essa variável para decidir se deve aplicar migrations e seeds no ambiente de publicação; para a verificação local, prefira `npm run build:next`.
 

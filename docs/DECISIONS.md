@@ -76,6 +76,13 @@ O script respeita os limites do próprio servidor: espera a janela de mutações
 
 O cancelamento é idempotente por decisão do store (repetir devolve `200` sem novo evento e sem nova versão). O aceite fixa esse comportamento como invariante; o produto não foi alterado para satisfazer o teste. O ciclo é complementar ao E2E de papéis: ele cobre a operação da agenda, não substitui o aceite de login e permissões descrito em `docs/E2E_5A_ROLES.md`.
 
+## 2026-10-25 — Aceite da conta com senha rotacionada e reversível
+`npm run e2e:account` executa o aceite do marco 4D em dois acessos simultâneos da identidade fictícia `PATIENT`: revogação dos outros acessos com preservação da sessão atual, `401` sem sessão, `403` sem origem canônica, `404` nos endpoints crus do provedor, senha atual errada recusada, troca efetiva, senha antiga rejeitada, nova senha aceita e restauração da senha original do arquivo de identidades.
+
+A troca é deliberadamente reversível: a senha nova é gerada em memória, nunca é impressa e é restaurada ao final, para que `.env.local.accounts` continue válido. Como o servidor limita a troca a 5 tentativas por 15 minutos, o script mantém `.e2e-account.lock` (ignorado pelo Git) e recusa execuções dentro de 16 minutos com `E2E_ACCOUNT_COOLDOWN`. A alternativa — executar duas vezes na mesma janela — poderia consumir a cota no meio da troca e deixar a senha local alterada; por isso a espera é obrigatória, não uma conveniência.
+
+Os dois aceites passaram a compartilhar `scripts/lib/local-e2e.mjs`, que concentra alvo local obrigatório, confirmação explícita, leitura das identidades fictícias, cliente HTTP com cookie jar, espera pela janela do provedor em `429` e resumo apenas booleano. Nenhum dos scripts escreve `.env*`, imprime credenciais ou aceita host externo.
+
 ## 2026-10-25 — Identidade visual navy e homepage modular
 A cor principal deixa de ser verde e passa a ser azul navy (`#0a1f44`/`#07162b`), com azul de apoio (`#1d4ed8`/`#2f6fed`), fundo off-white azulado (`#f6f8fc`) e superfícies brancas. A troca ocorre nos tokens globais e nas cores fixas do design system; cores semânticas de sucesso, alerta, erro e status não foram alteradas para preservar leitura operacional.
 
