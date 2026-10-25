@@ -30,6 +30,7 @@
 - `/painel` foi implementado como entrada autenticada e apresenta os módulos permitidos pelos papéis da sessão. Login e verificação MFA retornam para essa rota.
 - `/paciente` exige o papel `PATIENT` e `appointment.read`, usa somente o `userId` da sessão e exibe metadados mínimos das próprias consultas. A página é somente leitura e não expõe IDs.
 - `/admin` exige `settings.manage` e MFA, mostra contagens e conteúdos editoriais reais e não consulta agenda, pacientes ou prontuário. O provisionamento continua interativo, sem credencial padrão.
+- O handoff `CLINE_START.md`, `.clineignore`, `compose.dev.yml` e `docs/LOCAL_DEVELOPMENT.md` preparam VS Code/Cline com PostgreSQL 17 e segredos exclusivamente locais, sem acesso do agente ao ambiente de Produção.
 - A migration `20261025050000_remove_demo_content` atualiza apenas os textos semeados que ainda correspondem exatamente ao protótipo, incrementa a versão e registra auditoria por artigo.
 - Deployment `dpl_DPSck3iYscPuyeoHvATp1QytTok8` publicou o commit `2b602a9`, aplicou `20261024180000_add_operational_scheduling`, confirmou 20/20 tabelas e criou quatro serviços (`inserted: 4`, `skipped: 0`).
 - Redeploy idempotente `dpl_Dq8KeEsy62RvhGmn2RQJZp26a8EX` publicou o commit `08a933a`, não encontrou migrations pendentes e preservou os quatro serviços (`inserted: 0`, `skipped: 4`).

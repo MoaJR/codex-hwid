@@ -15,6 +15,8 @@ npm run dev
 
 Abra http://localhost:3000. Alterações locais têm atualização automática. Para receber novos commits, execute git pull em outro terminal. Se dependências ou scripts mudarem, pare o servidor com Ctrl+C, execute npm ci e inicie novamente.
 
+Para trabalhar com login, MFA e painéis no VS Code, use o PostgreSQL local e o passo a passo em `docs/LOCAL_DEVELOPMENT.md`. O arquivo `CLINE_START.md` contém o handoff atualizado e o primeiro comando para o Cline; o antigo roteiro de iniciar o projeto do zero não se aplica mais.
+
 Páginas públicas: `/sobre`, `/tratamentos`, `/consulta-online`, `/agendar`, `/contato`, `/privacidade` e `/blog`. O blog tem busca, categorias e páginas de artigo. `/painel` é a entrada autenticada e mostra somente os módulos autorizados: `/paciente`, `/medico/agenda`, `/medico/conteudos`, `/admin` e `/conta`. O protótipo estático e o fluxo fictício de agendamento foram removidos.
 
 ## Verificações
@@ -71,16 +73,7 @@ npm run auth:provision -- --email ADMIN_EMAIL --name "Administrador" --role ADMI
 
 No primeiro login de uma conta de equipe ainda sem MFA, a plataforma abre `/conta` para cadastrar o autenticador. Depois da ativação, acessos seguintes confirmam o código em `/verificar-acesso` antes de abrir o painel.
 
-Na Vercel, `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` e `AUTH_ENABLED=true` estão configurados somente para Produção. Para provisionar outra conta em um terminal confiável, atualize o repositório, autentique o Vercel CLI e carregue as variáveis sem mostrá-las na tela:
-
-```sh
-npx vercel link
-npx vercel env pull .env.local --environment=production --yes
-npm run auth:check
-npm run auth:provision -- --email SEU_EMAIL --name "Dr. Douglas Vaz" --role DOCTOR --confirm PROVISIONAR
-```
-
-O script solicitará a senha duas vezes sem eco. `.env.local` já é ignorado pelo Git; nunca cole a senha ou o conteúdo desse arquivo no chat. O gate está ativo apenas para testar login, cadastro de MFA e recuperação; operações clínicas continuam bloqueadas. Veja docs/phases/PHASE-4.md para critérios. Não publicar segredos em `NEXT_PUBLIC_*`.
+Na Vercel, `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` e `AUTH_ENABLED=true` estão configurados somente para Produção. O desenvolvimento comum usa banco e segredo locais; não baixe credenciais de Produção para o Cline. O provisionamento de Produção deve ocorrer apenas em terminal confiável já autorizado, sem mostrar variáveis ou senhas. O script solicita a senha duas vezes sem eco. `.env.local` já é ignorado pelo Git e também foi incluído em `.clineignore`; nunca cole a senha ou o conteúdo desse arquivo no chat. Veja `docs/LOCAL_DEVELOPMENT.md` para o ambiente completo e `docs/phases/PHASE-4.md` para os critérios de autenticação. Não publique segredos em `NEXT_PUBLIC_*`.
 
 A integração Vercel já tem acesso à equipe `moajrs-projects`. O projeto, o storage e os nomes das variáveis foram verificados sem descriptografar secrets. Em `/conta`, o usuário pode encerrar os outros acessos ativos e alterar a própria senha; contas com 2FA precisam verificá-la, a sessão atual é preservada e as ações são auditadas sem expor tokens ou detalhes de dispositivo.
 
