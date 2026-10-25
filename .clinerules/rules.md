@@ -1,1 +1,1 @@
-sempre verifique os arquivos da pasta /docs, principalmente o progress.md. ao final de cada tarefa atualize os arquivos pois é por eles que vc vai se guiar. ao final de cada tarefa faça tambem o commit
+sempre verifique os arquivos da pasta /docs, principalmente o progress.md. ao final de cada tarefa atualize os arquivos pois é por eles que vc vai se guiar. ao final de cada tarefa faça tambem o commit e o git push ao final de todas as tarefas
