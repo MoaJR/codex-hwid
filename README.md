@@ -26,7 +26,7 @@ npm run build
 npm start
 ```
 
-No marco atual, 72 testes automatizados cobrem identidade, autorização, conta, conteúdo, agenda e os mapas de acesso dos painéis. O schema tem 20 modelos para identidade, domínio inicial, auditoria, conteúdo e agenda. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes, inspeciona o resultado, executa seeds aditivos e roda a checagem agregada da agenda; local e preview não alteram o banco.
+No marco atual, 75 testes automatizados cobrem identidade, autorização, conta, conteúdo, agenda e os mapas de acesso dos painéis. O schema tem 20 modelos para identidade, domínio inicial, auditoria, conteúdo e agenda. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes, inspeciona o resultado, executa seeds aditivos e roda a checagem agregada da agenda; local e preview não alteram o banco.
 
 ## Banco de dados
 O frontend pode rodar sem configurar o banco. Para desenvolvimento local do backend, configure DATABASE_URL em `.env.local` usando `.env.example` como referência e execute:
@@ -68,6 +68,8 @@ Para criar um administrador, use uma identidade própria e o papel `ADMIN`. Esse
 ```sh
 npm run auth:provision -- --email ADMIN_EMAIL --name "Administrador" --role ADMIN --confirm PROVISIONAR
 ```
+
+No primeiro login de uma conta de equipe ainda sem MFA, a plataforma abre `/conta` para cadastrar o autenticador. Depois da ativação, acessos seguintes confirmam o código em `/verificar-acesso` antes de abrir o painel.
 
 Na Vercel, `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` e `AUTH_ENABLED=true` estão configurados somente para Produção. Para provisionar outra conta em um terminal confiável, atualize o repositório, autentique o Vercel CLI e carregue as variáveis sem mostrá-las na tela:
 
