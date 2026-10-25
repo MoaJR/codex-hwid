@@ -1,5 +1,5 @@
-const editorialLabel = 'Conteúdo de demonstração';
-const reviewNotice = 'Texto educativo de demonstração, ainda sujeito a revisão clínica. Não substitui uma avaliação individual.';
+const editorialLabel = 'Conteúdo educativo';
+const reviewNotice = 'Informação educativa. Não substitui uma avaliação individual.';
 
 export const sourceArticles = [
   {
@@ -39,7 +39,7 @@ export const sourceArticles = [
       { type: 'heading', text: 'Confira o acesso antes do horário' },
       { type: 'list', items: ['Teste a conexão, a câmera e o microfone no dispositivo que pretende utilizar.', 'Verifique a carga da bateria ou mantenha um carregador por perto.', 'Feche notificações e aplicativos que possam interromper a conversa.', 'Confirme com a equipe o que fazer se a conexão cair e guarde o canal de contato informado.'] },
       { type: 'heading', text: 'Cuide dos links e documentos' },
-      { type: 'paragraph', text: 'Use os canais confirmados pela equipe e evite compartilhar links de atendimento com outras pessoas. Antes de enviar documentos, confira o destinatário e peça orientação sobre o canal apropriado. Esta demonstração ainda não oferece atendimento por vídeo nem envio de documentos reais.' },
+      { type: 'paragraph', text: 'Use os canais confirmados pela equipe e evite compartilhar links de atendimento com outras pessoas. Antes de enviar documentos, confira o destinatário e peça orientação sobre o canal apropriado. O envio de documentos deve ocorrer somente pelo canal indicado pela equipe.' },
     ],
   },
   {
@@ -60,7 +60,7 @@ export const sourceArticles = [
       { type: 'paragraph', text: 'Caso faça sentido para você e para o profissional, anotações simples sobre o cotidiano podem ajudar na conversa seguinte. Um registro isolado ou um gráfico não estabelece diagnóstico e precisa ser compreendido no contexto da sua história.' },
       { type: 'heading', text: 'Combine os próximos passos' },
       { type: 'paragraph', text: 'Ao final do encontro, peça esclarecimentos se alguma orientação não estiver clara. Se houver medicação prescrita e surgirem dúvidas, procure o profissional responsável antes de fazer mudanças por conta própria. Os canais e os prazos de resposta da equipe também devem ser confirmados.' },
-      { type: 'paragraph', text: 'Mensagens administrativas e esta plataforma de demonstração não oferecem atendimento de emergência. Em uma situação de risco imediato, procure um serviço de urgência.' },
+      { type: 'paragraph', text: 'Mensagens administrativas e esta plataforma não oferecem atendimento de emergência. Em uma situação de risco imediato, procure um serviço de urgência.' },
     ],
   },
   {

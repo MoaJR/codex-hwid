@@ -35,3 +35,9 @@ test('conteúdo editorial exige equipe autorizada e publicação clínica exige 
   assert.equal(can({userId:'s',roles:['SECRETARY']},'content.read'),false);
   assert.equal(can(patient,'content.read'),false);
 });
+test('admin gerencia configurações sem receber agenda ou prontuário',()=>{
+  const admin={userId:'admin',roles:['ADMIN']};
+  assert.equal(can(admin,'settings.manage'),true);
+  assert.equal(can(admin,'appointment.read',{appointmentDoctorUserId:'admin'}),false);
+  assert.equal(can(admin,'medical_record.read',{assignedDoctorUserIds:['admin']}),false);
+});

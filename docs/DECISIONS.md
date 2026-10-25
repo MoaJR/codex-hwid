@@ -53,3 +53,8 @@ O painel de conta encerra apenas outros acessos ativos e preserva a sessão que 
 
 ## 2026-10-25 — Troca de senha atômica pela aplicação
 A aplicação recebe somente senha atual, nova senha e confirmação; usuário e sessão vêm do contexto autenticado. O hash e a verificação continuam a cargo do Better Auth. Lock por usuário, troca da credencial, revogação das outras sessões e auditoria formam uma única transação. A sessão atual permanece válida porque a operação exige a senha atual e MFA quando a conta usa 2FA. O endpoint cru do provedor continua desativado.
+
+## 2026-10-25 — Retirar o protótipo e ativar portais por papel
+As decisões de 23 e 24 de outubro preservaram uma demonstração enquanto identidade e agenda eram construídas. Com esses controles implementados, `index.html`, `/demonstracao.html` e o estado fictício de agendamento deixam de fazer parte do produto. `/agendar` passa a encaminhar ao painel protegido ou ao primeiro contato, sem coletar dados publicamente.
+
+`/painel` é a entrada autenticada e apresenta a união dos módulos autorizados pelos papéis da sessão. O paciente recebe uma visão somente leitura das próprias consultas, filtrada pelo `userId` autenticado. O administrador recebe resumo editorial e configurações autorizadas, sem agenda, pacientes ou prontuário. Não haverá credencial administrativa padrão: `ADMIN` continua sendo provisionado interativamente em terminal confiável e exige MFA.

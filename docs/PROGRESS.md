@@ -1,6 +1,6 @@
 # Progresso — 25/10/2026
 
-## Fase atual: 5A + 4D — agenda interna em validação e segurança da conta
+## Fase atual: 5A + 4D — portais por papel, agenda interna e segurança da conta
 - Better Auth 1.7.12 com adaptador Prisma, sessão em banco e plugin TOTP.
 - /login, /verificar-acesso e /conta; handlers /api/auth/[...all].
 - AUTH_ENABLED desabilitado por padrão no código e habilitado somente em Produção após o provisionamento. Sem signup público, account linking ou contas/senhas padrão.
@@ -26,13 +26,17 @@
 - Ciclo editorial completo rascunho → revisão → retorno → arquivamento executado pelo responsável; o blog permaneceu com três artigos, o item interno continuou em 404 e a API anônima em 401.
 - Fase 5A implementada localmente: agenda interna com serviços, regras semanais, exceções, consultas, histórico, rate limit próprio e bloqueio GiST de sobreposição.
 - Médico opera a própria agenda; secretaria mantém escrita de agenda da clínica única; administrador não recebe acesso. MFA da sessão continua obrigatório para equipe.
-- `/agendar` permanece demonstrativo e sem dados pessoais. A agenda operacional em `/medico/agenda` aceita somente identidades previamente provisionadas e deve usar dados fictícios nesta validação.
+- O protótipo estático e o agendamento fictício foram retirados. `/agendar` agora encaminha ao painel protegido ou ao primeiro contato e não recebe dados pessoais nem realiza reserva pública.
+- `/painel` foi implementado como entrada autenticada e apresenta os módulos permitidos pelos papéis da sessão. Login e verificação MFA retornam para essa rota.
+- `/paciente` exige o papel `PATIENT` e `appointment.read`, usa somente o `userId` da sessão e exibe metadados mínimos das próprias consultas. A página é somente leitura e não expõe IDs.
+- `/admin` exige `settings.manage` e MFA, mostra contagens e conteúdos editoriais reais e não consulta agenda, pacientes ou prontuário. O provisionamento continua interativo, sem credencial padrão.
+- A migration `20261025050000_remove_demo_content` atualiza apenas os textos semeados que ainda correspondem exatamente ao protótipo, incrementa a versão e registra auditoria por artigo.
 - Deployment `dpl_DPSck3iYscPuyeoHvATp1QytTok8` publicou o commit `2b602a9`, aplicou `20261024180000_add_operational_scheduling`, confirmou 20/20 tabelas e criou quatro serviços (`inserted: 4`, `skipped: 0`).
 - Redeploy idempotente `dpl_Dq8KeEsy62RvhGmn2RQJZp26a8EX` publicou o commit `08a933a`, não encontrou migrations pendentes e preservou os quatro serviços (`inserted: 0`, `skipped: 4`).
 - `scheduling:check` foi adicionado para validar produção somente por contagens agregadas: fuso, catálogo, intervalos, estados, sobreposição, eventos e auditoria; não imprime nomes, e-mails, IDs ou horários individuais.
 
 ## Entregas anteriores preservadas
-- Site público React, tratamentos, consulta online, contato, privacidade e agendamento demonstrativo.
+- Site público React, tratamentos, consulta online, contato e privacidade. O agendamento demonstrativo foi a primeira entrega de UX e foi substituído pelo acesso protegido em 25/10/2026.
 - Foto original integrada na home e Sobre.
 - Fase 3A: blog público, busca/categorias/artigos e API read-only; rascunhos não aparecem no site/API, mas código-fonte é público.
 
@@ -48,9 +52,9 @@
 - Deploy `dpl_BxiSYGnVGejz8gG5hqFso1kMDFk8` promoveu o commit `7de56b6` com a troca própria de senha; o build completo terminou em `READY` e o domínio `drdouglasvaz.vercel.app` recebeu o marco 4D.
 
 ## Verificações
-- 67 testes reais passaram: autorização, configuração/origem, MFA, provisionamento, controle de sessões e senha, auditoria, workflow editorial, migrations, disponibilidade, idempotência, buffers, fuso, entrada estrita, checker agregado, seed, datas, publicação, diagnósticos seguros e isolamento por ambiente.
+- 72 testes automatizados cobrem autorização, configuração/origem, MFA, provisionamento, controle de sessões e senha, auditoria, workflow editorial, migrations, disponibilidade, idempotência, buffers, fuso, entrada estrita, checker agregado, seed, datas, publicação, diagnósticos seguros e isolamento por ambiente. O marco dos portais acrescenta cobertura para mapa de módulos, titularidade do paciente e retirada das superfícies demonstrativas.
 - TypeScript e o build Next.js passaram. O schema com 20 modelos e sete enums passou em getDMMF/getConfig WASM.
-- As quatro migrations aplicaram do zero em PostgreSQL 17 descartável. FK composta, exclusões do médico/paciente, buffers, liberação após cancelamento e rollback atômico foram exercitados; produção confirmou a migration da agenda e o redeploy sem pendências.
+- As migrations aplicaram em PostgreSQL 17 descartável. FK composta, exclusões do médico/paciente, buffers, liberação após cancelamento e rollback atômico foram exercitados. A migration editorial de retirada da demonstração também foi validada com conteúdo legado: rótulo, aviso, bloco, versão e auditoria foram atualizados como esperado. Produção já confirmou a migration da agenda e o redeploy sem pendências.
 - A falha foi diagnosticada como migration inicial duplicada sobre um baseline já existente. A tentativa tinha zero etapas aplicadas; a estrutura foi verificada antes da reconciliação e nenhum dado de aplicação foi alterado.
 - A geração oficial usa os binários Prisma e depende do acesso ao servidor de distribuição; no executor esse download permanece restrito. A geração de tipos via WASM não valida o runtime.
 - O executor não conseguiu baixar o binário nativo do Prisma porque o host de binários respondeu 403; geração oficial, migration e inspeção foram confirmadas no build Vercel.
@@ -59,10 +63,10 @@
 - Login, ativação TOTP e segundo login com MFA tiveram E2E concluído. Recuperação, expiração/revogação e rate limit entre instâncias ainda precisam da bateria operacional completa.
 - Smoke remoto atual: home, `/login` e `/api/health` responderam 200; `/api/auth/get-session` respondeu 200 com sessão anônima nula e sem cookie; runtime sem erros.
 - Smoke do CMS: blog/API retornaram três artigos publicados, artigo público respondeu 200, rascunho respondeu 404, painel anônimo voltou ao login e API administrativa anônima respondeu 401.
-- Smoke 5A: `/agendar` respondeu 200 e continua demonstrativo; `/medico/agenda` anônimo terminou em `/login`; health respondeu produção, API pública manteve três artigos e a janela de runtime não apresentou erros.
+- Smoke anterior 5A: `/medico/agenda` anônimo terminou em `/login`; health respondeu produção, API pública manteve três artigos e a janela de runtime não apresentou erros. O smoke da publicação dos novos portais deve confirmar `/agendar` como gateway, `/demonstracao.html` em 404 e `/painel`, `/paciente` e `/admin` redirecionando visitantes ao login.
 - Smoke 4C: `/conta` anônimo terminou em `/login`; `/api/auth/list-sessions` e `/api/auth/change-password` responderam 404; a rota própria rejeitou GET com 405; runtime permaneceu sem erros.
 - Smoke local 4D: a nova rota rejeitou GET, origem externa e corpo fora do contrato; com origem canônica e autenticação desabilitada falhou fechado em 503. O build Next.js incluiu `/api/account/password`. O E2E autenticado será feito após a publicação, porque o executor não consegue baixar o motor nativo do Prisma; o build Vercel continua sendo a geração oficial confirmada.
 
 ## Próximos passos
-Executar com a conta do médico um ciclo fictício: regra semanal → paciente de teste → criação → reagendamento → cancelamento, seguido por `npm run scheduling:check` em terminal confiável. Em paralelo, validar troca de senha e encerramento de outros acessos com dois logins, expiração e uso único de código de recuperação. Depois concluir as decisões operacionais de privacidade antes da Fase 5B.
+Validar, publicar e executar o smoke dos portais e da migration de retirada da demonstração. Depois, testar uma conta de cada papel: paciente limitado às próprias consultas; médico e secretaria na agenda; administrador limitado à administração editorial; todos com MFA aplicável. Executar com a conta do médico um ciclo controlado: regra semanal → paciente de teste → criação → reagendamento → cancelamento, seguido por `npm run scheduling:check` em terminal confiável. Em paralelo, validar troca de senha e encerramento de outros acessos com dois logins, expiração e uso único de código de recuperação. Depois concluir as decisões operacionais de privacidade antes da Fase 5B.
 Não usar dados pessoais ou de saúde reais até os controles operacionais e a política de privacidade estarem validados.

@@ -1,7 +1,5 @@
 import type {Metadata} from 'next';
+import Link from 'next/link';
 import {SiteHeader,SiteFooter} from '@/components/site/site-shell';
-import {BookingFlow} from '@/components/booking/booking-flow';
-import {getDemoDates} from '@/components/booking/selection.mjs';
-export const metadata:Metadata={title:'Conheça o agendamento | Dr. Douglas Vaz'};
-export const dynamic='force-dynamic';
-export default function Schedule(){return <><SiteHeader/><main id="main-content"><section className="page-intro container"><span className="eyebrow">Um passo de cada vez</span><h1>Reserve um espaço para você.</h1><p>Conheça as etapas previstas para escolher seu atendimento.</p></section><section className="container section booking-container"><div className="notice demo-notice"><strong>Agendamento demonstrativo.</strong> Nenhuma data representa disponibilidade real e nenhuma consulta será reservada.</div><BookingFlow dates={getDemoDates()}/></section></main><SiteFooter/></>}
+export const metadata:Metadata={title:'Agendamento | Dr. Douglas Vaz'};
+export default function Schedule(){return <><SiteHeader/><main id="main-content"><section className="page-intro container"><span className="eyebrow">Agendamento seguro</span><h1>Acesse sua agenda.</h1><p>Consultas e horários são organizados na área protegida da plataforma.</p></section><section className="container section"><div className="content-grid"><article className="panel"><span className="eyebrow">Já possui acesso</span><h2>Entre no seu painel.</h2><p>Pacientes consultam os próprios atendimentos. Médico e secretaria acessam a agenda conforme as permissões da conta.</p><Link className="button" href="/painel">Acessar painel →</Link></article><aside className="panel soft-panel"><span className="eyebrow">Primeiro contato</span><h2>Fale com a equipe.</h2><p>O primeiro acesso é criado de forma controlada. Use os canais informados pela equipe para receber orientações sobre cadastro e disponibilidade.</p><Link className="button button-outline" href="/contato">Informações de contato →</Link></aside></div></section></main><SiteFooter/></>}

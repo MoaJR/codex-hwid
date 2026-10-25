@@ -35,7 +35,7 @@ export function LoginForm({configured}:{configured:boolean}){
       if('twoFactorRedirect' in data && data.twoFactorRedirect === true){
         router.push('/verificar-acesso');
       }else{
-        router.push('/conta');
+        router.push('/painel');
       }
       router.refresh();
     }catch{

@@ -10,14 +10,17 @@
 | /tratamentos/tdah-adultos | Conteúdo educativo |
 | /tratamentos/transtorno-bipolar | Conteúdo educativo |
 | /consulta-online | Preparação e limites da modalidade |
-| /agendar | Fluxo demonstrativo, sem reserva |
+| /agendar | Entrada pública para o painel protegido ou primeiro contato; sem formulário ou reserva pública |
 | /contato | Informações; canais oficiais a confirmar |
-| /privacidade | Transparência da versão de desenvolvimento |
+| /privacidade | Transparência sobre dados, acesso e limites atuais |
 | /blog | Índice com busca e categorias |
 | /blog/[slug] | Artigo publicado; rascunhos retornam 404 |
 | /api/articles | Lista pública de metadados; sem escrita |
 | /login | Entrada ativa em Produção para validação controlada |
 | /verificar-acesso | Verificação TOTP ou código de recuperação preparada |
+| /painel | Entrada autenticada; apresenta somente os módulos permitidos pelos papéis da sessão |
+| /paciente | Próximos atendimentos e histórico recente do próprio paciente; somente leitura |
+| /admin | Resumo editorial administrativo; exige `settings.manage` e MFA, sem dados clínicos |
 | /conta | Perfil, ativação do autenticador, troca de senha e encerramento de outros acessos; sem acesso clínico |
 | /api/auth/[...all] | Better Auth GET/POST; ativo somente em Produção após provisionamento |
 | /api/account/sessions/revoke-others | POST próprio, protegido e auditado; preserva a sessão atual |
@@ -36,6 +39,5 @@
 | /api/medico/availability | POST protegido de regra ou exceção |
 | /api/medico/availability/[id] | DELETE protegido e auditado |
 | /api/health | Saúde da aplicação, não verifica banco |
-| /demonstracao.html | Protótipo antigo com hash routes ilustrativas |
 
-/paciente, prontuário e módulos clínicos continuam ausentes. As áreas internas atuais são CMS e agenda operacional controlada. `/agendar` ainda é demonstração pública sem reserva. Slugs de tratamento desconhecidos retornam 404.
+O protótipo `/demonstracao.html` foi removido e deve retornar 404. Prontuário, prescrições, mensagens clínicas e demais módulos clínicos continuam ausentes. A área do paciente projeta somente rótulo do serviço, modalidade, estado e horário das próprias consultas. Slugs de tratamento desconhecidos retornam 404.
