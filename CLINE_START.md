@@ -13,16 +13,17 @@ Este repositório **não começa do zero**. Preserve o que já está publicado e
 7. `docs/ROUTES.md`
 8. `docs/DECISIONS.md`
 9. `docs/LOCAL_DEVELOPMENT.md`
+10. `docs/PRIVACY.md` — registro das decisões de privacidade pendentes de aprovação
 
 Antes de propor código, execute `git status`, leia a implementação relacionada e informe: fase atual, objetivo pequeno da entrega, arquivos previstos e critérios de aceite.
 
 ## Estado atual
 
 - Produção: https://drdouglasvaz.vercel.app
-- Stack: Next.js 16, React 19, TypeScript, Prisma/PostgreSQL e Better Auth com TOTP.
-- Fases 0 a 4 concluídas; Fase 5A publicada e aguardando a bateria operacional autenticada completa.
+- Stack: Next.js 16, React 19, TypeScript, Prisma/PostgreSQL e Better Auth com sessão em banco (sem segundo fator desde 25/10/2026).
+- Fases 0 a 4 concluídas; Fase 5A publicada e com aceites automatizados; Fase 5B bloqueada até a aprovação das decisões de privacidade.
 - O schema possui 20 modelos e sete enums.
-- A suíte possui 107 testes; typecheck e build estão aprovados.
+- A suíte possui 112 testes; typecheck e build estão aprovados.
 - O ciclo completo da agenda é aceito por automação local: `npm run e2e:scheduling` (19 verificações, sem imprimir dados pessoais) e `npm run scheduling:check`.
 - A segurança da conta é aceita por `npm run e2e:account` (14 verificações: dois logins, revogação dos outros acessos, troca e restauração da senha), com espera de 16 minutos entre execuções por causa do limite do servidor.
 - `main` publica automaticamente na Vercel.
@@ -46,6 +47,7 @@ Antes de propor código, execute `git status`, leia a implementação relacionad
 - Não conecte o Cline ao banco de Produção.
 - Se faltarem dependências no Windows, execute `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1 -InstallMissing`; respeite pedidos visíveis de administrador/reinício e não improvise outro banco.
 - Nunca invente CRM, RQE, biografia, preços, endereço ou contatos do médico.
+- As decisões de privacidade estão registradas como pendentes em `docs/PRIVACY.md`; não declare política aprovada, prazo de retenção ou controlador sem aprovação do responsável.
 - Preserve autorização negada por padrão e validação no servidor.
 - Identidade, papel e titularidade vêm da sessão e do banco, nunca do cliente.
 - Paciente acessa somente recursos ligados ao próprio `userId`.
@@ -70,7 +72,7 @@ Antes de propor código, execute `git status`, leia a implementação relacionad
 
 ## Próximos passos, nesta ordem
 
-1. Documentar e aprovar controlador, bases legais, retenção, subprocessadores, backup/restore e resposta a incidentes.
+1. Aprovar as seis decisões registradas em `docs/PRIVACY.md` (controlador/encarregado, bases legais, retenção, subprocessadores/transferência, backup/restore, incidentes) e registrá-las em `docs/DECISIONS.md`. O registro técnico já existe; o que falta é a decisão do responsável.
 2. Planejar a Fase 5B de agendamento para paciente autenticado, sem cadastro anônimo ou pagamento neste primeiro recorte.
 3. Depois da 5B, planejar a Fase 6 do portal do paciente. O painel atual é a fundação; não criar cards falsos para módulos ainda ausentes.
 4. A administração completa de usuários/permissões permanece uma evolução auditada; o `/admin` atual é deliberadamente limitado ao domínio editorial.
