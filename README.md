@@ -30,7 +30,16 @@ npm run build
 npm start
 ```
 
-No marco atual, 91 testes automatizados cobrem identidade, autorização, conta, conteúdo, agenda, os mapas de acesso dos painéis, a matriz de aceite dos quatro papéis e o contrato dos guardas de cada página e API protegida, além das garantias do bootstrap local. O schema tem 20 modelos para identidade, domínio inicial, auditoria, conteúdo e agenda. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes, inspeciona o resultado, executa seeds aditivos e roda a checagem agregada da agenda; local e preview não alteram o banco.
+O ciclo da agenda pode ser aceito de ponta a ponta, sem digitação e sem imprimir dados pessoais, com o servidor local no ar e as identidades fictícias provisionadas:
+
+```sh
+npm run e2e:scheduling
+npm run scheduling:check
+```
+
+O script só aceita `localhost`, `127.0.0.1` ou `::1`, exige `--confirm E2E` e usa as identidades de `.env.local.accounts`. Ele cria uma regra semanal temporária, exercita criação, repetição idempotente, conflito, reagendamento, cancelamento e as negações de paciente e secretaria, e desativa a regra no final.
+
+No marco atual, 99 testes automatizados cobrem identidade, autorização, conta, conteúdo, agenda, os mapas de acesso dos painéis, a matriz de aceite dos quatro papéis e o contrato dos guardas de cada página e API protegida, além das garantias do bootstrap local e do aceite automatizado da agenda. O schema tem 20 modelos para identidade, domínio inicial, auditoria, conteúdo e agenda. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes, inspeciona o resultado, executa seeds aditivos e roda a checagem agregada da agenda; local e preview não alteram o banco.
 
 ## Banco de dados
 O frontend pode rodar sem configurar o banco. Para desenvolvimento local do backend, configure DATABASE_URL em `.env.local` usando `.env.example` como referência e execute:

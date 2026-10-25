@@ -67,6 +67,15 @@ No segundo login de equipe o provider não cria sessão: devolve `twoFactorRedir
 
 A bateria E2E dos quatro papéis depende de PostgreSQL local e sessão real. Para que a aceitação não fique apenas manual, os critérios viraram teste: módulos, rótulos, MFA obrigatório, permissões permitidas/negadas e titularidade ficam fixados em `tests/role-matrix.test.mjs`; o guarda e a permissão de cada página e API, a validação de origem das mutações e a correspondência entre card de `/painel` e página real ficam fixados em `tests/protected-route-guards.test.mjs`. Isso não substitui o E2E: ele continua obrigatório para senha, TOTP, cookie, redirecionamentos e auditoria em banco. A entrega também aceita que o ambiente de desenvolvimento pode não ter Docker; nesse caso o bloqueio deve ser documentado em vez de apontar o Cline para Produção.
 
+## 2026-10-25 — Aceite da agenda automatizado, local e sem dados pessoais
+O ciclo operacional da Fase 5A deixou de depender de digitação manual. `scripts/e2e-scheduling.mjs` (`npm run e2e:scheduling`) executa por HTTP, contra um servidor local, regra semanal, criação com `Idempotency-Key`, repetição idempotente, conflito de sobreposição, reagendamento, versão obsoleta, cancelamento, repetição do cancelamento, liberação do horário e as negações de paciente e secretaria.
+
+Guardas permanentes: o script exige `--confirm E2E`, recusa qualquer host que não seja `localhost`, `127.0.0.1` ou `::1` (inclusive Produção) e recusa URL com caminho ou credenciais embutidas. As identidades fictícias vêm de `.env.local.accounts`, fora do Git, e a saída contém apenas booleanos — nunca e-mail, senha, nome, identificador de paciente ou horário individual. A regra criada pelo aceite é desativada no final e uma consulta que fique confirmada por falha é cancelada, para não deixar o banco local sujo.
+
+O script respeita os limites do próprio servidor: espera a janela de mutações por minuto e, em `429` do login, aguarda `Retry-After` antes de tentar novamente. A automação nunca afrouxa o limite para passar.
+
+O cancelamento é idempotente por decisão do store (repetir devolve `200` sem novo evento e sem nova versão). O aceite fixa esse comportamento como invariante; o produto não foi alterado para satisfazer o teste. O ciclo é complementar ao E2E de papéis: ele cobre a operação da agenda, não substitui o aceite de login e permissões descrito em `docs/E2E_5A_ROLES.md`.
+
 ## 2026-10-25 — Identidade visual navy e homepage modular
 A cor principal deixa de ser verde e passa a ser azul navy (`#0a1f44`/`#07162b`), com azul de apoio (`#1d4ed8`/`#2f6fed`), fundo off-white azulado (`#f6f8fc`) e superfícies brancas. A troca ocorre nos tokens globais e nas cores fixas do design system; cores semânticas de sucesso, alerta, erro e status não foram alteradas para preservar leitura operacional.
 

@@ -111,6 +111,13 @@ npm run typecheck
 npm run build:next
 ```
 
+Com o PostgreSQL local no ar e as identidades fictícias provisionadas, o ciclo completo da agenda também pode ser conferido sem digitação e sem imprimir dados pessoais:
+
+```bash
+npm run e2e:scheduling
+npm run scheduling:check
+```
+
 Não defina `VERCEL_ENV=production` no computador local. O script `npm run build` usa essa variável para decidir se deve aplicar migrations e seeds no ambiente de publicação; para a verificação local, prefira `npm run build:next`.
 
 ### Equivalente em Linux/Bash

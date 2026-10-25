@@ -79,6 +79,38 @@ curl -i http://localhost:3000/api/account/sessions/revoke-others  # 401/405 sem 
 Com sessão dos papéis fictícios: paciente em rota de equipe → `403`; secretaria em rota
 editorial → `403`; admin em agenda → `403`; qualquer sessão sem origem canônica em mutação → `403`.
 
+## Ciclo completo da agenda
+
+O ciclo operacional deixou de ser manual: com o servidor local no ar
+(`npm run build:next && npm start`, ou `npm run dev`) e as identidades fictícias
+provisionadas, execute:
+
+```bash
+npm run e2e:scheduling
+```
+
+O script `scripts/e2e-scheduling.mjs` só aceita `localhost`, `127.0.0.1` ou `::1`,
+exige `--confirm E2E` e lê as identidades de `.env.local.accounts` sem imprimir
+e-mail, senha, nome, identificador ou horário de paciente. A saída é apenas o
+resumo booleano do aceite.
+
+| Verificação | O que confirma |
+| --- | --- |
+| `doctorLogin`, `workspaceLoaded`, `patientAvailable`, `ruleReady`, `slotOptions` | sessão do médico, agenda persistida, paciente fictício e horários livres |
+| `appointmentCreated`, `createReplayIdempotent` | criação com `Idempotency-Key` e repetição segura da mesma chave |
+| `slotHeldAfterCreate`, `createConflictRejected` | horário ocupado e recusa de sobreposição com `409` |
+| `rescheduled`, `staleRescheduleRejected` | reagendamento com nova versão e recusa de versão obsoleta |
+| `cancelled`, `cancelIsIdempotent`, `slotReleasedAfterCancel` | cancelamento, repetição idempotente sem novo evento e liberação do horário |
+| `patientAgendaDenied`, `patientAvailabilityDenied` | paciente recebe `403` na agenda e na disponibilidade |
+| `secretaryWorkspaceAllowed`, `secretaryAvailabilityDenied` | secretaria lê a clínica única e não altera disponibilidade |
+| `ruleCleaned` | a regra criada pelo próprio aceite foi desativada ao final |
+
+Depois da bateria, confirme as invariantes agregadas:
+
+```bash
+npm run scheduling:check
+```
+
 ## Registro de execução
 
 | Papel | Data | Login | Módulos conferidos | Negados conferidos | Observações |
@@ -88,8 +120,15 @@ editorial → `403`; admin em agenda → `403`; qualquer sessão sem origem can�
 | SECRETARY | 25/10/2026 | ok | ok | ok | via automação HTTP e build local |
 | ADMIN | 25/10/2026 | ok | ok | ok | conta entregue ao responsável |
 
+### Ciclo da agenda
+
+| Data | `npm run e2e:scheduling` | `npm run scheduling:check` | Observações |
+| --- | --- | --- | --- |
+| 25/10/2026 | 19/19 em duas rodadas consecutivas | `ready` | consulta criada, reagendada e cancelada; regra do aceite desativada; nenhum dado pessoal impresso |
+
 ## Próximos passos
 
-Ciclo completo da agenda (regra semanal → paciente fictício → criação → reagendamento →
-cancelamento) seguido de `npm run scheduling:check`, e depois troca de senha e revogação de
-outras sessões com dois logins. Dados clínicos reais continuam bloqueados.
+Validar a troca de senha e a revogação das outras sessões com dois logins simultâneos na
+mesma máquina local. Dados clínicos reais continuam bloqueados até as decisões de
+privacidade e os controles operacionais estarem aprovados.
+

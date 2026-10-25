@@ -22,7 +22,8 @@ Antes de propor código, execute `git status`, leia a implementação relacionad
 - Stack: Next.js 16, React 19, TypeScript, Prisma/PostgreSQL e Better Auth com TOTP.
 - Fases 0 a 4 concluídas; Fase 5A publicada e aguardando a bateria operacional autenticada completa.
 - O schema possui 20 modelos e sete enums.
-- A suíte possui 91 testes; typecheck e build estão aprovados.
+- A suíte possui 99 testes; typecheck e build estão aprovados.
+- O ciclo completo da agenda é aceito por automação local: `npm run e2e:scheduling` (19 verificações, sem imprimir dados pessoais) e `npm run scheduling:check`.
 - `main` publica automaticamente na Vercel.
 - O protótipo estático e o agendamento fictício foram removidos.
 - A bateria E2E autenticada dos quatro papéis está roteirizada em `docs/E2E_5A_ROLES.md` e
@@ -67,16 +68,17 @@ Antes de propor código, execute `git status`, leia a implementação relacionad
 
 ## Próximos passos, nesta ordem
 
-1. Executar o E2E local com `DOCTOR`, `SECRETARY`, `PATIENT` e `ADMIN`: login, módulos visíveis e acessos negados (sem segundo fator desde 25/10/2026).
-2. Exercitar o ciclo completo da agenda: disponibilidade, criação, reagendamento e cancelamento; finalizar com `npm run scheduling:check`.
-3. Validar troca de senha, revogação de outras sessões, expiração e código de recuperação usando dois logins.
-4. Documentar e aprovar controlador, bases legais, retenção, subprocessadores, backup/restore e resposta a incidentes.
-5. Planejar a Fase 5B de agendamento para paciente autenticado, sem cadastro anônimo ou pagamento neste primeiro recorte.
-6. Depois da 5B, planejar a Fase 6 do portal do paciente. O painel atual é a fundação; não criar cards falsos para módulos ainda ausentes.
-7. A administração completa de usuários/permissões permanece uma evolução auditada; o `/admin` atual é deliberadamente limitado ao domínio editorial.
+1. Validar a troca de senha e a revogação das outras sessões com dois logins simultâneos na mesma máquina local; o roteiro está em `docs/E2E_5A_ROLES.md`.
+2. Documentar e aprovar controlador, bases legais, retenção, subprocessadores, backup/restore e resposta a incidentes.
+3. Planejar a Fase 5B de agendamento para paciente autenticado, sem cadastro anônimo ou pagamento neste primeiro recorte.
+4. Depois da 5B, planejar a Fase 6 do portal do paciente. O painel atual é a fundação; não criar cards falsos para módulos ainda ausentes.
+5. A administração completa de usuários/permissões permanece uma evolução auditada; o `/admin` atual é deliberadamente limitado ao domínio editorial.
+
+Já cobertos e não precisam ser repetidos manualmente: a bateria por papel (`docs/E2E_5A_ROLES.md`) e o ciclo completo da agenda (`npm run e2e:scheduling` + `npm run scheduling:check`), ambos executados em 25/10/2026 no PostgreSQL local.
+
 
 ## Primeiro pedido para o Cline
 
 ```text
-Leia CLINE_START.md e todos os documentos obrigatórios antes de editar. Resuma o estado atual, confirme que usará somente o PostgreSQL local e identidades fictícias, e proponha a menor entrega pendente da Fase 5A com arquivos e critérios de aceite. Preserve autorização, MFA, titularidade e auditoria. Ao terminar, rode npm test, npm run typecheck e npm run build:next e atualize docs/PROGRESS.md.
+Leia CLINE_START.md e todos os documentos obrigatórios antes de editar. Resuma o estado atual, confirme que usará somente o PostgreSQL local e identidades fictícias, e proponha a menor entrega pendente da Fase 5A com arquivos e critérios de aceite. Preserve autorização, titularidade, escopo da agenda e auditoria. Ao terminar, rode npm test, npm run typecheck e npm run build:next, e para mudanças de agenda rode npm run e2e:scheduling e npm run scheduling:check; atualize docs/PROGRESS.md.
 ```
