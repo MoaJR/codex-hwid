@@ -18,6 +18,7 @@
 - Login, ativação de TOTP e segundo acesso com MFA concluídos pelo responsável; runtime permaneceu sem erros.
 - Controle de sessões 4C implementado em `/conta`: encerra somente outros acessos ativos, preserva a sessão atual, exige MFA da equipe, limita tentativas e grava auditoria sem token, IP ou navegador. Endpoints crus de listagem e revogação do provedor permanecem desativados; a troca de senha recebe a rota própria descrita no marco 4D.
 - Troca de senha 4D implementada por rota própria: exige senha atual, confirmação e MFA para equipe ou qualquer conta com 2FA; usa o hash oficial do Better Auth, mantém somente a sessão atual, limita tentativas e grava `PASSWORD_CHANGED` atomicamente com a nova credencial e a revogação. O endpoint cru do provedor continua desativado.
+- Deployment `dpl_BxiSYGnVGejz8gG5hqFso1kMDFk8` publicou o marco 4D no commit `7de56b6`: pipeline de produção concluído, domínio principal atualizado, health 200, conta anônima redirecionada ao login, rota própria limitada a POST, endpoint cru em 404 e nenhum erro de runtime na janela verificada.
 - Deployment `dpl_93G7PjBHTE2Yw3TDYZeiN2CrEMRJ` publicou o controle de sessões e executou o checker da agenda com todas as invariantes aprovadas; health respondeu 200, rotas cruas desativadas responderam 404 e a janela de runtime ficou sem erros.
 - CMS 3B implementado com blocos ordenados, rascunho, revisão, publicação, arquivamento reversível, controle de versão e auditoria por artigo.
 - `DOCTOR` publica/retira; `ADMIN` escreve e envia para revisão; paciente e secretaria não recebem permissão editorial.
@@ -44,6 +45,7 @@
 - Deploy `dpl_DPSck3iYscPuyeoHvATp1QytTok8` publicou a agenda 5A, confirmou o schema de 20 tabelas sem lacunas e promoveu o commit `2b602a9` a `drdouglasvaz.vercel.app`.
 - Deploy `dpl_Dq8KeEsy62RvhGmn2RQJZp26a8EX` confirmou a repetição segura: nenhuma migration pendente, 20/20 tabelas íntegras, seeds sem duplicação e commit `08a933a` promovido ao domínio principal.
 - Deploy `dpl_93G7PjBHTE2Yw3TDYZeiN2CrEMRJ` promoveu o commit `4d40ba0`, confirmou novamente 20/20 tabelas, nenhuma migration pendente, seeds sem duplicação e integridade agregada da agenda em estado `ready`.
+- Deploy `dpl_BxiSYGnVGejz8gG5hqFso1kMDFk8` promoveu o commit `7de56b6` com a troca própria de senha; o build completo terminou em `READY` e o domínio `drdouglasvaz.vercel.app` recebeu o marco 4D.
 
 ## Verificações
 - 67 testes reais passaram: autorização, configuração/origem, MFA, provisionamento, controle de sessões e senha, auditoria, workflow editorial, migrations, disponibilidade, idempotência, buffers, fuso, entrada estrita, checker agregado, seed, datas, publicação, diagnósticos seguros e isolamento por ambiente.
