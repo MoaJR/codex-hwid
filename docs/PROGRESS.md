@@ -1,5 +1,12 @@
 # Progresso — 25/10/2026
 
+## Publicação em Produção — 25/10/2026
+- O push de `a89c0f3` para a `main` publicou os cinco commits locais: retirada do segundo fator, homepage navy e os aceites automatizados da agenda e da conta.
+- O remoto tinha `73b7b30` (bootstrap do Windows). O rebase linear preservou `scripts/setup-windows.ps1` e sua documentação junto às novas seções, sem marcadores de conflito; a árvore ficou limpa e a suíte seguiu em 107/107 com typecheck e build aprovados.
+- Deploy de Production `vaz-8l04gvrse-moajrs-projects.vercel.app` concluído em `READY`. Pipeline: 5 migrations encontradas e nenhuma pendente, 20/20 tabelas com colunas, constraints e índices esperados, seeds idempotentes (`inserted: 0`, `skipped: 4` em artigos e catálogo) e `scheduling:check` em `ready`.
+- Smoke em `drdouglasvaz.vercel.app`: `/`, `/login` e `/api/health` responderam `200`; `/verificar-acesso` e `/demonstracao.html` responderam `404`; `/painel` respondeu `307` para `/login`; `/api/medico/agenda` respondeu `401` sem sessão; `/api/auth/get-session` respondeu `200` anônimo; a home entregou o CTA novo da versão navy.
+- Nenhuma credencial foi lida, impressa ou publicada; `.env*` continua fora do Git e os marcadores locais de aceite seguem ignorados.
+
 ## Segurança da conta validada com dois acessos — 25/10/2026
 - `npm run e2e:account` (`scripts/e2e-account.mjs`) fechou o último aceite autenticado do marco 4D por HTTP no servidor local: dois logins simultâneos, revogação dos outros acessos, preservação da sessão atual, troca de senha com senha atual, rejeição de senha atual errada, rejeição da senha antiga, aceite da nova senha e restauração da senha original.
 - Também confirma que a revogação exige origem canônica (`403` sem `Origin`), que a rota responde `401` sem sessão e que os endpoints crus do provedor (`/api/auth/list-sessions` e `/api/auth/change-password`) permanecem em `404`.
