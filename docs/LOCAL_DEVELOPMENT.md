@@ -83,7 +83,10 @@ Crie exatamente um médico antes do catálogo da agenda:
 npm run auth:provision -- --email medico@local.test --name "Dr. Douglas Vaz" --role DOCTOR --confirm PROVISIONAR
 npm run db:seed:scheduling
 npm run scheduling:check
+npm run privacy:check
 ```
+
+`privacy:check` é somente leitura e somente local. Ele devolve contagens agregadas, a idade do registro mais antigo por categoria e booleanos de consistência para apoiar as decisões D3, D5 e D6 de `docs/PRIVACY.md`; não imprime identidade, contato, token nem horário individual e recusa qualquer banco que não esteja em `localhost`, `127.0.0.1` ou `::1`.
 
 Depois crie os outros perfis:
 

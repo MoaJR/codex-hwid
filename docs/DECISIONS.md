@@ -98,3 +98,12 @@ A página pública `/privacidade` afirmava “verificação em duas etapas” me
 
 `tests/privacy-record.test.mjs` é a guarda permanente: impede remover o registro, marcar decisão como aprovada sem linha de aprovação preenchida, gravar e-mail, senha, token ou URL de banco no documento, deixar de referenciá-lo em `CLINE_START.md` e `README.md`, ou reintroduzir na página pública um controle que não existe mais.
 
+## 2026-10-25 — Inventário de privacidade somente agregado, local e fora do build
+As decisões D3 (retenção), D5 (escopo de backup) e D6 (escopo de incidente) precisam de números, mas não de dado pessoal. `npm run privacy:check` (`scripts/check-privacy.mjs`) lê o banco em transação `RepeatableRead` com `SET TRANSACTION READ ONLY` e publica apenas contagens por categoria, idade em dias inteiros do registro mais antigo e booleanos de consistência.
+
+A recusa acontece antes de criar o cliente Prisma: sem `DATABASE_URL` o comando responde `DATABASE_URL_MISSING`; com host diferente de `localhost`, `127.0.0.1` ou `::1` responde `DATABASE_URL_NOT_LOCAL`. Erros do provedor nunca são impressos, porque podem carregar host ou credencial. A saída não inclui identidade, contato, token, identificador de recurso nem horário individual — o mesmo critério já usado pelos checkers e aceites anteriores.
+
+O comando fica fora do build de produção, ao contrário de `scheduling:check`. Os registros legados de `TwoFactor` e `Verification`, ainda presentes por causa da retirada do segundo fator sem migration destrutiva, são um fato a considerar na retenção e não uma falha de build. Transformá-los em check obrigatório bloquearia deploy por dado histórico esperado; mantê-los como contagem preserva a informação sem alterar o pipeline.
+
+O inventário não decide retenção, backup ou resposta a incidentes. Ele apenas reduz a incerteza das seis decisões registradas em `docs/PRIVACY.md` e continua exigindo aprovação do responsável antes da Fase 5B.
+

@@ -55,6 +55,7 @@ Observações verificadas:
 - Cabeçalhos de segurança em todas as rotas (CSP, bloqueio de frame e objeto, `nosniff`, política de referência, Permissions Policy).
 - Credenciais nunca trafegam por argumento de linha de comando, chat ou repositório; o provisionamento exige terminal interativo.
 - Não existe rotina de retenção, anonimização ou expurgo automatizado. Nada é apagado fisicamente hoje; cancelamentos preservam o registro e os eventos.
+- `npm run privacy:check` (somente local) produz contagens agregadas, idade em dias inteiros do registro mais antigo por categoria e booleanos de consistência, para dimensionar D3, D5 e D6. Ela não imprime identidade, contato, token, identificador de recurso ou horário individual, recusa qualquer banco que não seja `localhost`, `127.0.0.1` ou `::1` e não faz parte do build de produção.
 
 ## 5. Decisões pendentes
 
@@ -85,7 +86,7 @@ Nenhuma decisão abaixo foi tomada pelo agente. Cada linha precisa de aprovaçã
 
 **Pergunta.** Por quanto tempo cada categoria é mantida e com qual mecanismo de expurgo.
 **Opções por categoria.** Sessões e limites de tentativas: expiração curta e limpeza oportunista já existente. Consultas e eventos de agenda: prazo definido pelo responsável, considerando a guarda de registros de assistência à saúde. Auditoria: prazo próprio de segurança. Editorial: histórico permanente ou versionado com poda. `MoodEntry`: excluir do escopo enquanto não houver módulo.
-**Impacto técnico.** Nenhuma rotina de expurgo existe hoje. É necessário definir prazos, implementar rotina (script agendado ou tarefa operacional documentada), registrar evidência de execução e revisar as constraints `Restrict`, que impedem apagar registros referenciados.
+**Impacto técnico.** Nenhuma rotina de expurgo existe hoje. É necessário definir prazos, implementar rotina (script agendado ou tarefa operacional documentada), registrar evidência de execução e revisar as constraints `Restrict`, que impedem apagar registros referenciados. O comando local `npm run privacy:check` já entrega contagens por categoria e a idade do registro mais antigo, o que permite dimensionar prazos sem extrair dado pessoal.
 
 ### D4 — Subprocessadores e transferência internacional
 

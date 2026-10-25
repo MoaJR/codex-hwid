@@ -17,6 +17,7 @@
     "db:seed:articles": "node --env-file-if-exists=.env.local scripts/seed-articles.mjs",
     "db:seed:scheduling": "node --env-file-if-exists=.env.local scripts/seed-scheduling.mjs",
     "scheduling:check": "node --env-file-if-exists=.env.local scripts/check-scheduling.mjs",
+    "privacy:check": "node --env-file-if-exists=.env.local scripts/check-privacy.mjs",
     "e2e:scheduling": "node scripts/e2e-scheduling.mjs --confirm E2E",
     "e2e:account": "node scripts/e2e-account.mjs --confirm E2E",
     "services:check": "node --env-file-if-exists=.env.local scripts/check-services.mjs",

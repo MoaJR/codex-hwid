@@ -23,9 +23,10 @@ Antes de propor código, execute `git status`, leia a implementação relacionad
 - Stack: Next.js 16, React 19, TypeScript, Prisma/PostgreSQL e Better Auth com sessão em banco (sem segundo fator desde 25/10/2026).
 - Fases 0 a 4 concluídas; Fase 5A publicada e com aceites automatizados; Fase 5B bloqueada até a aprovação das decisões de privacidade.
 - O schema possui 20 modelos e sete enums.
-- A suíte possui 112 testes; typecheck e build estão aprovados.
+- A suíte possui 116 testes; typecheck e build estão aprovados.
 - O ciclo completo da agenda é aceito por automação local: `npm run e2e:scheduling` (19 verificações, sem imprimir dados pessoais) e `npm run scheduling:check`.
 - A segurança da conta é aceita por `npm run e2e:account` (14 verificações: dois logins, revogação dos outros acessos, troca e restauração da senha), com espera de 16 minutos entre execuções por causa do limite do servidor.
+- O inventário de privacidade é aceito por `npm run privacy:check`: somente local, somente leitura, apenas contagens agregadas, idade em dias do registro mais antigo e booleanos de consistência, sem identidade, contato, token ou horário individual.
 - `main` publica automaticamente na Vercel.
 - O protótipo estático e o agendamento fictício foram removidos.
 - A bateria E2E autenticada dos quatro papéis está roteirizada em `docs/E2E_5A_ROLES.md` e
@@ -77,7 +78,7 @@ Antes de propor código, execute `git status`, leia a implementação relacionad
 3. Depois da 5B, planejar a Fase 6 do portal do paciente. O painel atual é a fundação; não criar cards falsos para módulos ainda ausentes.
 4. A administração completa de usuários/permissões permanece uma evolução auditada; o `/admin` atual é deliberadamente limitado ao domínio editorial.
 
-Já cobertos e não precisam ser repetidos manualmente: a bateria por papel (`docs/E2E_5A_ROLES.md`), o ciclo completo da agenda (`npm run e2e:scheduling` + `npm run scheduling:check`) e a segurança da conta (`npm run e2e:account`), executados em 25/10/2026 no PostgreSQL local.
+Já cobertos e não precisam ser repetidos manualmente: a bateria por papel (`docs/E2E_5A_ROLES.md`), o ciclo completo da agenda (`npm run e2e:scheduling` + `npm run scheduling:check`), a segurança da conta (`npm run e2e:account`) e o inventário agregado de privacidade (`npm run privacy:check`), executados em 25/10/2026 no PostgreSQL local.
 
 
 
