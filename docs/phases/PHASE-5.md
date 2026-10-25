@@ -25,7 +25,7 @@ O redeploy `dpl_Dq8KeEsy62RvhGmn2RQJZp26a8EX` não encontrou migrations pendente
 
 ### Segurança
 
-Médico acessa somente sua agenda. Secretaria acessa a agenda da clínica única; a resolução falha se houver zero ou mais de um médico. Administrador não recebe agenda por herança. Toda operação de equipe exige MFA da sessão, origem canônica exata, JSON estrito com até 8 KiB, campos conhecidos e limite de dez mutações por minuto. Leitura da API é limitada a sessenta requisições por minuto.
+Médico acessa somente sua agenda. Secretaria acessa a agenda da clínica única; a resolução falha se houver zero ou mais de um médico. Administrador não recebe agenda por herança. Toda operação de equipe exige sessão autenticada, origem canônica exata, JSON estrito com até 8 KiB, campos conhecidos e limite de dez mutações por minuto. Leitura da API é limitada a sessenta requisições por minuto.
 
 Criação e reagendamento recebem duração, buffers e modalidade do servidor. A transação adquire lock por médico, recalcula disponibilidade, grava consulta, evento e auditoria e depende também da constraint do banco. Conflito de horário retorna `409` sem detalhes do PostgreSQL. Criação exige `Idempotency-Key` UUID; repetição do mesmo pedido retorna a mesma consulta.
 

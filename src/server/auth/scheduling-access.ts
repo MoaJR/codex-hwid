@@ -3,7 +3,6 @@ import {redirect} from 'next/navigation';
 import {getDb} from '@/server/db';
 import {getSessionContext,type SessionContext} from './session';
 import {authorizeSession} from './authorize';
-import {staffMfaRedirect} from './mfa-routing.mjs';
 
 export type SchedulingDoctor={id:string;userId:string;timeZone:string};
 type AuthenticatedContext=Extract<SessionContext,{state:'authenticated'}>;
@@ -47,8 +46,6 @@ export async function requireSchedulingPage(permission:string):Promise<{context:
   const context=await getSessionContext();
   if(context.state==='anonymous')redirect('/login');
   if(context.state==='unavailable')redirect('/conta');
-  const mfaRedirect=staffMfaRedirect({staffMfaRequired:context.staffMfaRequired,twoFactorEnabled:context.user.twoFactorEnabled,sessionMfaVerified:context.sessionMfaVerified});
-  if(mfaRedirect)redirect(mfaRedirect);
   try{
     const doctor=await resolveDoctor(context);
     if(!doctor)throw new Error('scope');

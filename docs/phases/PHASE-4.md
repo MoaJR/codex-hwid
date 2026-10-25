@@ -1,4 +1,5 @@
 # Fase 4 — Autenticação e autorização
+> Registro histórico. Em 25/10/2026 o segundo fator (TOTP) foi removido do produto por decisão do responsável (`DECISIONS.md`); as seções abaixo descrevem o que existia naquele marco, não o comportamento atual.
 
 ## Marco 4B concluído: primeiro acesso com MFA
 Objetivo: preparar login, sessão e MFA sem expor acesso operacional antes da configuração confiável.

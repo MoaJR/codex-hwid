@@ -32,11 +32,7 @@ export function LoginForm({configured}:{configured:boolean}){
         return;
       }
       form.reset();
-      if('twoFactorRedirect' in data && data.twoFactorRedirect === true){
-        router.push('/verificar-acesso');
-      }else{
-        router.push('/painel');
-      }
+      router.push('/painel');
       router.refresh();
     }catch{
       setError(accessError);

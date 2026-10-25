@@ -1,6 +1,6 @@
 # Desenvolvimento local no VS Code
 
-O ambiente recomendado usa PostgreSQL 17 local. Ele permite testar login, MFA e painéis sem expor o banco ou os segredos de Produção ao VS Code ou ao Cline.
+O ambiente recomendado usa PostgreSQL 17 local. Ele permite testar login e painéis sem expor o banco ou os segredos de Produção ao VS Code ou ao Cline.
 
 ## Pré-requisitos
 
@@ -112,6 +112,50 @@ npm run build:next
 ```
 
 Não defina `VERCEL_ENV=production` no computador local. O script `npm run build` usa essa variável para decidir se deve aplicar migrations e seeds no ambiente de publicação; para a verificação local, prefira `npm run build:next`.
+
+### Equivalente em Linux/Bash
+
+Os mesmos passos, sem PowerShell, verificados em Ubuntu 22.04 com Node 24. O Docker não
+vem instalado por padrão; instale pelo sistema (o `docker.io` e o `docker-compose-v2` estão
+disponíveis no repositório `universe` do Ubuntu 22.04):
+
+```bash
+sudo apt update
+sudo apt install -y docker.io docker-compose-v2
+sudo usermod -aG docker "$USER"   # depois feche e reabra o terminal
+docker --version && docker compose version
+
+docker compose -f compose.dev.yml up -d --wait
+docker compose -f compose.dev.yml ps
+docker exec douglas-vaz-postgres psql -U postgres -d douglas_vaz_dev -c 'select version();'
+```
+
+Uma vez com Docker instalado e o `.env.local` apontando para o banco local, o restante é um
+único comando (ele recusa executar se algum valor não for local, não exibe segredos e não
+cria contas):
+
+```bash
+npm run local:bootstrap
+```
+
+O script valida a configuração, sobe o PostgreSQL, aplica migrations, inspeciona o schema,
+semeia artigos e o catálogo da agenda, e informa o comando de provisionamento que ainda
+precisa ser digitado por você em terminal interativo.
+
+Sem `docker`/`docker compose`, o caminho de login e painéis não pode ser exercitado e
+o E2E fica bloqueado; apenas páginas públicas, testes automatizados, typecheck e
+`build:next` funcionam. O roteiro de aceite dos quatro papéis está em `docs/E2E_5A_ROLES.md`.
+
+Para conferir a configuração local sem expor a senha do banco:
+
+```bash
+node --env-file=.env.local -e "const u=new URL(process.env.DATABASE_URL);console.log({host:u.hostname,port:u.port,database:u.pathname.slice(1),authEnabled:process.env.AUTH_ENABLED,baseUrl:process.env.BETTER_AUTH_URL})"
+```
+
+O resultado deve indicar `host: '127.0.0.1'`, `port: '5432'`, `database: 'douglas_vaz_dev'`,
+`authEnabled: 'true'` e `baseUrl: 'http://localhost:3000'`. Qualquer outro host significa
+que o `DATABASE_URL` aponta para fora da máquina e os comandos de banco não devem ser
+executados.
 
 ## Vercel e segredos
 

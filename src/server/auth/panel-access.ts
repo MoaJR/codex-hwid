@@ -2,7 +2,6 @@ import 'server-only';
 import {redirect} from 'next/navigation';
 import {getSessionContext,type SessionContext} from './session';
 import {authorizeSession} from './authorize';
-import {staffMfaRedirect} from './mfa-routing.mjs';
 
 type AuthenticatedContext=Extract<SessionContext,{state:'authenticated'}>;
 type Resource={patientUserId?:string;assignedDoctorUserIds?:string[];appointmentDoctorUserId?:string};
@@ -11,8 +10,6 @@ export async function requirePanelPage():Promise<AuthenticatedContext>{
   const context=await getSessionContext();
   if(context.state==='anonymous')redirect('/login');
   if(context.state==='unavailable')redirect('/conta');
-  const mfaRedirect=staffMfaRedirect({staffMfaRequired:context.staffMfaRequired,twoFactorEnabled:context.user.twoFactorEnabled,sessionMfaVerified:context.sessionMfaVerified});
-  if(mfaRedirect)redirect(mfaRedirect);
   return context;
 }
 

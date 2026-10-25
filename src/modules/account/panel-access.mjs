@@ -3,7 +3,7 @@ const moduleDefinitions=Object.freeze([
   Object.freeze({id:'schedule',title:'Agenda',description:'Gerencie consultas e disponibilidade autorizadas para a clínica.',href:'/medico/agenda',roles:Object.freeze(['DOCTOR','SECRETARY']),symbol:'◷'}),
   Object.freeze({id:'content',title:'Conteúdos',description:'Prepare e revise os conteúdos educativos do site.',href:'/medico/conteudos',roles:Object.freeze(['DOCTOR','ADMIN']),symbol:'◇'}),
   Object.freeze({id:'admin',title:'Administração',description:'Acompanhe os módulos administrativos liberados para sua conta.',href:'/admin',roles:Object.freeze(['ADMIN']),symbol:'⚙'}),
-  Object.freeze({id:'account',title:'Minha conta',description:'Gerencie MFA, senha e sessões conectadas.',href:'/conta',roles:Object.freeze(['PATIENT','DOCTOR','SECRETARY','ADMIN']),symbol:'♧'}),
+  Object.freeze({id:'account',title:'Minha conta',description:'Gerencie senha e sessões conectadas.',href:'/conta',roles:Object.freeze(['PATIENT','DOCTOR','SECRETARY','ADMIN']),symbol:'♧'}),
 ]);
 
 const roleNames=new Map([['PATIENT','Paciente'],['DOCTOR','Médico'],['SECRETARY','Secretaria'],['ADMIN','Administrador']]);

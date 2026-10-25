@@ -16,13 +16,11 @@ function request(body=JSON.stringify(valid),headers={}){
   });
 }
 
-test('troca de senha exige sessão e MFA quando equipe ou conta usa 2FA',()=>{
+test('troca de senha exige apenas sessão autenticada',()=>{
   assert.equal(canChangeOwnPassword({state:'anonymous'}),false);
-  assert.equal(canChangeOwnPassword({state:'authenticated',staffMfaRequired:false,sessionMfaVerified:true}),false);
-  assert.equal(canChangeOwnPassword({state:'authenticated',staffMfaRequired:true,sessionMfaVerified:false,user:{twoFactorEnabled:true}}),false);
-  assert.equal(canChangeOwnPassword({state:'authenticated',staffMfaRequired:true,sessionMfaVerified:true,user:{twoFactorEnabled:true}}),true);
-  assert.equal(canChangeOwnPassword({state:'authenticated',staffMfaRequired:false,sessionMfaVerified:false,user:{twoFactorEnabled:true}}),false);
-  assert.equal(canChangeOwnPassword({state:'authenticated',staffMfaRequired:false,sessionMfaVerified:false,user:{twoFactorEnabled:false}}),true);
+  assert.equal(canChangeOwnPassword({state:'unavailable'}),false);
+  assert.equal(canChangeOwnPassword(null),false);
+  assert.equal(canChangeOwnPassword({state:'authenticated'}),true);
 });
 
 test('entrada de senha é estrita e nunca aceita campos de controle enviados pelo cliente',()=>{

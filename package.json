@@ -20,7 +20,8 @@
     "services:check": "node --env-file-if-exists=.env.local scripts/check-services.mjs",
     "db:check": "node --env-file-if-exists=.env.local scripts/check-database.mjs",
     "auth:check": "node --env-file-if-exists=.env.local scripts/check-auth.mjs",
-    "auth:provision": "node --env-file-if-exists=.env.local scripts/provision-access.mjs"
+    "auth:provision": "node --env-file-if-exists=.env.local scripts/provision-access.mjs",
+    "local:bootstrap": "bash scripts/local-bootstrap.sh"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",

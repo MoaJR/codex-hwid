@@ -5,16 +5,14 @@ export class AccountRequestError extends Error{
   constructor(code='INVALID_REQUEST',message='Solicitação inválida.'){super(message);this.name='AccountRequestError';this.code=code;}
 }
 
-/** @param {{state?:string,staffMfaRequired?:boolean,sessionMfaVerified?:boolean}|null|undefined} context */
+/** @param {{state?:string}|null|undefined} context */
 export function canControlOwnSessions(context){
-  return context?.state==='authenticated'&&(!context.staffMfaRequired||context.sessionMfaVerified===true);
+  return context?.state==='authenticated';
 }
 
-/** @param {{state?:string,staffMfaRequired?:boolean,sessionMfaVerified?:boolean,user?:{twoFactorEnabled?:boolean}}|null|undefined} context */
+/** @param {{state?:string}|null|undefined} context */
 export function canChangeOwnPassword(context){
-  if(context?.state!=='authenticated'||typeof context.user?.twoFactorEnabled!=='boolean')return false;
-  if(context.staffMfaRequired||context.user?.twoFactorEnabled)return context.sessionMfaVerified===true;
-  return true;
+  return context?.state==='authenticated';
 }
 
 /** @param {Request} request @param {string|undefined} configuredUrl @param {number} maxBytes */

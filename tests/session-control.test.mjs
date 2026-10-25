@@ -6,11 +6,11 @@ import {disabledSessionApiPaths} from '../src/server/auth/configuration.mjs';
 const configuredUrl='https://example.test';
 function request(body='{}',headers={}){return new Request(`${configuredUrl}/api/account/sessions/revoke-others`,{method:'POST',headers:{origin:configuredUrl,'content-type':'application/json',...headers},body});}
 
-test('controle de sessões exige login e MFA somente para equipe',()=>{
+test('controle de sessões exige apenas sessão autenticada',()=>{
   assert.equal(canControlOwnSessions({state:'anonymous'}),false);
-  assert.equal(canControlOwnSessions({state:'authenticated',staffMfaRequired:true,sessionMfaVerified:false}),false);
-  assert.equal(canControlOwnSessions({state:'authenticated',staffMfaRequired:true,sessionMfaVerified:true}),true);
-  assert.equal(canControlOwnSessions({state:'authenticated',staffMfaRequired:false,sessionMfaVerified:false}),true);
+  assert.equal(canControlOwnSessions({state:'unavailable'}),false);
+  assert.equal(canControlOwnSessions(null),false);
+  assert.equal(canControlOwnSessions({state:'authenticated'}),true);
 });
 
 test('pedido de revogação aceita somente origem canônica e objeto vazio pequeno',async()=>{

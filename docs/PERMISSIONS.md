@@ -18,9 +18,9 @@ Tudo ausente na lista é negado. Permissões de prontuário, diário, documentos
 
 Contas com mais de um papel recebem a união dos módulos autorizados, sem duplicatas. A presença de um cartão não substitui o guard server-side da rota de destino.
 
-Todo usuário autenticado pode encerrar somente as próprias outras sessões; nunca escolhe um `userId` ou `sessionId`. Papéis de equipe precisam concluir MFA na sessão atual. A sessão atual é preservada e a operação não concede acesso a outro recurso.
+Todo usuário autenticado pode encerrar somente as próprias outras sessões; nunca escolhe um `userId` ou `sessionId`. A sessão atual é preservada e a operação não concede acesso a outro recurso.
 
-Todo usuário autenticado com credencial local pode alterar somente a própria senha após informar a senha atual. Se a conta usa 2FA, ou possui qualquer papel de equipe, a sessão também precisa ter concluído MFA. A aplicação decide a revogação das outras sessões e não aceita identidade, papel ou sessão do corpo da requisição.
+Todo usuário autenticado com credencial local pode alterar somente a própria senha após informar a senha atual. A aplicação decide a revogação das outras sessões e não aceita identidade, papel ou sessão do corpo da requisição.
 
 ## Agenda operacional 5A
 
@@ -31,7 +31,7 @@ Todo usuário autenticado com credencial local pode alterar somente a própria s
 | ADMIN | Não | Não | Não |
 | PATIENT | Própria, somente leitura | Não neste marco | Não |
 
-A agenda do médico é escopo administrativo e não cria vínculo assistencial nem concede prontuário. Secretaria recebe somente metadados necessários à operação. O paciente vê no máximo dez atendimentos futuros confirmados e vinte itens dos últimos 90 dias, sempre vinculados a `Patient.userId` da sessão. Todos os acessos da equipe exigem MFA da sessão. O rollout permanece controlado e sem dados clínicos reais.
+A agenda do médico é escopo administrativo e não cria vínculo assistencial nem concede prontuário. Secretaria recebe somente metadados necessários à operação. O paciente vê no máximo dez atendimentos futuros confirmados e vinte itens dos últimos 90 dias, sempre vinculados a `Patient.userId` da sessão. O acesso da equipe depende de sessão autenticada e autorização por papel. O rollout permanece controlado e sem dados clínicos reais.
 
 ## Conteúdo editorial
 | Papel | Leitura do painel | Escrita de rascunho | Enviar para revisão | Publicar/retirar |
@@ -41,4 +41,4 @@ A agenda do médico é escopo administrativo e não cria vínculo assistencial n
 | SECRETARY | Não | Não | Não | Não |
 | PATIENT | Não | Não | Não | Não |
 
-Todas as permissões editoriais de equipe também exigem MFA concluído na sessão atual. Conteúdo publicado é público; o painel e rascunhos não são.
+As permissões editoriais continuam validadas no servidor para cada mutação. Conteúdo publicado é público; o painel e rascunhos não são.
