@@ -42,6 +42,13 @@ A partir deste marco, build gera o cliente Prisma antes de Next.js. Evita reutil
 ## Marco 4C — controle de sessões
 `/conta` oferece encerramento de todos os outros acessos ativos sem listar dispositivos, tokens, IP ou user-agent. A sessão atual é preservada; equipe precisa concluir MFA na própria sessão. A rota da aplicação valida origem canônica, JSON vazio de até 1 KiB, aplica limite compartilhado de cinco tentativas por minuto e grava `OTHER_SESSIONS_REVOKED` na mesma transação da exclusão.
 
-Os endpoints nativos de listagem e revogação de sessões do Better Auth foram desativados para não contornar a projeção e a auditoria. `/change-password` também permanece desativado até existir um fluxo próprio protegido. O aceite operacional deste marco exige dois logins: executar a ação em um, confirmar que ele continua válido e que o segundo perde acesso. Expiração e uso único do código de recuperação continuam no roteiro controlado.
+Os endpoints nativos de listagem e revogação de sessões do Better Auth foram desativados para não contornar a projeção e a auditoria. `/change-password` também foi mantido desativado e recebeu uma rota própria no marco 4D. O aceite operacional deste marco exige dois logins: executar a ação em um, confirmar que ele continua válido e que o segundo perde acesso. Expiração e uso único do código de recuperação continuam no roteiro controlado.
 
 O deployment `dpl_93G7PjBHTE2Yw3TDYZeiN2CrEMRJ` publicou o marco. Em smoke anônimo, conta protegida terminou no login, endpoints crus responderam 404, a rota própria recusou GET e não houve erro de runtime. O teste autenticado com dois logins continua como aceite manual.
+
+## Marco 4D — troca de senha controlada
+`/conta` oferece troca da própria senha por `/api/account/password`. O contrato aceita somente senha atual, nova senha e confirmação em JSON de até 1 KiB; identidade, sessão e decisão de revogar outros acessos vêm do servidor. A nova senha precisa ter de 12 a 128 caracteres e ser diferente da atual. A rota exige MFA da sessão para toda conta com 2FA e sempre para papéis de equipe.
+
+A verificação e o hash usam `better-auth/crypto`. Um lock por usuário serializa mudanças concorrentes; atualização da credencial, exclusão das outras sessões ativas e `PASSWORD_CHANGED` acontecem na mesma transação. A sessão atual, incluindo sua marca MFA, é preservada. O limite compartilhado é de cinco tentativas a cada quinze minutos e a resposta contém somente confirmação e quantidade revogada. Senhas, hashes, tokens, IP e navegador não entram na auditoria ou na resposta.
+
+O endpoint nativo `/api/auth/change-password` permanece desativado para impedir um caminho sem a autorização, projeção e auditoria da aplicação. O aceite operacional usa dois logins: trocar a senha em um, confirmar que ele continua válido, que o segundo perde acesso, que a senha anterior falha e que a nova permite um login com MFA.

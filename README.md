@@ -24,7 +24,7 @@ npm run build
 npm start
 ```
 
-No marco atual: 63 testes, o TypeScript e o build Next.js passaram. O schema tem 20 modelos para identidade, domínio inicial, auditoria, conteúdo e agenda. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes, inspeciona o resultado, executa seeds aditivos e roda a checagem agregada da agenda; local e preview não alteram o banco.
+No marco atual: 67 testes, o TypeScript e o build Next.js passaram. O schema tem 20 modelos para identidade, domínio inicial, auditoria, conteúdo e agenda. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes, inspeciona o resultado, executa seeds aditivos e roda a checagem agregada da agenda; local e preview não alteram o banco.
 
 ## Banco de dados
 O frontend pode rodar sem configurar o banco. Para desenvolvimento local do backend, configure DATABASE_URL em `.env.local` usando `.env.example` como referência e execute:
@@ -46,7 +46,7 @@ Progresso e próximos passos em docs/PROGRESS.md. O escopo atual está em docs/p
 ## Integrações
 Prisma Postgres `prisma-postgres-yellow-helmet` confirmado pela API da Vercel como disponível e conectado ao projeto `vaz`. `DATABASE_URL`, `POSTGRES_URL` e `PRISMA_DATABASE_URL` existem como secrets em preview e produção; nenhum valor foi lido ou exibido. Detalhes em docs/INTEGRATIONS.md.
 
-Fase atual: 5A — login/MFA, CMS e agenda operacional interna estão publicados. O próximo aceite é um ciclo completo da agenda com identidade fictícia; dados pessoais ou clínicos reais continuam bloqueados.
+Fase atual: 5A, com endurecimento 4D da conta — login/MFA, CMS e agenda operacional interna estão publicados; o fluxo próprio de troca de senha está em publicação. Os próximos aceites são a troca de senha com dois acessos e um ciclo completo da agenda com identidade fictícia; dados pessoais ou clínicos reais continuam bloqueados.
 
 ## Autenticação — marco 4B
 /login, /verificar-acesso e /conta estão preparadas com Better Auth. A conta permite cadastrar um aplicativo autenticador por QR Code, guardar códigos de recuperação e usar cada código uma única vez. Provisionamento, TOTP e uso de recuperação deixam eventos de auditoria sem conteúdo clínico. O acesso permanece desabilitado por padrão e as APIs respondem 503 enquanto não configurado. Não há conta/senha padrão ou cadastro público.
@@ -72,7 +72,7 @@ npm run auth:provision -- --email SEU_EMAIL --name "Dr. Douglas Vaz" --role DOCT
 
 O script solicitará a senha duas vezes sem eco. `.env.local` já é ignorado pelo Git; nunca cole a senha ou o conteúdo desse arquivo no chat. O gate está ativo apenas para testar login, cadastro de MFA e recuperação; operações clínicas continuam bloqueadas. Veja docs/phases/PHASE-4.md para critérios. Não publicar segredos em `NEXT_PUBLIC_*`.
 
-A integração Vercel já tem acesso à equipe `moajrs-projects`. O projeto, o storage e os nomes das variáveis foram verificados sem descriptografar secrets. Em `/conta`, o usuário pode encerrar os outros acessos ativos; a equipe precisa concluir MFA e a ação é auditada sem expor tokens ou detalhes de dispositivo.
+A integração Vercel já tem acesso à equipe `moajrs-projects`. O projeto, o storage e os nomes das variáveis foram verificados sem descriptografar secrets. Em `/conta`, o usuário pode encerrar os outros acessos ativos e alterar a própria senha; contas com 2FA precisam verificá-la, a sessão atual é preservada e as ações são auditadas sem expor tokens ou detalhes de dispositivo.
 
 ## CMS editorial — marco 3B
 Após login e MFA, médicos e administradores autorizados acessam `/medico/conteudos`. O fluxo usa rascunho, revisão, publicação e arquivamento reversível. Administradores podem escrever e enviar para revisão; somente o papel `DOCTOR` publica ou retira um texto publicado. Toda mutação exige origem canônica, usa controle de versão e grava ator, ação e artigo na auditoria. O conteúdo é renderizado como texto/blocos React, sem HTML arbitrário.

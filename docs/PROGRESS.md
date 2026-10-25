@@ -1,6 +1,6 @@
-# Progresso — 24/10/2026
+# Progresso — 25/10/2026
 
-## Fase atual: 5A — agenda operacional interna em validação
+## Fase atual: 5A + 4D — agenda interna em validação e segurança da conta
 - Better Auth 1.7.12 com adaptador Prisma, sessão em banco e plugin TOTP.
 - /login, /verificar-acesso e /conta; handlers /api/auth/[...all].
 - AUTH_ENABLED desabilitado por padrão no código e habilitado somente em Produção após o provisionamento. Sem signup público, account linking ou contas/senhas padrão.
@@ -16,7 +16,8 @@
 - Primeira conta provisionada em terminal confiável, conforme confirmação do responsável em 24/10/2026; nenhuma credencial foi enviada ou registrada no repositório.
 - `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` e `AUTH_ENABLED=true` configurados somente em Produção; o valor do secret não foi exibido.
 - Login, ativação de TOTP e segundo acesso com MFA concluídos pelo responsável; runtime permaneceu sem erros.
-- Controle de sessões 4C implementado em `/conta`: encerra somente outros acessos ativos, preserva a sessão atual, exige MFA da equipe, limita tentativas e grava auditoria sem token, IP ou navegador. Endpoints crus de listagem/revogação e troca de senha do provedor ficam desativados até existirem fluxos próprios.
+- Controle de sessões 4C implementado em `/conta`: encerra somente outros acessos ativos, preserva a sessão atual, exige MFA da equipe, limita tentativas e grava auditoria sem token, IP ou navegador. Endpoints crus de listagem e revogação do provedor permanecem desativados; a troca de senha recebe a rota própria descrita no marco 4D.
+- Troca de senha 4D implementada por rota própria: exige senha atual, confirmação e MFA para equipe ou qualquer conta com 2FA; usa o hash oficial do Better Auth, mantém somente a sessão atual, limita tentativas e grava `PASSWORD_CHANGED` atomicamente com a nova credencial e a revogação. O endpoint cru do provedor continua desativado.
 - Deployment `dpl_93G7PjBHTE2Yw3TDYZeiN2CrEMRJ` publicou o controle de sessões e executou o checker da agenda com todas as invariantes aprovadas; health respondeu 200, rotas cruas desativadas responderam 404 e a janela de runtime ficou sem erros.
 - CMS 3B implementado com blocos ordenados, rascunho, revisão, publicação, arquivamento reversível, controle de versão e auditoria por artigo.
 - `DOCTOR` publica/retira; `ADMIN` escreve e envia para revisão; paciente e secretaria não recebem permissão editorial.
@@ -45,7 +46,7 @@
 - Deploy `dpl_93G7PjBHTE2Yw3TDYZeiN2CrEMRJ` promoveu o commit `4d40ba0`, confirmou novamente 20/20 tabelas, nenhuma migration pendente, seeds sem duplicação e integridade agregada da agenda em estado `ready`.
 
 ## Verificações
-- 63 testes reais passaram: autorização, configuração/origem, MFA, provisionamento, controle de sessões, auditoria, workflow editorial, migrations, disponibilidade, idempotência, buffers, fuso, entrada estrita, checker agregado, seed, datas, publicação, diagnósticos seguros e isolamento por ambiente.
+- 67 testes reais passaram: autorização, configuração/origem, MFA, provisionamento, controle de sessões e senha, auditoria, workflow editorial, migrations, disponibilidade, idempotência, buffers, fuso, entrada estrita, checker agregado, seed, datas, publicação, diagnósticos seguros e isolamento por ambiente.
 - TypeScript e o build Next.js passaram. O schema com 20 modelos e sete enums passou em getDMMF/getConfig WASM.
 - As quatro migrations aplicaram do zero em PostgreSQL 17 descartável. FK composta, exclusões do médico/paciente, buffers, liberação após cancelamento e rollback atômico foram exercitados; produção confirmou a migration da agenda e o redeploy sem pendências.
 - A falha foi diagnosticada como migration inicial duplicada sobre um baseline já existente. A tentativa tinha zero etapas aplicadas; a estrutura foi verificada antes da reconciliação e nenhum dado de aplicação foi alterado.
@@ -58,7 +59,8 @@
 - Smoke do CMS: blog/API retornaram três artigos publicados, artigo público respondeu 200, rascunho respondeu 404, painel anônimo voltou ao login e API administrativa anônima respondeu 401.
 - Smoke 5A: `/agendar` respondeu 200 e continua demonstrativo; `/medico/agenda` anônimo terminou em `/login`; health respondeu produção, API pública manteve três artigos e a janela de runtime não apresentou erros.
 - Smoke 4C: `/conta` anônimo terminou em `/login`; `/api/auth/list-sessions` e `/api/auth/change-password` responderam 404; a rota própria rejeitou GET com 405; runtime permaneceu sem erros.
+- Smoke local 4D: a nova rota rejeitou GET, origem externa e corpo fora do contrato; com origem canônica e autenticação desabilitada falhou fechado em 503. O build Next.js incluiu `/api/account/password`. O E2E autenticado será feito após a publicação, porque o executor não consegue baixar o motor nativo do Prisma; o build Vercel continua sendo a geração oficial confirmada.
 
 ## Próximos passos
-Executar com a conta do médico um ciclo fictício: regra semanal → paciente de teste → criação → reagendamento → cancelamento, seguido por `npm run scheduling:check` em terminal confiável. Em paralelo, validar o novo encerramento de outros acessos com dois logins, expiração e uso único de código de recuperação. Depois concluir as decisões operacionais de privacidade antes da Fase 5B.
+Executar com a conta do médico um ciclo fictício: regra semanal → paciente de teste → criação → reagendamento → cancelamento, seguido por `npm run scheduling:check` em terminal confiável. Em paralelo, validar troca de senha e encerramento de outros acessos com dois logins, expiração e uso único de código de recuperação. Depois concluir as decisões operacionais de privacidade antes da Fase 5B.
 Não usar dados pessoais ou de saúde reais até os controles operacionais e a política de privacidade estarem validados.

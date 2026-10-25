@@ -9,6 +9,8 @@ Tudo ausente na lista é negado. Permissão document.shared.read não autoriza a
 
 Todo usuário autenticado pode encerrar somente as próprias outras sessões; nunca escolhe um `userId` ou `sessionId`. Papéis de equipe precisam concluir MFA na sessão atual. A sessão atual é preservada e a operação não concede acesso a outro recurso.
 
+Todo usuário autenticado com credencial local pode alterar somente a própria senha após informar a senha atual. Se a conta usa 2FA, ou possui qualquer papel de equipe, a sessão também precisa ter concluído MFA. A aplicação decide a revogação das outras sessões e não aceita identidade, papel ou sessão do corpo da requisição.
+
 ## Agenda operacional 5A
 
 | Papel | Ler agenda | Criar/reagendar/cancelar | Configurar disponibilidade |
