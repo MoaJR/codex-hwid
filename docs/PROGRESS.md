@@ -7,6 +7,7 @@
 - A página pública `/privacidade` foi corrigida: ela ainda afirmava "verificação em duas etapas", removida em 25/10/2026. Agora descreve credencial protegida por hash, sessões de servidor, cookie de sessão único, ausência de rastreadores de publicidade e informa que as definições da política seguem pendentes de aprovação.
 - Guarda nova em `tests/privacy-record.test.mjs` (5 testes): o registro existe com as seções obrigatórias, as seis decisões continuam pendentes e com tópico explícito, o documento não contém e-mail, URL de banco, senha ou token, é referenciado em `CLINE_START.md` e `README.md`, e a página pública não volta a anunciar controle removido nem política aprovada.
 - Suíte de 107 para 112 testes; `npm run typecheck` e `npm run build:next` aprovados. Nenhuma migration, seed, alteração de schema ou acesso a banco de produção nesta entrega. A Fase 5B continua bloqueada até a aprovação das decisões D1–D6.
+- Publicação: o commit `5d626e9` foi enviado para a `main` e o deploy automático da Vercel promoveu a correção ao domínio principal. Smoke após a publicação: `/privacidade` respondeu `200` sem o texto "duas etapas" e com o aviso de definições pendentes, `/` e `/api/health` responderam `200`. Nenhuma migration, seed ou alteração de banco foi executada pelo deploy.
 
 ## Publicação em Produção — 25/10/2026
 - O push de `a89c0f3` para a `main` publicou os cinco commits locais: retirada do segundo fator, homepage navy e os aceites automatizados da agenda e da conta.
