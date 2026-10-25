@@ -122,7 +122,7 @@
 - Smoke do CMS: blog/API retornaram três artigos publicados, artigo público respondeu 200, rascunho respondeu 404, painel anônimo voltou ao login e API administrativa anônima respondeu 401.
 - Smoke dos portais: home, `/agendar`, blog, API pública e health responderam 200; `/agendar` exibiu o gateway real sem texto demonstrativo; `/demonstracao.html` retornou 404; `/painel`, `/paciente` e `/admin` anônimos terminaram em `/login`. A janela verificada não apresentou erros de runtime.
 - Smoke 4C: `/conta` anônimo terminou em `/login`; `/api/auth/list-sessions` e `/api/auth/change-password` responderam 404; a rota própria rejeitou GET com 405; runtime permaneceu sem erros.
-- Smoke local 4D: a nova rota rejeitou GET, origem externa e corpo fora do contrato; com origem canônica e autenticação desabilitada falhou fechado em 503. O build Next.js incluiu `/api/account/password`. O E2E autenticado será feito após a publicação, porque o executor não consegue baixar o motor nativo do Prisma; o build Vercel continua sendo a geração oficial confirmada.
+- Smoke local 4D: a nova rota rejeitou GET, origem externa e corpo fora do contrato; com origem canônica e autenticação desabilitada falhou fechado em 503. O build Next.js incluiu `/api/account/password`. O aceite autenticado passou a ser automatizado em `npm run e2e:account`, executado no PostgreSQL local em 25/10/2026.
 
 ## Próximos passos
 Concluir as decisões operacionais de privacidade (controlador, bases legais, retenção, subprocessadores, backup/restore e resposta a incidentes) antes da Fase 5B. Todos os aceites autenticados da 5A/4D estão cobertos por automação local: papéis (`docs/E2E_5A_ROLES.md`), agenda (`npm run e2e:scheduling` + `npm run scheduling:check`) e conta (`npm run e2e:account`).
