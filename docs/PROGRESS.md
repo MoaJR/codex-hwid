@@ -1,4 +1,40 @@
-# Progresso — 25/10/2026
+# Progresso — 09/11/2026
+
+## Correção de drift documental, dívida de cor e dependência órfã — 09/11/2026
+- Documentação corrigida para refletir a remoção do segundo fator de 25/10/2026: `README.md` (dois parágrafos que ainda ofereciam cadastro de autenticador e exigência de 2FA), `docs/ROUTES.md` (`/conta` sem "ativação do autenticador"; `/api/auth/[...all]` descrito por `AUTH_ENABLED` e resposta `503`, não por "somente em Produção") e `docs/SECURITY.md` (nota datada no lugar da frase do QR Code TOTP). `docs/DATABASE.md` recebeu nota datada: 14 tabelas no marco editorial, 20 modelos desde a agenda.
+- `tests/mfa-removal.test.mjs` ganhou guarda de drift: `README.md` e `docs/ROUTES.md` não podem voltar a descrever autenticador, QR Code, códigos de recuperação, "com 2FA" ou verificação em duas etapas.
+- Onda 1 da dívida de cor: 46 ocorrências migradas para token sem mudança de rendering — `#fff`/`#ffffff` → `--color-surface` (fundo e borda) ou `--color-on-brand` (texto sobre marca), `#fff0ec` → `--color-danger-soft`, `#eaf0fa` → `--color-info-soft`. A `legacyAllowlist` caiu de 89 para 85 valores distintos (168 → 122 ocorrências) e `#dde6f3` saiu por já estar sem uso.
+- As 11 ocorrências restantes de `Georgia,serif` passaram a `var(--font-display)`: a serifa aposentada não existe mais em `src/app/globals.css`, e uma guarda reprova o retorno dela.
+- Nova guarda impede a `legacyAllowlist` de apodrecer: entrada sem uso no CSS faz o teste falhar, cumprindo a regra de a lista só encolher.
+- `qrcode.react` removido de `dependencies` (zero imports em `src/`, `tests/` e `scripts/` desde a remoção do TOTP). `package-lock.json` atualizado sem tocar em versões de runtime.
+- Validação desta rodada: `npm test` 133/133, `npm run typecheck` sem erros, `npm run build:next` concluído. Nenhuma alteração de schema, migration, rota, autorização ou decisão D1–D6.
+- Revalidação em navegador depois da onda 1: `E2E_SERVER=start E2E_BASE_URL=http://127.0.0.1:3100 npm run e2e:frontend` → **54 passaram, 10 não aplicáveis, 0 falhas** em 27,3s. Os não aplicáveis continuam sendo as 8 specs autenticadas sem `E2E_CONFIRM` e 2 regras exclusivas de viewport. Os invariantes da identidade (azul `#0367A6` computado, fundo `#F2F2F2`, piso de 12px, alvo de 44px, foco visível) passaram com o CSS migrado.
+
+## Produto de instância única e frontend com Playwright — 09/11/2026
+- O modelo de produto passou a ser regra em `.clinerules`: instância única do Dr. Douglas Vaz, **não é SaaS nem multi-tenant**, e o titular acumula `DOCTOR` e `ADMIN` na mesma conta. A união de módulos continua explícita em `UserRole`, sem herança e sem regra especial de "dono". Atualizados `docs/PERMISSIONS.md`, `README.md` e `CLINE_START.md`.
+- `scripts/provision-access.mjs` ganhou `--add-role <PAPEL>`: exige conta existente, é incompatível com `--role`/`--name`, não cria usuário nem lê senha, é idempotente, cria o perfil `Doctor`/`Patient` que faltar e grava `AuditEvent('ROLE_GRANTED')` na mesma transação. Sem migration (`AuditEvent.action` é `String`) e sem revogar sessão (papéis são lidos por requisição). Saída apenas com agregados.
+- `@playwright/test` 1.65.0 instalado como devDependency com Chromium. `playwright.config.ts` usa `assertLocalBaseUrl` do helper existente, aborta fora de loopback, inicia o próprio servidor e só reaproveita processo alheio com `E2E_REUSE_SERVER=1`.
+- Specs criados: `public` (9 rotas públicas + artigo do blog + 360px + navegação por teclado), `identity` (wordmark, fundo `#F2F2F2`, azul `#0367A6` computado, piso de 12px, foco visível, alvo de 44px no menu mobile), `guards` (7 rotas protegidas, `401` na API da agenda, endpoints crus em `404`, protótipo antigo em `404`) e `roles` (médico, administrador com união condicional, cards sem duplicata, paciente bloqueado).
+- Execução real com `E2E_SERVER=start` e `E2E_BASE_URL=http://127.0.0.1:3100`: **54 passaram, 10 não aplicáveis, 0 falhas** em 27s. Os não aplicáveis são os 8 specs autenticados (sem `E2E_CONFIRM`) e 2 regras exclusivas de viewport.
+- Duas falhas de ambiente encontradas e corrigidas na config: (1) a porta 3000 estava ocupada por um processo alheio e o Playwright reaproveitava esse servidor, testando outra aplicação — agora o reaproveitamento é opt-in; (2) o ruído de HMR WebSocket do `next dev` reprovava toda página — a coleta de erro de console ignora apenas `/_next/hmr`, e o modo `E2E_SERVER=start` não tem HMR.
+- `tests/e2e-config.test.mjs` guarda a política: loopback obrigatório, sem `reuseExistingServer: true` literal, sem `test.only`/`test.fixme`, artefatos no `.gitignore` e credencial nunca impressa.
+- Limitação registrada: o aceite autenticado no navegador retorna `403` neste ambiente porque `BETTER_AUTH_URL` não corresponde ao host/porta da suíte (porta 3000 ocupada por outro processo). O comando e a correção estão em `docs/LOCAL_DEVELOPMENT.md`.
+- Para abrir o Chromium nesta máquina foi necessário extrair `libnss3`, `libnspr4` e `libasound2` em `/tmp` e apontar `LD_LIBRARY_PATH`; a instalação definitiva no sistema (`npx playwright install-deps chromium`) exige `sudo` e não foi executada.
+- Validação: `npm test` 130/130, `npm run typecheck` sem erros, `npm run build:next` compilado. Nenhuma alteração de schema, migration, rota ou decisão D1–D6.
+
+## Identidade visual do manual aplicada ao produto — 09/11/2026
+- `docs/DESIGN_SYSTEM.md` criado com a marca (símbolo cérebro/balão de fala, wordmark, assinatura), paleta exata do manual, tabela de contraste por combinação, tipografia, escalas, componentes, acessibilidade, pendências e dívida registrada.
+- `src/styles/tokens.css` passa a concentrar marca, semânticos, tipografia, espaço, raio, sombra, camadas e movimento; é importado antes de `globals.css` em `src/app/layout.tsx`.
+- Paleta aplicada: `#023859`, `#0367A6`, `#0379A6`, `#049DBF` e `#F2F2F2`. A serifa `Georgia` saiu de títulos e do wordmark; a paleta navy anterior (`#0a1f44`, `#07162b`, `#1d4ed8`) não existe mais no CSS global.
+- 34 grupos de substituição converteram hex em token no CSS: paleta principal, superfícies, foco, status, header/rodapé, hero, cartão de CTA e moldura do retrato. Status existentes foram preservados em tokens e conferidos em AA.
+- Header e rodapé deixaram de exibir o desenho botânico; o lockup atual é o wordmark tipográfico com o descritor `PSIQUIATRIA`. O símbolo oficial não foi recriado à mão.
+- Piso de legibilidade de 12px aplicado: 59 ocorrências entre 8px e 11,5px foram corrigidas em micro-rótulos (eyebrow, badge, meta de artigo, cards do hero, wordmark).
+- Alvos de toque ajustados para 44px no acionador e nos itens do menu mobile e no link inline da home.
+- `tests/design-tokens.test.mjs` adicionado como guarda permanente: paleta exata, ausência de cor nova, retirada da paleta navy, piso de 12px, tokens inexistentes, alfa colado em `var()` e contraste AA.
+- Correção de rota da migração: 8 pontos geraram `var(--token)26` (alfa colado, CSS inválido) e foram convertidos para `color-mix()`. A guarda impede a repetição.
+- Validação: `node --test tests/design-tokens.test.mjs` 6/6, `npm test` 122/122, `npm run typecheck` sem erros, `npm run build:next` compilado com sucesso (15 páginas geradas).
+- Pendências registradas em `docs/DESIGN_SYSTEM.md`: fonte oficial, vetores do símbolo/wordmark, HEX do rosa, área de proteção, aprovação da assinatura, direitos das fotos e decisão sobre hero claro.
+- Não houve alteração de schema, migration, rota, RBAC, política de privacidade ou decisão D1–D6.
 
 ## Inventário agregado de privacidade — 25/10/2026
 - `npm run privacy:check` (`scripts/check-privacy.mjs`) entrega ao responsável os fatos numéricos que faltavam para dimensionar D3 (retenção), D5 (escopo de backup) e D6 (escopo de incidente), sem expor dado pessoal.

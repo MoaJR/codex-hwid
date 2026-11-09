@@ -107,3 +107,31 @@ O comando fica fora do build de produção, ao contrário de `scheduling:check`.
 
 O inventário não decide retenção, backup ou resposta a incidentes. Ele apenas reduz a incerteza das seis decisões registradas em `docs/PRIVACY.md` e continua exigindo aprovação do responsável antes da Fase 5B.
 
+## 2026-11-09 — Identidade visual do manual aplicada ao produto
+
+O material `docs/identidade visual/Apresentação Identidade Visual Douglas Vaz.pdf` passa a ser a fonte da marca, substituindo a paleta navy escolhida em 25/10/2026. Valores exatos lidos nas pranchas do próprio material: azul profundo `#023859`, azul principal `#0367A6`, azul médio `#0379A6`, ciano `#049DBF` e cinza claro `#F2F2F2`. Os neutros de texto e borda do produto (`#0B1A31`, `#55657D`, `#DCE4F0`) foram mantidos para não abrir uma segunda paleta neutra, e as cores de status existentes foram preservadas em tokens (`success`, `warning-text`, `danger`, `info`, `neutral`) com pares conferidos em AA.
+
+A implementação vive em `src/styles/tokens.css`, importada antes de `globals.css`; o `:root` legado passou a referenciar os tokens, de modo que as 260 classes existentes herdaram a marca sem renomeação. A serifa `Georgia` saiu de títulos e do wordmark porque não pertence à identidade; até a fonte oficial ser entregue, `--font-display` usa a pilha de sistema.
+
+O símbolo vetorial e o nome da fonte **não foram recuperados**: a apresentação é um export de Figma com o texto convertido em contorno (Type3), sem `ToUnicode` utilizável. O lockup do header/rodapé passa a ser o wordmark tipográfico com o descritor `PSIQUIATRIA`, sem recriar o cérebro/balão de fala — recriar a geometria da marca seria inventar ativo. As pendências (fonte, SVG, HEX do rosa, área de proteção, uso da assinatura, direitos das fotos) estão registradas em `docs/DESIGN_SYSTEM.md`.
+
+`tests/design-tokens.test.mjs` é a guarda permanente: valida a paleta exata, impede cor nova fora dos tokens, impede o retorno da paleta navy, exige piso de 12px, recusa token inexistente e alfa colado em `var()`, e recalcula os contrastes AA. Os 89 hex legados que ainda restam em `globals.css` (168 ocorrências) estão em `legacyAllowlist`, que só pode encolher.
+
+O hero da home permanece escuro (azul profundo da marca) porque converter a home para superfície clara exige redesenho de contraste dos elementos flutuantes; a decisão fica registrada como pendência de direção visual, não como identidade aplicada.
+
+O repositório `nextlevelbuilder/ui-ux-pro-max-skill` foi avaliado e **não foi adicionado** como dependência nem instalado como skill: é um conjunto de bases de recomendação genéricas (com `--design-system` próprio, que proporia paleta e fontes alheias à marca) e assume pilhas como Tailwind/shadcn, ausentes neste projeto. Usei apenas suas verificações como checklist manual — a origem dos itens de contraste, piso de 12px e alvo de 44px aplicados aqui. Nenhuma instalação `npm`/Python foi feita e nenhum arquivo da skill entrou no repositório.
+
+## 2026-11-09 — Produto de instância única com papéis acumulados no titular
+
+O produto não é SaaS nem multi-tenant: atende exclusivamente o Dr. Douglas Vaz, em uma clínica única, com um profissional. Isso deixou de ser contexto informal e passou a regra em `.clinerules/00-project-context.md` e `.clinerules/06-auth-rbac-and-audit.md`.
+
+O titular é médico **e** administrador. A conta dele acumula `DOCTOR` e `ADMIN`, e `/painel` já renderiza a união sem duplicata porque `modulesForRoles` filtra definições por interseção de papéis. A acumulação é explícita — dois registros em `UserRole` — e **não cria herança**: ADMIN continua sem agenda, paciente ou prontuário; quando ele opera a agenda, é o papel DOCTOR que autoriza. Nenhuma regra do tipo “se for o dono, libere” foi criada.
+
+Para viabilizar a mesma conta sem SQL manual, `scripts/provision-access.mjs` ganhou `--add-role <PAPEL>`: exige conta existente, é incompatível com `--role`/`--name`, não cria usuário nem pede senha, é idempotente quando o papel já existe, cria o perfil `Doctor`/`Patient` que faltar e grava `AuditEvent(action:'ROLE_GRANTED', source:'TRUSTED_CLI')` na mesma transação. Não houve migration: `AuditEvent.action` é `String`. Sessões não são revogadas porque os papéis são lidos por requisição em `src/server/auth/session.ts`. A saída continua apenas com agregados — nunca e-mail, nome ou identificador.
+
+## 2026-11-09 — Playwright como padrão de teste de frontend
+
+Todo fluxo de interface passa a ser aceito em navegador. `@playwright/test` foi adicionado como **devDependency** (não entra no bundle) com Chromium, e `playwright.config.ts` recusa qualquer `E2E_BASE_URL` que não seja loopback, espelhando a política dos aceites já existentes em `scripts/lib/local-e2e.mjs` — que também é reutilizado para ler as identidades fictícias e autenticar.
+
+Os specs cobrem páginas públicas (status, `h1` único, ausência de erro de console, overflow em 360/768/1440), guardas de rota anônimas, união de papéis no `/painel` e os invariantes da identidade visual no navegador (cor primária computada, piso de 12px, alvo de 44px, foco visível). `test-results/`, `playwright-report/` e `blob-report/` ficam fora do Git. A instalação foi autorizada explicitamente pelo responsável em 09/11/2026.
+

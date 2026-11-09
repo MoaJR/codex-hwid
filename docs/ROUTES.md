@@ -20,8 +20,8 @@
 | /painel | Entrada autenticada; apresenta somente os módulos permitidos pelos papéis da sessão |
 | /paciente | Próximos atendimentos e histórico recente do próprio paciente; somente leitura |
 | /admin | Resumo editorial administrativo; exige `settings.manage`, sem dados clínicos |
-| /conta | Perfil, ativação do autenticador, troca de senha e encerramento de outros acessos; sem acesso clínico |
-| /api/auth/[...all] | Better Auth GET/POST; ativo somente em Produção após provisionamento |
+| /conta | Perfil, troca de senha e encerramento de outros acessos; sem acesso clínico |
+| /api/auth/[...all] | Better Auth GET/POST; habilitado por `AUTH_ENABLED` após provisionamento e responde 503 quando não configurado |
 | /api/account/sessions/revoke-others | POST próprio, protegido e auditado; preserva a sessão atual |
 | /api/account/password | POST próprio para troca de senha, protegido por senha atual, limite e auditoria |
 | /medico/conteudos | Lista editorial; sessão DOCTOR/ADMIN |

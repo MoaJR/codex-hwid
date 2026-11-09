@@ -46,6 +46,16 @@ test('login, conta e painel não anunciam verificação em duas etapas',async()=
   }
 });
 
+test('documentação vigente não anuncia autenticador nem segundo fator', async()=>{
+  // Drift real encontrado em 09/11/2026: README e ROUTES descreviam cadastro de
+  // autenticador por QR Code depois da remoção decidida em 25/10/2026.
+  const claims=/aplicativo autenticador|autenticador por QR|QR ?Code|aplica[cç][aã]o autenticadora|c[oó]digos de recupera|com 2FA|verifica[cç][aã]o em duas etapas/i;
+  for(const file of ['README.md','docs/ROUTES.md']){
+    const source=await read(file);
+    assert.doesNotMatch(source,claims,`${file} não pode descrever um controle removido`);
+  }
+});
+
 test('guardas continuam negando por padrão e redirecionando visitante ao login',async()=>{
   for(const file of ['src/server/auth/panel-access.ts','src/server/auth/scheduling-access.ts','src/server/auth/editorial-page.ts']){
     const source=await read(file);

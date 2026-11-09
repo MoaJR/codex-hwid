@@ -18,6 +18,12 @@ Tudo ausente na lista é negado. Permissões de prontuário, diário, documentos
 
 Contas com mais de um papel recebem a união dos módulos autorizados, sem duplicatas. A presença de um cartão não substitui o guard server-side da rota de destino.
 
+## Titular com dois papéis
+
+O produto é de instância única: o Dr. Douglas Vaz é o médico titular **e** o administrador da plataforma. A conta dele acumula `DOCTOR` e `ADMIN`, e `/painel` apresenta Agenda, Conteúdos, Administração e Minha conta, sem duplicata.
+
+A acumulação é explícita — os dois papéis existem em `UserRole` — e **não cria herança**: ADMIN não lê agenda, paciente ou prontuário. Quando o titular opera a agenda, o acesso vem do papel `DOCTOR`. Papéis são concedidos por comando confiável (`npm run auth:provision -- --add-role <PAPEL>`), com auditoria; não existe painel de auto-serviço de permissões neste marco.
+
 Todo usuário autenticado pode encerrar somente as próprias outras sessões; nunca escolhe um `userId` ou `sessionId`. A sessão atual é preservada e a operação não concede acesso a outro recurso.
 
 Todo usuário autenticado com credencial local pode alterar somente a própria senha após informar a senha atual. A aplicação decide a revogação das outras sessões e não aceita identidade, papel ou sessão do corpo da requisição.

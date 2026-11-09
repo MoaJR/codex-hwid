@@ -1,6 +1,8 @@
 # Dr. Douglas Vaz — Plataforma de Psiquiatria
 
-Site público e portal autenticado em Next.js App Router + React + TypeScript, com direção visual azul navy/off-white. A base PostgreSQL/Prisma está conectada e as áreas de equipe exigem sessão autenticada. O portal reúne área do paciente, agenda operacional, CMS editorial, administração e segurança da conta conforme o papel de cada usuário.
+Site público e portal autenticado em Next.js App Router + React + TypeScript, com a identidade visual do consultório (azul `#0367A6`, azul profundo `#023859`, fundo `#F2F2F2`) definida em `docs/DESIGN_SYSTEM.md`. A base PostgreSQL/Prisma está conectada e as áreas de equipe exigem sessão autenticada. O portal reúne área do paciente, agenda operacional, CMS editorial, administração e segurança da conta conforme o papel de cada usuário.
+
+É a plataforma de uma única pessoa: o Dr. Douglas Vaz é o médico titular **e** o administrador, com os dois papéis na mesma conta. Não é um produto SaaS nem multi-tenant.
 
 Produção: https://drdouglasvaz.vercel.app
 
@@ -39,6 +41,15 @@ npm run scheduling:check
 npm run privacy:check
 ```
 
+O frontend é aceito em navegador real com Playwright (Chromium), sempre contra loopback:
+
+```sh
+npx playwright install chromium   # uma vez
+npm run e2e:frontend
+```
+
+A suíte cobre páginas públicas, guardas de rota, união de papéis no `/painel` e os invariantes da identidade visual (cor primária, piso de 12px, alvo de 44px, foco visível). Ela recusa qualquer alvo que não seja `localhost`, `127.0.0.1` ou `::1`.
+
 Os scripts só aceitam `localhost`, `127.0.0.1` ou `::1`, exigem `--confirm E2E` e usam as identidades de `.env.local.accounts`. A agenda cria uma regra semanal temporária, exercita criação, repetição idempotente, conflito, reagendamento, cancelamento e as negações de paciente e secretaria, e desativa a regra no final. A conta abre dois acessos, revoga os outros preservando o atual, recusa senha atual errada, troca e restaura a senha original; por causa do limite de 5 tentativas por 15 minutos, ela mantém o marcador `.e2e-account.lock` e recusa nova execução antes de 16 minutos. O inventário de privacidade é somente leitura e somente local: imprime contagens agregadas, a idade do registro mais antigo por categoria e booleanos de consistência, sem identidade, contato, token ou horário individual.
 
 No marco atual, 116 testes automatizados cobrem identidade, autorização, conta, conteúdo, agenda, os mapas de acesso dos painéis, a matriz de aceite dos quatro papéis, o contrato dos guardas de cada página e API protegida, o registro de privacidade, o inventário agregado e as garantias do bootstrap local e dos aceites automatizados da agenda e da conta. O schema tem 20 modelos para identidade, domínio inicial, auditoria, conteúdo e agenda. O build regenera o cliente Prisma e usa Webpack explicitamente. Somente o build de produção aplica migrations pendentes, inspeciona o resultado, executa seeds aditivos e roda a checagem agregada da agenda; local e preview não alteram o banco.
@@ -66,7 +77,7 @@ Prisma Postgres `prisma-postgres-yellow-helmet` confirmado pela API da Vercel co
 Fase atual: 5A, com endurecimento 4D da conta e ativação dos portais por papel. Login, CMS, agenda operacional interna e o fluxo próprio de troca de senha estão implementados. O painel do paciente é somente leitura e o painel administrativo mostra apenas recursos editoriais autorizados, sem agenda, pacientes ou prontuário. Os próximos aceites são os testes autenticados de cada papel, a troca de senha com dois acessos e um ciclo completo da agenda com identidade controlada; dados clínicos reais continuam bloqueados.
 
 ## Autenticação e portais — marcos 4B/4D
-`/login`, `/painel` e `/conta` usam Better Auth. Após login, `/painel` apresenta os módulos permitidos pelos papéis `PATIENT`, `DOCTOR`, `SECRETARY` e `ADMIN`. A conta permite cadastrar um aplicativo autenticador por QR Code, guardar códigos de recuperação e usar cada código uma única vez. Provisionamento, TOTP e uso de recuperação deixam eventos de auditoria sem conteúdo clínico. O acesso permanece desabilitado por padrão fora do ambiente configurado e as APIs falham fechadas enquanto não configurado. Não há conta/senha padrão ou cadastro público.
+`/login`, `/painel` e `/conta` usam Better Auth. Após login, `/painel` apresenta os módulos permitidos pelos papéis `PATIENT`, `DOCTOR`, `SECRETARY` e `ADMIN`. A conta permite encerrar os outros acessos ativos e alterar a própria senha. Provisionamento e segurança da conta deixam eventos de auditoria sem conteúdo clínico. O acesso permanece desabilitado por padrão fora do ambiente configurado e as APIs falham fechadas enquanto não configurado. Não há conta/senha padrão ou cadastro público.
 
 ```sh
 npm run auth:check
@@ -88,7 +99,7 @@ O login usa apenas e-mail e senha provisionados em terminal confiável; não há
 
 Na Vercel, `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` e `AUTH_ENABLED=true` estão configurados somente para Produção. O desenvolvimento comum usa banco e segredo locais; não baixe credenciais de Produção para o Cline. O provisionamento de Produção deve ocorrer apenas em terminal confiável já autorizado, sem mostrar variáveis ou senhas. O script solicita a senha duas vezes sem eco. `.env.local` já é ignorado pelo Git e também foi incluído em `.clineignore`; nunca cole a senha ou o conteúdo desse arquivo no chat. Veja `docs/LOCAL_DEVELOPMENT.md` para o ambiente completo e `docs/phases/PHASE-4.md` para os critérios de autenticação. Não publique segredos em `NEXT_PUBLIC_*`.
 
-A integração Vercel já tem acesso à equipe `moajrs-projects`. O projeto, o storage e os nomes das variáveis foram verificados sem descriptografar secrets. Em `/conta`, o usuário pode encerrar os outros acessos ativos e alterar a própria senha; contas com 2FA precisam verificá-la, a sessão atual é preservada e as ações são auditadas sem expor tokens ou detalhes de dispositivo.
+A integração Vercel já tem acesso à equipe `moajrs-projects`. O projeto, o storage e os nomes das variáveis foram verificados sem descriptografar secrets. Em `/conta`, o usuário pode encerrar os outros acessos ativos e alterar a própria senha; a sessão atual é preservada e as ações são auditadas sem expor tokens ou detalhes de dispositivo.
 
 ## CMS editorial — marco 3B
 Após login, médicos e administradores autorizados acessam `/medico/conteudos`. O fluxo usa rascunho, revisão, publicação e arquivamento reversível. Administradores podem escrever e enviar para revisão; somente o papel `DOCTOR` publica ou retira um texto publicado. Toda mutação exige origem canônica, usa controle de versão e grava ator, ação e artigo na auditoria. O conteúdo é renderizado como texto/blocos React, sem HTML arbitrário.

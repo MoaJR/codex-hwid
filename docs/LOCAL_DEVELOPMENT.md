@@ -124,6 +124,34 @@ npm run scheduling:check
 
 O aceite da conta troca a senha da identidade fictícia e restaura o valor original; por causa do limite de 5 tentativas por 15 minutos, ele mantém `.e2e-account.lock` e recusa uma segunda execução antes de 16 minutos.
 
+## 8. Frontend com Playwright
+
+A interface é aceita em navegador real. Uma instalação por máquina:
+
+```bash
+npm run e2e:frontend:install   # baixa o Chromium (~200 MB)
+```
+
+Depois, no dia a dia:
+
+```bash
+npm run e2e:frontend           # suíte completa
+npm run e2e:frontend:ui        # modo interativo (uso local)
+npm run e2e:frontend:report    # relatório da última execução
+```
+
+Regras da suíte:
+
+- Alvo **somente** `localhost`, `127.0.0.1` ou `::1`. O `playwright.config.ts` chama `assertLocalBaseUrl` de `scripts/lib/local-e2e.mjs` e aborta antes de abrir navegador se `E2E_BASE_URL` apontar para outro host.
+- O servidor é iniciado pela própria suíte, com `next dev` por padrão: `npm run e2e:frontend`. Para o aceite fiel, use o build de produção: `npm run build:next` e depois `E2E_SERVER=start npm run e2e:frontend`.
+- `reuseExistingServer` só é ligado com `E2E_REUSE_SERVER=1`; sem isso a suíte nunca reaproveita um processo desconhecido na porta (já aconteceu de uma porta 3000 ocupada por outro serviço fazer a suíte testar outra aplicação).
+- Para escolher porta: `E2E_BASE_URL=http://127.0.0.1:3100 npm run e2e:frontend`.
+- Specs autenticados (`tests/e2e/roles.spec.ts`) exigem `E2E_CONFIRM=E2E` e as identidades fictícias de `.env.local.accounts`. Sem isso, são declarados como não aplicáveis.
+- O login do provedor valida a origem: o host/porta da suíte precisa ser o mesmo de `BETTER_AUTH_URL`. Se a porta estiver ocupada por outro serviço, libere-a ou ajuste a variável no `.env.local` (o agente não edita `.env*`).
+- Em Linux, o Chromium precisa de `libnss3`, `libnspr4` e `libasound2` instalados no sistema (`npx playwright install-deps chromium` lista o conjunto completo). Sem eles o navegador não abre.
+- `test-results/`, `playwright-report/` e `blob-report/` ficam fora do Git; trace e screenshot só são gravados em falha.
+
+
 Não defina `VERCEL_ENV=production` no computador local. O script `npm run build` usa essa variável para decidir se deve aplicar migrations e seeds no ambiente de publicação; para a verificação local, prefira `npm run build:next`.
 
 ### Equivalente em Linux/Bash
