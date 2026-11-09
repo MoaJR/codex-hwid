@@ -11,7 +11,7 @@ export function parseProvisioningArguments(argv){
     const argument=argv[index];
     if(!argument.startsWith('--'))throw new Error(`Argumento não reconhecido: ${argument}`);
     const [rawName,inlineValue]=argument.slice(2).split('=',2);
-    if(!['email','name','role','confirm'].includes(rawName))throw new Error(`Opção não permitida: --${rawName}`);
+    if(!['email','name','role','add-role','confirm'].includes(rawName))throw new Error(`Opção não permitida: --${rawName}`);
     const value=inlineValue??argv[++index];
     if(!value||value.startsWith('--'))throw new Error(`Informe um valor para --${rawName}.`);
     if(values[rawName])throw new Error(`A opção --${rawName} foi repetida.`);
@@ -22,12 +22,19 @@ export function parseProvisioningArguments(argv){
 
 export function validateProvisioningInput(values){
   const email=String(values.email??'').trim().toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254)throw new Error('Informe um e-mail válido.');
+  if(values.confirm!=='PROVISIONAR')throw new Error('Confirme a operação com --confirm PROVISIONAR.');
+  // Conceder papel a conta existente: nunca cria usuário nem pede senha.
+  const addRole=String(values['add-role']??'').trim().toUpperCase();
+  if(addRole){
+    if(values.role||values.name)throw new Error('--add-role não pode ser combinado com --role ou --name.');
+    if(!allowedRoles.has(addRole))throw new Error('O papel deve ser PATIENT, DOCTOR, SECRETARY ou ADMIN.');
+    return {email,role:addRole,addRole:true};
+  }
   const name=String(values.name??'').trim().replace(/\s+/g,' ');
   const role=String(values.role??'').trim().toUpperCase();
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254)throw new Error('Informe um e-mail válido.');
   if(name.length<2||name.length>120)throw new Error('O nome deve ter entre 2 e 120 caracteres.');
   if(!allowedRoles.has(role))throw new Error('O papel deve ser PATIENT, DOCTOR, SECRETARY ou ADMIN.');
-  if(values.confirm!=='PROVISIONAR')throw new Error('Confirme a operação com --confirm PROVISIONAR.');
   return {email,name,role};
 }
 
@@ -65,6 +72,51 @@ export function validateProvisioningEnvironment(environment){
   if(status.missing.length)throw new Error(`Configuração ausente: ${status.missing.join(', ')}.`);
   if(status.invalid.length)throw new Error(`Configuração inválida: ${status.invalid.join(', ')}.`);
   return new URL(environment.BETTER_AUTH_URL).origin;
+}
+
+/**
+ * Concede um papel adicional a uma conta existente.
+ * Não cria usuário, não lê senha e não revoga sessões: os papéis são resolvidos
+ * por requisição em `src/server/auth/session.ts`. Idempotente por (userId, role)
+ * e auditado na mesma transação.
+ */
+export async function grantRole(input,environment=process.env){
+  validateProvisioningEnvironment(environment);
+  const {PrismaClient}=await import('@prisma/client');
+  const db=new PrismaClient({log:[],errorFormat:'minimal'});
+  try{
+    const user=await db.user.findUnique({where:{email:input.email},select:{id:true}});
+    if(!user)throw new Error('ACCOUNT_NOT_FOUND');
+    let result;
+    try{
+      result=await db.$transaction(async transaction=>{
+        const existing=await transaction.userRole.findUnique({
+          where:{userId_role:{userId:user.id,role:input.role}},select:{role:true},
+        });
+        if(existing)return {status:'unchanged',profileCreated:false};
+        await transaction.userRole.create({data:{userId:user.id,role:input.role}});
+        let profileCreated=false;
+        if(input.role==='DOCTOR'){
+          const profile=await transaction.doctor.findUnique({where:{userId:user.id},select:{id:true}});
+          if(!profile){await transaction.doctor.create({data:{userId:user.id}});profileCreated=true;}
+        }
+        if(input.role==='PATIENT'){
+          const profile=await transaction.patient.findUnique({where:{userId:user.id},select:{id:true}});
+          if(!profile){await transaction.patient.create({data:{userId:user.id}});profileCreated=true;}
+        }
+        await transaction.$executeRaw`
+          INSERT INTO "AuditEvent" ("id", "action", "outcome", "source", "subjectUserId", "occurredAt")
+          VALUES (${randomUUID()}::uuid, 'ROLE_GRANTED', 'SUCCESS', 'TRUSTED_CLI', ${user.id}::uuid, CURRENT_TIMESTAMP)
+        `;
+        return {status:'role-granted',profileCreated};
+      });
+    }catch(error){
+      // Corrida entre duas execuções: a chave (userId, role) garante o resultado.
+      if(error&&typeof error==='object'&&error.code==='P2002')result={status:'unchanged',profileCreated:false};
+      else throw error;
+    }
+    console.log(JSON.stringify({operation:'ACCESS_PROVISIONING',...result,role:input.role}));
+  }finally{await db.$disconnect();}
 }
 
 async function provision(input,password,environment=process.env){
@@ -107,6 +159,7 @@ async function provision(input,password,environment=process.env){
 
 async function main(){
   const input=validateProvisioningInput(parseProvisioningArguments(process.argv.slice(2)));
+  if(input.addRole){await grantRole(input);return;}
   const password=await readSecret('Senha inicial (não será exibida): ');
   const confirmation=await readSecret('Repita a senha: ');
   validatePassword(password,confirmation);
