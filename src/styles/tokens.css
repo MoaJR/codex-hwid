@@ -1,0 +1,126 @@
+/* ==========================================================================
+   Tokens de design — identidade visual Dr. Douglas Vaz
+   --------------------------------------------------------------------------
+   Fonte da marca: docs/identidade visual/Apresentação Identidade Visual Douglas Vaz.pdf
+   Documentação:  docs/DESIGN_SYSTEM.md
+
+   Regras deste arquivo:
+   1. Cores de marca são valores exatos lidos do manual (seção "Marca").
+   2. Neutros de texto e borda reaproveitam valores que já existiam no produto,
+      para não introduzir uma segunda paleta neutra.
+   3. Tons marcados como "derivado" são tints do azul principal, usados apenas
+      como superfície; não são cores de marca e não devem ser citados como tal.
+   4. Nenhum hex deve ser escrito fora deste arquivo (ver tests/design-tokens.test.mjs).
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* --- Marca (valores exatos do manual) -------------------------------- */
+  --brand-deep: #023859;      /* azul profundo */
+  --brand-primary: #0367A6;   /* azul principal */
+  --brand-medium: #0379A6;    /* azul médio — 4,37:1 sobre o fundo: só texto grande/gráfico */
+  --brand-cyan: #049DBF;      /* ciano — 3,19:1 sobre branco: só gráfico e texto grande */
+  --brand-neutral: #F2F2F2;   /* cinza claro do manual */
+
+  /* --- Derivados (tints do azul principal, só superfície) --------------- */
+  --brand-tint-050: #EAF2F8;
+  --brand-tint-100: #E3EEF6;
+  --brand-cyan-tint: #E1F3F8;
+
+  /* --- Superfícies ----------------------------------------------------- */
+  --color-bg: var(--brand-neutral);
+  --color-surface: #FFFFFF;
+  --color-surface-muted: var(--brand-tint-050);
+  --color-surface-deep: var(--brand-deep);
+  --color-border: #DCE4F0;
+  --color-border-strong: #C3D2E4;
+
+  /* --- Texto ----------------------------------------------------------- */
+  --color-ink: #0B1A31;       /* 15,55:1 sobre o fundo */
+  --color-muted: #55657D;     /* 5,29:1 sobre o fundo */
+  --color-on-brand: #FFFFFF;  /* 6,01:1 sobre o azul principal */
+  --color-info: #3F5A86;      /* 6,22:1 sobre o fundo */
+
+  /* --- Ação ------------------------------------------------------------ */
+  --color-primary: var(--brand-primary);
+  --color-primary-hover: var(--brand-deep);
+  --color-primary-soft: var(--brand-tint-100);
+  --color-primary-border: #9FBDD4; /* derivado: borda de botão secundário */
+  --color-accent: var(--brand-cyan);
+  --color-accent-soft: var(--brand-cyan-tint);
+
+  /* --- Status (leitura operacional existente, preservada) --------------- */
+  /* `--color-warning` não é cor de texto pequeno (2,54:1 no fundo do manual).
+     Para texto de alerta use `--color-warning-text`.                          */
+  --color-danger: #9E442B;       /* 5,66:1 sobre o fundo */
+  --color-danger-soft: #FFF0EC;
+  --color-warning: #D08A3E;
+  --color-warning-text: #7B5A12; /* 5,62:1 sobre --color-warning-soft */
+  --color-warning-soft: #FFF0CE;
+  --color-success: #1D6946;      /* 5,54:1 sobre --color-success-soft */
+  --color-success-soft: #DCEFE4;
+  --color-info-strong: #315D7B;
+  --color-info-soft: #EAF0FA;    /* já existente no produto */
+  --color-neutral-strong: #665F59; /* 5,27:1 sobre --color-neutral-soft */
+  --color-neutral-soft: #ECEBEA;
+
+  /* --- Tipografia ------------------------------------------------------ */
+  /* Pendência: a fonte oficial do manual não está disponível (o PDF exporta
+     o texto como contorno). --font-display existe para a troca ser de 1 linha. */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-sans);
+
+  --text-2xs: 12px;  /* piso de legibilidade; antes 9–10px */
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-md: 16px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+  --text-2xl: clamp(32px, 3.3vw, 46px);
+  --text-3xl: clamp(44px, 5.1vw, 72px);
+
+  --leading-tight: 1.15;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+  --tracking-tight: -0.02em;
+  --tracking-wide: 0.16em;
+
+  /* --- Espaçamento (base 4px) ------------------------------------------ */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* --- Raios ----------------------------------------------------------- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* --- Elevação -------------------------------------------------------- */
+  --shadow-sm: 0 1px 2px #0b1a3114;
+  --shadow-md: 0 10px 24px #0b1a311f;
+  --shadow-lg: 0 40px 90px #0b1a3133;
+
+  /* --- Camadas --------------------------------------------------------- */
+  --z-header: 100;
+  --z-overlay: 200;
+  --z-modal: 300;
+  --z-toast: 400;
+
+  /* --- Movimento ------------------------------------------------------- */
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
