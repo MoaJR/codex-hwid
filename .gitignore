@@ -6,3 +6,7 @@ node_modules/
 *.tsbuildinfo
 coverage/
 .vercel/
+test-results/
+playwright-report/
+blob-report/
+*:Zone.Identifier
