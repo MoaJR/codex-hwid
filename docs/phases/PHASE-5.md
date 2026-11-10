@@ -48,3 +48,5 @@ Usar somente pacientes fictícios. A política de privacidade ainda precisa defi
 ### Próximo marco
 
 Depois da validação interna e da revisão de privacidade, a Fase 5B poderá oferecer horários públicos sem detalhes de ocupação e confirmação somente para paciente autenticado. Pedido anônimo, se aprovado, será um recurso separado de consulta e não prometerá reserva.
+
+> **Nota de 10/11/2026 (estado vigente).** A previsão de confirmação imediata foi substituída por decisão do responsável: a 5B entrega **solicitação pendente com aprovação da equipe**, sem reserva até a confirmação. A tabela `AppointmentRequest` foi criada em migration aditiva e as exclusion constraints GiST da 5A seguem intactas. Registro em `docs/DECISIONS.md` (entrada de 2026-11-10) e `docs/DATABASE.md`. Este parágrafo permanece como histórico do planejamento original.

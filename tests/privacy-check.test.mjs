@@ -9,10 +9,10 @@ const healthy={
   users:4,patientRoles:1,doctorRoles:1,secretaryRoles:1,adminRoles:1,patientProfiles:1,doctorProfiles:1,careAssignments:0,
   accounts:4,passwordCredentials:4,sessions:15,activeSessions:15,
   appointments:7,confirmedAppointments:0,cancelledAppointments:7,completedAppointments:0,noShowAppointments:0,
-  appointmentEvents:21,appointmentAudits:21,auditEvents:81,auditEventsLast90Days:81,
+  appointmentEvents:21,appointmentAudits:21,appointmentRequests:2,pendingRequests:1,approvedRequests:1,auditEvents:81,auditEventsLast90Days:81,
   publishedArticles:3,unpublishedArticles:1,
   moodEntries:0,twoFactorRecords:2,verificationRecords:4,providerRateLimits:1,apiRateLimits:2,
-  oldestSessionDays:0,oldestAuditEventDays:0,oldestAppointmentDays:0,oldestRateLimitDays:0,
+  oldestSessionDays:0,oldestAuditEventDays:0,oldestAppointmentDays:0,oldestRateLimitDays:0,oldestRequestDays:0,
 };
 
 test('inventário publica apenas contagens, idades agregadas e booleanos',()=>{
@@ -21,7 +21,7 @@ test('inventário publica apenas contagens, idades agregadas e booleanos',()=>{
   assert.equal(report.operation,'PRIVACY_INVENTORY_CHECK');
   assert.deepEqual(Object.keys(report.checks).sort(),[...privacyCheckNames].sort());
   assert.deepEqual(report.failedChecks,[]);
-  assert.deepEqual(Object.keys(report.ages).sort(),['oldestAppointmentDays','oldestAuditEventDays','oldestRateLimitDays','oldestSessionDays'].sort());
+  assert.deepEqual(Object.keys(report.ages).sort(),['oldestAppointmentDays','oldestAuditEventDays','oldestRateLimitDays','oldestRequestDays','oldestSessionDays'].sort());
   assert.equal(report.counts.users,4);
   assert.equal(report.counts.patients,1);
   assert(!/email|name|patientId|userId|doctorId|sessionId|token|startsAt|occurredAt/i.test(JSON.stringify(report)));

@@ -12,6 +12,7 @@ export const retentionPolicy=Object.freeze({
   verification:'expiração própria do registro de verificação',
   auditEvent:'5 anos — somente reportado, não apagado por este comando',
   appointment:'20 anos — somente reportado, não apagado por este comando',
+  appointmentRequest:'pendência expirada — transição para EXPIRED no fluxo de agenda; este comando apenas reporta',
 });
 
 // O `RateLimit` do provedor guarda apenas `lastRequest` em epoch ms.
@@ -47,19 +48,20 @@ export function summarizeRetention(input){
     policy:retentionPolicy,
     expired:input.expired,
     ...(input.deleted?{deleted:input.deleted}:{}),
-    note:'Somente contagens agregadas. Consultas e auditoria não são apagadas por este comando.',
+    note:'Somente contagens agregadas. Consultas, auditoria e solicitações de agenda não são apagadas por este comando.',
   };
 }
 
 /** @param {PrismaClient} db */
 async function countExpired(db){
-  const [apiRateLimit,providerRateLimit,session,verification,auditEvent,appointment]=await db.$transaction([
+  const [apiRateLimit,providerRateLimit,session,verification,auditEvent,appointment,appointmentRequest]=await db.$transaction([
     db.$queryRaw`SELECT (COUNT(*) FILTER (WHERE "expiresAt"<CURRENT_TIMESTAMP))::int AS "count" FROM "ApiRateLimit"`,
     db.$queryRaw`SELECT (COUNT(*) FILTER (WHERE "lastRequest"<((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)*1000)::bigint-${providerRateLimitStaleMs})))::int AS "count" FROM "RateLimit"`,
     db.$queryRaw`SELECT (COUNT(*) FILTER (WHERE "expiresAt"<CURRENT_TIMESTAMP))::int AS "count" FROM "Session"`,
     db.$queryRaw`SELECT (COUNT(*) FILTER (WHERE "expiresAt"<CURRENT_TIMESTAMP))::int AS "count" FROM "Verification"`,
     db.$queryRaw`SELECT (COUNT(*) FILTER (WHERE "occurredAt"<CURRENT_TIMESTAMP-INTERVAL '5 years'))::int AS "count" FROM "AuditEvent"`,
     db.$queryRaw`SELECT (COUNT(*) FILTER (WHERE "startsAt"<CURRENT_TIMESTAMP-INTERVAL '20 years'))::int AS "count" FROM "Appointment"`,
+    db.$queryRaw`SELECT (COUNT(*) FILTER (WHERE "status"='PENDING' AND "expiresAt"<=CURRENT_TIMESTAMP))::int AS "count" FROM "AppointmentRequest"`,
   ]);
   return {
     apiRateLimit:apiRateLimit[0]?.count??0,
@@ -68,6 +70,7 @@ async function countExpired(db){
     verification:verification[0]?.count??0,
     auditEvent:auditEvent[0]?.count??0,
     appointment:appointment[0]?.count??0,
+    appointmentRequest:appointmentRequest[0]?.count??0,
   };
 }
 

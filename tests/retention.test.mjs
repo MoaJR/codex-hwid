@@ -11,7 +11,8 @@ test('política de retenção registra os prazos aprovados',()=>{
   assert.match(retentionPolicy.auditEvent,/5 anos/);
   assert.match(retentionPolicy.appointment,/20 anos/);
   assert.match(retentionPolicy.session,/expiração própria/);
-  assert.equal(Object.keys(retentionPolicy).length,6);
+  assert.match(retentionPolicy.appointmentRequest,/EXPIRED/);
+  assert.equal(Object.keys(retentionPolicy).length,7);
 });
 
 test('retenção só roda no banco local e falha fechado sem configuração',()=>{

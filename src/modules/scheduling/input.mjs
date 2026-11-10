@@ -105,3 +105,19 @@ export function validateScheduleRange(from,to){
 
 /** @param {any} value */
 export function validateResourceId(value){return uuid(value,'Recurso');}
+
+/**
+ * Entrada do paciente autenticado: apenas serviço, data e hora. Identidade,
+ * duração, modalidade, estado e preço nunca vêm do cliente — e qualquer chave
+ * extra (inclusive `patientId`) é recusada.
+ * @param {any} value
+ */
+export function validatePatientAppointmentRequest(value){
+  const input=record(value);exactKeys(input,['serviceId','date','time']);
+  return {serviceId:uuid(input.serviceId,'Serviço'),date:date(input.date),time:time(input.time)};
+}
+
+/** Decisão da equipe e retirada pelo paciente usam somente a versão otimista. @param {any} value */
+export function validateRequestDecision(value){
+  const input=record(value);exactKeys(input,['version']);return {version:version(input.version)};
+}

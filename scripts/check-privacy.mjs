@@ -41,7 +41,7 @@ export function privacyInventoryPrecheck(environment=process.env){
  * Turns aggregate database results into the only payload this command may print.
  * Counts, whole-day ages and booleans are accepted; identity, contact, token,
  * resource identifier and individual timestamp are not.
- * @param {{users:number,patientRoles:number,doctorRoles:number,secretaryRoles:number,adminRoles:number,patientProfiles:number,doctorProfiles:number,careAssignments:number,accounts:number,passwordCredentials:number,sessions:number,activeSessions:number,appointments:number,confirmedAppointments:number,cancelledAppointments:number,completedAppointments:number,noShowAppointments:number,appointmentEvents:number,appointmentAudits:number,auditEvents:number,auditEventsLast90Days:number,publishedArticles:number,unpublishedArticles:number,moodEntries:number,twoFactorRecords:number,verificationRecords:number,providerRateLimits:number,apiRateLimits:number,oldestSessionDays:number,oldestAuditEventDays:number,oldestAppointmentDays:number,oldestRateLimitDays:number}} aggregate
+ * @param {{users:number,patientRoles:number,doctorRoles:number,secretaryRoles:number,adminRoles:number,patientProfiles:number,doctorProfiles:number,careAssignments:number,accounts:number,passwordCredentials:number,sessions:number,activeSessions:number,appointments:number,confirmedAppointments:number,cancelledAppointments:number,completedAppointments:number,noShowAppointments:number,appointmentEvents:number,appointmentAudits:number,appointmentRequests:number,pendingRequests:number,approvedRequests:number,auditEvents:number,auditEventsLast90Days:number,publishedArticles:number,unpublishedArticles:number,moodEntries:number,twoFactorRecords:number,verificationRecords:number,providerRateLimits:number,apiRateLimits:number,oldestSessionDays:number,oldestAuditEventDays:number,oldestAppointmentDays:number,oldestRateLimitDays:number,oldestRequestDays:number}} aggregate
  */
 export function evaluatePrivacyInventory(aggregate){
   const counts={
@@ -66,6 +66,9 @@ export function evaluatePrivacyInventory(aggregate){
     appointmentAudits:aggregate.appointmentAudits,
     auditEvents:aggregate.auditEvents,
     auditEventsLast90Days:aggregate.auditEventsLast90Days,
+    appointmentRequests:aggregate.appointmentRequests,
+    pendingRequests:aggregate.pendingRequests,
+    approvedRequests:aggregate.approvedRequests,
     publishedArticles:aggregate.publishedArticles,
     unpublishedArticles:aggregate.unpublishedArticles,
     moodEntries:aggregate.moodEntries,
@@ -79,6 +82,7 @@ export function evaluatePrivacyInventory(aggregate){
     oldestAuditEventDays:aggregate.oldestAuditEventDays,
     oldestAppointmentDays:aggregate.oldestAppointmentDays,
     oldestRateLimitDays:aggregate.oldestRateLimitDays,
+    oldestRequestDays:aggregate.oldestRequestDays,
   };
   const checks={
     retiredMoodEntries:counts.moodEntries===0,
@@ -128,7 +132,10 @@ export async function readPrivacyInventory(db){
           (SELECT COUNT(*) FROM "Appointment" WHERE "status"='COMPLETED')::int AS "completedAppointments",
           (SELECT COUNT(*) FROM "Appointment" WHERE "status"='NO_SHOW')::int AS "noShowAppointments",
           (SELECT COUNT(*) FROM "AppointmentEvent")::int AS "appointmentEvents",
-          (SELECT COUNT(*) FROM "AuditEvent" WHERE "resourceType"='APPOINTMENT' AND "outcome"='SUCCESS')::int AS "appointmentAudits"
+          (SELECT COUNT(*) FROM "AuditEvent" WHERE "resourceType"='APPOINTMENT' AND "outcome"='SUCCESS')::int AS "appointmentAudits",
+          (SELECT COUNT(*) FROM "AppointmentRequest")::int AS "appointmentRequests",
+          (SELECT COUNT(*) FROM "AppointmentRequest" WHERE "status"='PENDING')::int AS "pendingRequests",
+          (SELECT COUNT(*) FROM "AppointmentRequest" WHERE "status"='APPROVED')::int AS "approvedRequests"
       `,
       transaction.$queryRaw`
         SELECT
@@ -150,7 +157,8 @@ export async function readPrivacyInventory(db){
           (SELECT COALESCE(FLOOR(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP-MIN("createdAt")))/86400),0)::int FROM "Session") AS "oldestSessionDays",
           (SELECT COALESCE(FLOOR(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP-MIN("occurredAt")))/86400),0)::int FROM "AuditEvent") AS "oldestAuditEventDays",
           (SELECT COALESCE(FLOOR(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP-MIN("createdAt")))/86400),0)::int FROM "Appointment") AS "oldestAppointmentDays",
-          (SELECT COALESCE(FLOOR(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP-MIN("updatedAt")))/86400),0)::int FROM "ApiRateLimit") AS "oldestRateLimitDays"
+          (SELECT COALESCE(FLOOR(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP-MIN("updatedAt")))/86400),0)::int FROM "ApiRateLimit") AS "oldestRateLimitDays",
+          (SELECT COALESCE(FLOOR(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP-MIN("createdAt")))/86400),0)::int FROM "AppointmentRequest") AS "oldestRequestDays"
       `,
     ]);
     return {

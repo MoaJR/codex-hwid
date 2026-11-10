@@ -26,12 +26,30 @@ test('migration da agenda protege integridade, concorrência e histórico',async
   assert.match(sql,/Doctor_time_zone_check[\s\S]*America\/Sao_Paulo/);
 });
 
-test('schema declara vinte modelos e snapshot de agenda',async()=>{
+test('schema declara vinte e um modelos e snapshot de agenda',async()=>{
   const schema=await readFile(new URL('../prisma/schema.prisma',import.meta.url),'utf8');
-  assert.equal((schema.match(/^model /gm)??[]).length,20);
-  for(const model of ['AppointmentService','AvailabilityRule','AvailabilityException','Appointment','AppointmentEvent','ApiRateLimit'])assert.match(schema,new RegExp(`model ${model} \\{`));
+  assert.equal((schema.match(/^model /gm)??[]).length,21);
+  for(const model of ['AppointmentService','AvailabilityRule','AvailabilityException','Appointment','AppointmentEvent','AppointmentRequest','ApiRateLimit'])assert.match(schema,new RegExp(`model ${model} \\{`));
   assert.match(schema,/startsAt\s+DateTime\s+@db\.Timestamptz\(3\)/);
   assert.match(schema,/serviceLabel\s+String/);
   assert.match(schema,/bufferAfterMinutes\s+Int/);
   assert.match(schema,/blockedFrom\s+DateTime\s+@db\.Timestamptz\(3\)/);
+});
+
+test('migration da solicitação do paciente é aditiva e preserva as exclusões da 5A',async()=>{
+  const sql=await readFile(new URL('../prisma/migrations/20261110120000_add_appointment_request/migration.sql',import.meta.url),'utf8');
+  assert.match(sql,/^-- Fase 5B/);
+  assert.match(sql,/^BEGIN;$/m);
+  assert.match(sql,/COMMIT;\s*$/);
+  assert.match(sql,/CREATE TYPE "AppointmentRequestStatus" AS ENUM \('PENDING', 'APPROVED', 'REJECTED', 'EXPIRED', 'WITHDRAWN'\)/);
+  assert.match(sql,/CREATE TABLE "AppointmentRequest"/);
+  assert.match(sql,/AppointmentRequest_doctor_pending_key[\s\S]*WHERE "status" = 'PENDING'/);
+  assert.match(sql,/AppointmentRequest_patient_pending_key[\s\S]*WHERE "status" = 'PENDING'/);
+  assert.match(sql,/AppointmentRequest_submittedByUserId_fkey[\s\S]*ON DELETE RESTRICT/);
+  assert.match(sql,/FOREIGN KEY \("serviceId",\s*"doctorId"\) REFERENCES "AppointmentService"\("id",\s*"doctorId"\)/);
+  assert.match(sql,/AppointmentRequest_period_check[\s\S]*"endsAt" > "startsAt"/);
+  // A rede de segurança da 5A não é reescrita por esta migration.
+  assert.doesNotMatch(sql,/ALTER TABLE "Appointment"/);
+  assert.doesNotMatch(sql,/EXCLUDE USING gist/);
+  assert.doesNotMatch(sql,/\bDROP\b/i);
 });

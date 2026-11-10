@@ -37,7 +37,7 @@ Antes de propor código, execute `git status`, leia a implementação relacionad
 ### Áreas existentes
 
 - `/painel`: entrada autenticada e módulos por papel.
-- `/paciente`: consultas do próprio paciente, somente leitura.
+- `/paciente`: consultas do próprio paciente, solicitação de horário do catálogo e cancelamento do próprio atendimento; a confirmação depende da equipe.
 - `/medico/agenda`: agenda persistente para médico e secretaria.
 - `/medico/conteudos`: CMS para médico e administrador.
 - `/admin`: administração editorial inicial, sem acesso clínico.

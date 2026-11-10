@@ -31,6 +31,12 @@ const protectedApis=[
   {file:'src/app/api/medico/appointments/[id]/cancel/route.ts',guards:["await requireSchedulingApi('appointment.write')"]},
   {file:'src/app/api/medico/availability/route.ts',guards:["await requireSchedulingApi('availability.write')"]},
   {file:'src/app/api/medico/availability/[id]/route.ts',guards:["await requireSchedulingApi('availability.write')"]},
+  {file:'src/app/api/paciente/appointment-requests/route.ts',guards:["await requirePatientSchedulingApi('appointment.request')"]},
+  {file:'src/app/api/paciente/appointment-requests/[id]/withdraw/route.ts',guards:["await requirePatientSchedulingApi('appointment.request.cancel')"]},
+  {file:'src/app/api/paciente/appointments/[id]/cancel/route.ts',guards:["await requirePatientSchedulingApi('appointment.cancel')"]},
+  {file:'src/app/api/medico/appointment-requests/route.ts',guards:["await requireSchedulingApi('appointment.read')"]},
+  {file:'src/app/api/medico/appointment-requests/[id]/approve/route.ts',guards:["await requireSchedulingApi('appointment.write')"]},
+  {file:'src/app/api/medico/appointment-requests/[id]/reject/route.ts',guards:["await requireSchedulingApi('appointment.write')"]},
 ];
 
 const mutatingApis=[
@@ -44,6 +50,11 @@ const mutatingApis=[
   {file:'src/app/api/medico/appointments/[id]/cancel/route.ts',checks:/validateSchedulingOrigin/},
   {file:'src/app/api/medico/availability/route.ts',checks:/validateSchedulingOrigin/},
   {file:'src/app/api/medico/availability/[id]/route.ts',checks:/validateSchedulingOrigin/},
+  {file:'src/app/api/paciente/appointment-requests/route.ts',checks:/validateSchedulingOrigin/},
+  {file:'src/app/api/paciente/appointment-requests/[id]/withdraw/route.ts',checks:/validateSchedulingOrigin/},
+  {file:'src/app/api/paciente/appointments/[id]/cancel/route.ts',checks:/validateSchedulingOrigin/},
+  {file:'src/app/api/medico/appointment-requests/[id]/approve/route.ts',checks:/validateSchedulingOrigin/},
+  {file:'src/app/api/medico/appointment-requests/[id]/reject/route.ts',checks:/validateSchedulingOrigin/},
 ];
 
 test('toda página protegida chama o guarda de servidor antes de consultar dados',async()=>{
@@ -70,12 +81,14 @@ test('toda API protegida aplica o guarda correto e valida a origem das mutaçõe
 });
 
 
-test('área do paciente usa somente o userId da sessão, é somente leitura e projeta metadados mínimos',async()=>{
+test('área do paciente resolve o titular pelo userId da sessão e projeta metadados mínimos',async()=>{
   const [page,dashboard]=await Promise.all([
     read('src/app/paciente/page.tsx'),
     read('src/modules/account/patient-dashboard.ts'),
   ]);
+  assert.match(page,/await requirePatientPage\(\);/);
   assert.match(page,/getPatientDashboard\(context\.actor\.userId\)/);
+  assert.match(page,/getPatientBookingOptions\(context\.actor\.userId\)/);
   assert.doesNotMatch(page,/searchParams|next\/headers|patientId/);
   assert.match(dashboard,/FROM "Patient" WHERE "userId"=\$\{userId\}::uuid/);
   assert.ok(dashboard.includes('patient."userId"=${userId}::uuid'));
@@ -87,6 +100,38 @@ test('área do paciente usa somente o userId da sessão, é somente leitura e pr
   assert.doesNotMatch(dashboard,/clinicalNotes|diagnosis|prescription/i);
   assert.doesNotMatch(dashboard,/\b(?:INSERT|UPDATE|DELETE)\b/);
   assert.doesNotMatch(dashboard,/\.(?:create|createMany|update|updateMany|delete|deleteMany|upsert)\(/);
+});
+
+test('mutação do paciente deriva o vínculo no servidor e nunca aceita identidade do cliente',async()=>{
+  const [store,access,input,requestRoute]=await Promise.all([
+    read('src/modules/scheduling/store.ts'),
+    read('src/server/auth/patient-scheduling-access.ts'),
+    read('src/modules/scheduling/input.mjs'),
+    read('src/app/api/paciente/appointment-requests/route.ts'),
+  ]);
+  assert.match(access,/SELECT "id" FROM "Patient" WHERE "userId"=\$\{context\.actor\.userId\}::uuid/);
+  assert.match(access,/authorizeSession\(context,permission,\{patientUserId:context\.actor\.userId\}\)/);
+  assert.match(store,/resolvePatientId\(db,userId\)/);
+  assert.match(input,/exactKeys\(input,\['serviceId','date','time'\]\)/);
+  assert.match(requestRoute,/validatePatientAppointmentRequest/);
+  assert.match(requestRoute,/validateIdempotencyKey/);
+  assert.doesNotMatch(requestRoute,/patientId/);
+});
+
+test('retirada e cancelamento exigem versão e preservam o histórico',async()=>{
+  const [withdraw,cancel,store]=await Promise.all([
+    read('src/app/api/paciente/appointment-requests/[id]/withdraw/route.ts'),
+    read('src/app/api/paciente/appointments/[id]/cancel/route.ts'),
+    read('src/modules/scheduling/store.ts'),
+  ]);
+  assert.match(withdraw,/validateRequestDecision/);
+  assert.match(withdraw,/appointment\.request\.cancel/);
+  assert.match(cancel,/validateAppointmentCancel/);
+  assert.match(cancel,/appointment\.cancel/);
+  assert.match(store,/export async function withdrawAppointmentRequest/);
+  assert.match(store,/export async function cancelAppointmentForPatient/);
+  assert.doesNotMatch(store,/DELETE FROM "Appointment"/);
+  assert.doesNotMatch(store,/DELETE FROM "AppointmentRequest"/);
 });
 
 test('administração não consulta agenda, paciente ou prontuário',async()=>{

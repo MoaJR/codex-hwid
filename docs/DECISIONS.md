@@ -143,3 +143,15 @@ As consequências técnicas foram executadas junto da aprovação. `scripts/appl
 
 A regra da Fase 5B muda: a implementação fica autorizada, inclusive com dado fictício em desenvolvimento e testes. O uso com dado real de paciente continua condicionado à publicação do canal oficial do titular em `/privacidade` (critério 2 de `docs/PRIVACY.md` §6). O canal é o único item aberto em D1 e não foi inventado: será preenchido quando o responsável informar o endereço oficial. O gate deixa de ser "5B bloqueada" e passa a ser "5B autorizada, dado real condicionado ao canal publicado".
 
+## 2026-11-10 — Fase 5B: solicitação de horário aprovada pela equipe
+
+O paciente autenticado passou a **solicitar** um horário real do catálogo e a acompanhar a decisão da equipe. A escolha do responsável foi por solicitação pendente com aprovação humana, e não por confirmação imediata como previa `docs/phases/PHASE-5.md`; a previsão histórica recebeu nota datada.
+
+A implementação preserva a rede de segurança da 5A: a nova entidade `AppointmentRequest` é **aditiva**, e `Appointment`, seus enums e as duas exclusion constraints GiST continuam intactos. A solicitação não reserva o intervalo; a aprovação revalida a disponibilidade e cria a consulta pelo mesmo core transacional, com lock por médico, catálogo do servidor, evento e auditoria na mesma transação. Um conflito de horário na aprovação retorna 409 e a pendência permanece na fila.
+
+O paciente recebeu três permissões próprias — `appointment.request`, `appointment.request.cancel` e `appointment.cancel` — sempre com `patientUserId` igual ao `userId` da sessão. `appointment.write` continua exclusiva da equipe, de modo que acumular papéis não concede reagendamento, disponibilidade ou agenda da clínica. Aprovar e recusar exigem `appointment.write`; ADMIN não decide.
+
+Decisões operacionais registradas: no máximo uma pendência ativa por paciente e uma por par (médico, horário), garantidas por índices parciais únicos; `expiresAt` igual ao início do horário, com transição para `EXPIRED` aplicada no próprio fluxo, sem rotina agendada; a consulta criada na aprovação tem como autoria o usuário da equipe que aprovou, ficando o vínculo com o pedido em `AppointmentRequest.appointmentId`; a recusa **não** coleta motivo nem texto livre. A trilha de auditoria usa `APPOINTMENT_REQUEST_CREATED`, `APPROVED`, `REJECTED`, `WITHDRAWN` e `EXPIRED`, com origem `PATIENT_PORTAL`, `SCHEDULING_API` ou `SYSTEM_EXPIRY`, sem duplicar conteúdo.
+
+A retenção da nova tabela foi proposta em `docs/PRIVACY.md` como **D7** (5 anos após a decisão) e permanece **pendente de aprovação** do responsável; `retention:apply` apenas reporta as pendências expiradas e não apaga solicitações, consultas ou auditoria.
+

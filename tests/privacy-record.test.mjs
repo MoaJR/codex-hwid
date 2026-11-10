@@ -59,3 +59,13 @@ test('o canal do titular não pode ser dado como publicado sem endereço oficial
   assert.match(page,/5 anos/,'a retenção aprovada precisa estar publicada');
   assert.match(page,/transferência internacional/i,'a transferência aprovada precisa estar publicada');
 });
+
+test('a página de privacidade descreve a solicitação de horário sem antecipar a decisão',async()=>{
+  const page=await read('src/app/privacidade/page.tsx');
+  assert.match(page,/solicita horários do catálogo/i,'a página precisa declarar que o paciente solicita horário do catálogo');
+  assert.match(page,/acompanha a análise da equipe/i,'a página precisa declarar que o paciente acompanha a análise');
+  assert.match(page,/não reserva o horário/i,'a solicitação pendente não pode ser descrita como reserva');
+  assert.match(page,/cancela o próprio atendimento/i,'a página precisa declarar o cancelamento do próprio atendimento');
+  assert.match(page,/autoria da decisão/i,'a página precisa declarar que a decisão registra autoria');
+  assert.doesNotMatch(page,/confirmação (?:imediata|automática)|reserva (?:imediata|automática)/i,'a confirmação depende da equipe');
+});

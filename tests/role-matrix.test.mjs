@@ -36,11 +36,17 @@ test('cada papel recebe exatamente os módulos e o rótulo esperados',()=>{
   }
 });
 
-test('paciente lê somente a própria agenda e não recebe mutação ou área de equipe',()=>{
-  const allow=[['appointment.read',ownPatient]];
+test('paciente lê a própria agenda, solicita horário e cancela o próprio atendimento sem área de equipe',()=>{
+  const allow=[['appointment.read',ownPatient],['appointment.request',ownPatient],['appointment.request.cancel',ownPatient],['appointment.cancel',ownPatient]];
   const deny=[
     ['appointment.read',{patientUserId:otherPatient}],
     ['appointment.read',ownSchedule],
+    ['appointment.request',{patientUserId:otherPatient}],
+    ['appointment.request',ownSchedule],
+    ['appointment.request.cancel',{patientUserId:otherPatient}],
+    ['appointment.request.cancel',ownSchedule],
+    ['appointment.cancel',{patientUserId:otherPatient}],
+    ['appointment.cancel',ownSchedule],
     ['appointment.write',ownPatient],
     ['availability.read',ownPatient],
     ['availability.write',ownPatient],
@@ -72,6 +78,9 @@ test('médico opera apenas a própria agenda e mantém o domínio editorial',()=
     ['appointment.read',{appointmentDoctorUserId:otherDoctor}],
     ['appointment.write',{appointmentDoctorUserId:otherDoctor}],
     ['availability.write',{appointmentDoctorUserId:otherDoctor}],
+    ['appointment.request',ownSchedule],
+    ['appointment.request.cancel',ownSchedule],
+    ['appointment.cancel',ownSchedule],
     ['appointment.read',ownPatient],
     ['patient.read',ownSchedule],
     ['medical_record.read',ownSchedule],
@@ -92,6 +101,9 @@ test('secretaria opera a agenda da clínica sem disponibilidade, conteúdo ou pr
   const deny=[
     ['availability.read',clinicSchedule],
     ['availability.write',clinicSchedule],
+    ['appointment.request',clinicSchedule],
+    ['appointment.request.cancel',clinicSchedule],
+    ['appointment.cancel',clinicSchedule],
     ['content.read',{}],
     ['content.write',{}],
     ['content.publish',{}],
@@ -119,6 +131,9 @@ test('administrador gerencia conteúdo e configurações sem herdar agenda, paci
     ['content.publish',{}],
     ['appointment.read',everyScope],
     ['appointment.write',everyScope],
+    ['appointment.request',everyScope],
+    ['appointment.request.cancel',everyScope],
+    ['appointment.cancel',everyScope],
     ['availability.write',everyScope],
     ['patient.read',everyScope],
     ['medical_record.read',everyScope],

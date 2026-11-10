@@ -43,6 +43,14 @@ enum AppointmentEventType {
   COMPLETED
   NO_SHOW
 }
+
+enum AppointmentRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+  WITHDRAWN
+}
 model User {
   id String @id @default(uuid()) @db.Uuid
   email String @unique
@@ -68,6 +76,8 @@ model User {
   appointmentsUpdated Appointment[] @relation("AppointmentUpdatedBy")
   appointmentsCancelled Appointment[] @relation("AppointmentCancelledBy")
   appointmentEvents AppointmentEvent[] @relation("AppointmentEventActor")
+  requestsSubmitted AppointmentRequest[] @relation("AppointmentRequestSubmittedBy")
+  requestsDecided AppointmentRequest[] @relation("AppointmentRequestDecidedBy")
 }
 model UserRole {
   userId String @db.Uuid
@@ -82,6 +92,7 @@ model Patient {
   careAssignments CareAssignment[]
   moodEntries MoodEntry[]
   appointments Appointment[]
+  appointmentRequests AppointmentRequest[]
   createdAt DateTime @default(now())
 }
 model Doctor {
@@ -94,6 +105,7 @@ model Doctor {
   availabilityRules AvailabilityRule[]
   availabilityExceptions AvailabilityException[]
   appointments Appointment[]
+  appointmentRequests AppointmentRequest[]
 }
 model CareAssignment {
   patientId String @db.Uuid
@@ -251,6 +263,7 @@ model AppointmentService {
   updatedAt           DateTime         @updatedAt
   doctor              Doctor           @relation(fields: [doctorId], references: [id], onDelete: Restrict)
   appointments        Appointment[]
+  appointmentRequests AppointmentRequest[]
 
   @@unique([doctorId, code])
   @@unique([id, doctorId])
@@ -318,6 +331,7 @@ model Appointment {
   updatedBy           User?              @relation("AppointmentUpdatedBy", fields: [updatedByUserId], references: [id], onDelete: SetNull)
   cancelledBy         User?              @relation("AppointmentCancelledBy", fields: [cancelledByUserId], references: [id], onDelete: SetNull)
   events              AppointmentEvent[]
+  request             AppointmentRequest?
 
   @@index([doctorId, startsAt])
   @@index([patientId, startsAt])
@@ -341,6 +355,41 @@ model AppointmentEvent {
 
   @@index([appointmentId, occurredAt])
   @@index([actorUserId, occurredAt])
+}
+
+model AppointmentRequest {
+  id                  String                   @id @default(uuid()) @db.Uuid
+  doctorId            String                   @db.Uuid
+  patientId           String                   @db.Uuid
+  serviceId           String                   @db.Uuid
+  idempotencyKey      String                   @unique @db.Uuid
+  serviceLabel        String
+  mode                AppointmentMode
+  startsAt            DateTime                 @db.Timestamptz(3)
+  endsAt              DateTime                 @db.Timestamptz(3)
+  durationMinutes     Int
+  bufferBeforeMinutes Int
+  bufferAfterMinutes  Int
+  timeZone            String
+  status              AppointmentRequestStatus @default(PENDING)
+  version             Int                      @default(1)
+  expiresAt           DateTime                 @db.Timestamptz(3)
+  submittedByUserId   String                   @db.Uuid
+  decidedByUserId     String?                  @db.Uuid
+  decidedAt           DateTime?                @db.Timestamptz(3)
+  appointmentId       String?                  @unique @db.Uuid
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+  doctor      Doctor             @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  patient     Patient            @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  service     AppointmentService @relation(fields: [serviceId, doctorId], references: [id, doctorId], onDelete: Restrict)
+  submittedBy User               @relation("AppointmentRequestSubmittedBy", fields: [submittedByUserId], references: [id], onDelete: Restrict)
+  decidedBy   User?              @relation("AppointmentRequestDecidedBy", fields: [decidedByUserId], references: [id], onDelete: SetNull)
+  appointment Appointment?       @relation(fields: [appointmentId], references: [id], onDelete: Restrict)
+
+  @@index([status, startsAt])
+  @@index([patientId, startsAt])
+  @@index([doctorId, startsAt])
 }
 
 model ApiRateLimit {

@@ -9,7 +9,8 @@ Atualizado em 25/10/2026. Fatos conferidos em `prisma/schema.prisma`, no código
 - Público: home, páginas institucionais, blog e API pública somente leitura.
 - Autenticado: `/painel`, `/paciente`, `/medico/agenda`, `/medico/conteudos`, `/admin` e `/conta`.
 - Fase 5A: agenda operacional interna para médico e secretaria, com pacientes provisionados em terminal confiável.
-- Fora de escopo neste marco: cadastro público, agendamento pelo paciente, prontuário, prescrições, mensagens clínicas, documentos, uploads, pagamentos e lembretes.
+- Fase 5B: o paciente autenticado solicita horário real do catálogo, retira a própria pendência e cancela o próprio atendimento; a confirmação depende da aprovação da equipe.
+- Fora de escopo neste marco: cadastro público, reagendamento pelo paciente, prontuário, prescrições, mensagens clínicas, documentos, uploads, pagamentos e lembretes.
 
 Não existe formulário público que receba dado pessoal. A única entrada de dado pessoal é o login de uma conta previamente provisionada.
 
@@ -24,6 +25,7 @@ Não existe formulário público que receba dado pessoal. A única entrada de da
 | Papéis e vínculos | `UserRole`, `Patient`, `Doctor`, `CareAssignment` | papel, `userId` do titular, fuso do médico, vínculo paciente–médico | autorização e escopo |
 | Catálogo e disponibilidade | `AppointmentService`, `AvailabilityRule`, `AvailabilityException` | código, nome do serviço, modalidade, duração, intervalos, buffers, janelas semanais e exceções | calcular horários |
 | Agenda | `Appointment`, `AppointmentEvent` | rótulo do serviço, modalidade, estado, horários em UTC, duração, buffers, fuso, versão, chave de idempotência, autoria de criação/edição/cancelamento e histórico de eventos | operar e auditar a consulta |
+| Solicitação de agenda | `AppointmentRequest` | serviço e horário desejados, expiração, estado da decisão, versão, chave de idempotência, autoria do pedido e da decisão, vínculo com a consulta aprovada | receber o pedido do paciente e registrar a decisão da equipe |
 | Auditoria de segurança | `AuditEvent` | ação, resultado, origem, ator, titular, tipo e UUID do recurso, data | rastrear operações sensíveis |
 | Editorial | `Article`, `ArticleBlock` | conteúdo publicado, autoria, revisão e publicação | blog e CMS |
 
@@ -106,15 +108,22 @@ As seis decisões abaixo foram aprovadas pelo responsável em 10/11/2026 com os 
 **Opções.** Procedimento interno com prazos definidos; comunicação imediata ao responsável e, quando aplicável, aos titulares e à autoridade; registro em documento restrito com data, escopo e medidas.
 **Impacto técnico.** A auditoria atual não detecta intrusão sozinha. É necessário definir alertas mínimos, responsáveis por plantão e um canal de contato que funcione fora do horário comercial.
 
+### D7 — Retenção da solicitação de agenda (proposta, pendente de aprovação)
+
+**Pergunta.** Por quanto tempo manter solicitações recusadas, retiradas e expiradas, e como preservar a que originou uma consulta?
+**Proposta.** Manter por 5 anos após a decisão as solicitações recusadas, retiradas e expiradas, alinhadas à trilha de auditoria; a solicitação aprovada permanece vinculada à consulta, que segue a retenção de 20 anos. Pendências vencidas são apenas transicionadas para `EXPIRED`; nenhuma linha é apagada por `npm run retention:apply` nesta fase.
+**Impacto técnico.** `scripts/apply-retention.mjs` contabiliza pendências expiradas e publica a política; a exclusão física exigiria aprovação explícita e procedimento próprio por causa das FKs `Restrict`.
+**Status.** Proposta registrada em 10/11/2026 com a implementação da 5B; **sem aprovação** até decisão do responsável.
+
 ## 6. Critérios para liberar a Fase 5B
 
 A Fase 5B (agendamento pelo paciente autenticado) está **autorizada para implementação** desde 10/11/2026. O uso com dado real de paciente exige todos os itens abaixo:
 
 1. D1 a D6 aprovadas pelo responsável e registradas em `docs/DECISIONS.md`. **Cumprido em 10/11/2026.**
-2. `/privacidade` publicando controlador, encarregado, canal do titular, finalidades, bases legais, retenção, operadores e direitos. **Pendente do canal oficial do titular** — os demais itens já estão aprovados.
+2. `/privacidade` publicando controlador, encarregado, canal do titular, finalidades, bases legais, retenção, operadores e direitos. **Pendente do canal oficial do titular** — os demais itens já estão aprovados. A descrição publicada da operação de solicitação de horário (pedido do catálogo, análise da equipe, retirada antes da decisão e cancelamento do próprio atendimento, sem reserva automática) foi atualizada em 10/11/2026, sem antecipar prazo ou retenção ainda não aprovados.
 3. Retenção definida com pelo menos uma execução registrada, mesmo que manual. **Cumprido em 10/11/2026** (`npm run retention:apply`).
 4. Teste de restauração documentado em ambiente descartável. **Cumprido em 10/11/2026** (`docs/BACKUP_RESTORE.md`).
-5. Revisão confirmando que a 5B não coleta categoria nova além de identidade autenticada, serviço, modalidade e horário. **A executar na implementação da 5B.**
+5. Revisão confirmando que a 5B não coleta categoria nova além de identidade autenticada, serviço, modalidade e horário. **Cumprido em 10/11/2026:** a solicitação grava somente serviço, modalidade, horários, estado, versão, autoria e chave de idempotência — sem motivo, texto livre, anexo ou dado clínico. A nova tabela representa uma **operação de tratamento adicional** (pedido do paciente), registrada na seção 2 e sujeita à proposta D7 de retenção.
 6. `npm test`, `npm run typecheck`, `npm run build:next` e os aceites `e2e:scheduling`/`e2e:account` aprovados no PostgreSQL local, com identidades fictícias. **Cumprido em 10/11/2026** (ver `docs/E2E_5A_ROLES.md`).
 
 ## 7. Proibições vigentes
@@ -137,4 +146,6 @@ Preencher apenas com aprovação real. As linhas abaixo foram preenchidas em 10/
 | D4 | Subprocessadores e transferência internacional | Responsável | 10/11/2026 | `docs/DECISIONS.md`; lista a publicar em `/privacidade` |
 | D5 | Backup, restauração e continuidade | Responsável | 10/11/2026 | `docs/BACKUP_RESTORE.md`, execução de 10/11/2026 |
 | D6 | Resposta a incidentes e comunicação | Responsável | 10/11/2026 | `docs/DECISIONS.md`, entrada de 2026-11-10 |
+
+Nenhuma linha desta tabela cobre D7: a proposta de retenção da solicitação de agenda (seção 5) foi registrada com a implementação da 5B e permanece **sem aprovação**. Não trate D7 como decidida até o responsável se manifestar por escrito.
 

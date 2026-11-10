@@ -157,6 +157,38 @@ já passou. Nenhuma senha é impressa; se a restauração falhar, o resumo traz
 | 25/10/2026 | 19/19 em duas rodadas consecutivas | `ready` | consulta criada, reagendada e cancelada; regra do aceite desativada; nenhum dado pessoal impresso |
 | 10/11/2026 | 19/19 | `ready` | servidor de produção local em `http://localhost:3000`, igual a `BETTER_AUTH_URL`; 8 consultas e 24 eventos/auditorias no check |
 
+### Ciclo da solicitação do paciente (5B)
+
+| Data | `npm run e2e:patient-booking` | Observações |
+| --- | --- | --- |
+| 10/11/2026 | **23/23 `ready`** | build de produção local em `http://localhost:3000`; regra semanal temporária criada e removida no mesmo ciclo; nenhum identificador, horário individual ou credencial impresso |
+
+Roteiro do paciente na 5B:
+
+1. `/paciente` abre com “Escolha um horário disponível”, seletor de atendimento e os dias com vaga real do catálogo.
+2. “Enviar solicitação” cria `AppointmentRequest` em `PENDING`; a mensagem de sucesso só aparece depois da resposta do servidor.
+3. “Solicitações enviadas” permite retirar a pendência com confirmação inline (estado `WITHDRAWN`).
+4. Em `/medico/agenda`, a fila “Aguardando confirmação” mostra a pendência para DOCTOR/SECRETARY com “Aprovar” e “Recusar”; aprovar cria a consulta confirmada e recusar preserva o registro.
+5. A consulta confirmada aparece em “Sua agenda” com “Cancelar consulta” (estado `CANCELLED`, histórico preservado).
+6. Negados: paciente em `/medico/agenda` → `/painel`; `GET /api/medico/appointment-requests` → `403`; aprovar ou recusar pelo paciente → `403`.
+
+O aceite cobre 401 sem sessão, 403 de origem, 400 com `patientId` no corpo, 404 de serviço desconhecido, 400 de horário passado, 201 idempotente, 409 de pendência duplicada, aprovação idempotente, cancelamento idempotente, 404 de recurso alheio e 429 de limite por usuário. Nenhum identificador, horário individual ou credencial é impresso.
+
+Como existe no máximo uma pendência ativa por paciente, uma solicitação deixada por execução interrompida precisa ser retirada em `/paciente` ou recusada na fila da agenda antes de repetir o aceite; nesse caso o script reporta `failedStep: REQUEST_PENDING_ALREADY_EXISTS_MUST_WITHDRAW_OR_REJECT`. O spec de navegador retira pendências anteriores antes de começar, por isso a suíte é repetível.
+
+### Registro da execução da 5B
+
+| Data | Comando | Resultado |
+| --- | --- | --- |
+| 10/11/2026 | `npm run db:migrate:deploy` (PostgreSQL local `127.0.0.1:5432/douglas_vaz_dev`) | 6 migrations aplicadas; `20261110120000_add_appointment_request` registrada com checksum |
+| 10/11/2026 | `npm run e2e:scheduling` | **19/19 `ready`** — regressão da 5A após o refactor do `store.ts` |
+| 10/11/2026 | `npm run e2e:patient-booking` | **23/23 `ready`** |
+| 10/11/2026 | `npm run e2e:frontend` | **66 passaram, 2 não aplicáveis, 0 falhas** (2,5 min, Chromium desktop e mobile) |
+| 10/11/2026 | `npm run scheduling:check` | `ready` — 12 invariantes, 5 solicitações, 0 pendentes |
+| 10/11/2026 | `npm run privacy:check` | `ready` — 5 solicitações, 2 aprovadas, 0 pendentes, nenhuma identidade impressa |
+
+As duas não aplicáveis são regras exclusivas de viewport, como na 5A. O servidor de aceite rodou no build de produção local (`npm run start -- --port 3000`), na mesma origem de `BETTER_AUTH_URL`. `npm run e2e:account` não foi executado nesta rodada porque nenhuma rota de conta foi alterada e o marcador local de cota continua válido.
+
 ### Segurança da conta
 
 | Data | `npm run e2e:account` | Observações |
@@ -181,7 +213,5 @@ já passou. Nenhuma senha é impressa; se a restauração falhar, o resumo traz
 
 ## Próximos passos
 
-Concluir as decisões operacionais de privacidade antes da Fase 5B. Dados clínicos reais
-continuam bloqueados até as decisões de privacidade e os controles operacionais estarem
-aprovados.
+Aplicar a migration `20261110120000_add_appointment_request` no PostgreSQL local (com confirmação explícita) e executar `npm run e2e:patient-booking` e `npm run e2e:frontend` para registrar o aceite da 5B em `docs/PROGRESS.md`. Dados clínicos reais continuam bloqueados até a publicação do canal oficial do titular em `/privacidade`, e a retenção da nova tabela (D7) segue como proposta sem aprovação.
 

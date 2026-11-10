@@ -20,6 +20,7 @@
     "privacy:check": "node --env-file-if-exists=.env.local scripts/check-privacy.mjs",
     "retention:apply": "node --env-file-if-exists=.env.local scripts/apply-retention.mjs",
     "e2e:scheduling": "node scripts/e2e-scheduling.mjs --confirm E2E",
+    "e2e:patient-booking": "node scripts/e2e-patient-booking.mjs --confirm E2E",
     "e2e:account": "node scripts/e2e-account.mjs --confirm E2E",
     "e2e:frontend": "playwright test",
     "e2e:frontend:ui": "playwright test --ui",

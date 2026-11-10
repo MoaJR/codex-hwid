@@ -1,7 +1,7 @@
 # Matriz inicial
 | Papel | Permitido | Restrição |
 | --- | --- | --- |
-| PATIENT | leitura da própria agenda e segurança da própria conta | recurso próprio; sem mutações de agenda |
+| PATIENT | leitura da própria agenda, solicitação de horário do catálogo, cancelamento do próprio atendimento e segurança da própria conta | recurso próprio; sem reagendamento, disponibilidade ou agenda da clínica |
 | DOCTOR | agenda própria, conteúdo editorial e segurança da própria conta | agenda pelo médico titular; módulos clínicos ainda indisponíveis |
 | SECRETARY | agenda leitura/escrita, cadastro mínimo leitura | âmbito da clínica única; sem conteúdo clínico |
 | ADMIN | painel administrativo, configurações e conteúdo editorial | sem agenda, paciente ou prontuário; sem edição de permissões neste marco |
@@ -35,9 +35,22 @@ Todo usuário autenticado com credencial local pode alterar somente a própria s
 | DOCTOR | Própria | Própria | Própria |
 | SECRETARY | Clínica única | Clínica única | Não |
 | ADMIN | Não | Não | Não |
-| PATIENT | Própria, somente leitura | Não neste marco | Não |
+| PATIENT | Própria | Solicita e retira a própria pendência; cancela o próprio atendimento | Não |
 
 A agenda do médico é escopo administrativo e não cria vínculo assistencial nem concede prontuário. Secretaria recebe somente metadados necessários à operação. O paciente vê no máximo dez atendimentos futuros confirmados e vinte itens dos últimos 90 dias, sempre vinculados a `Patient.userId` da sessão. O acesso da equipe depende de sessão autenticada e autorização por papel. O rollout permanece controlado e sem dados clínicos reais.
+
+## Solicitação de horário pelo paciente (5B)
+
+| Papel | `appointment.request` | `appointment.request.cancel` | `appointment.cancel` | Decidir (`appointment.write`) |
+| --- | --- | --- | --- | --- |
+| PATIENT | Própria pendência | Própria pendência | Próprio atendimento | Não |
+| DOCTOR | Não | Não | Não | Própria agenda |
+| SECRETARY | Não | Não | Não | Clínica única |
+| ADMIN | Não | Não | Não | Não |
+
+As três permissões do paciente exigem `patientUserId` igual ao `userId` da sessão e nunca são concedidas por herança a DOCTOR, SECRETARY ou ADMIN. Reagendamento, disponibilidade e agenda da clínica continuam fora do escopo do paciente: `appointment.write` permanece exclusiva da equipe.
+
+A solicitação não reserva o intervalo. O horário, a duração, a modalidade e os buffers vêm do catálogo do servidor; a aprovação revalida a disponibilidade e cria a consulta pelo mesmo caminho transacional da agenda, com lock por médico, exclusion constraint GiST, evento e auditoria na mesma transação. Existe no máximo uma pendência ativa por paciente e uma por par (médico, horário), garantidas por índices parciais únicos no banco.
 
 ## Conteúdo editorial
 | Papel | Leitura do painel | Escrita de rascunho | Enviar para revisão | Publicar/retirar |

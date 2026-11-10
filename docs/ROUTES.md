@@ -18,7 +18,7 @@
 | /api/articles | Lista pública de metadados; sem escrita |
 | /login | Entrada ativa em Produção para validação controlada |
 | /painel | Entrada autenticada; apresenta somente os módulos permitidos pelos papéis da sessão |
-| /paciente | Próximos atendimentos e histórico recente do próprio paciente; somente leitura |
+| /paciente | Próximos atendimentos, histórico recente, solicitação de horário do catálogo e cancelamento do próprio atendimento |
 | /admin | Resumo editorial administrativo; exige `settings.manage`, sem dados clínicos |
 | /conta | Perfil, troca de senha e encerramento de outros acessos; sem acesso clínico |
 | /api/auth/[...all] | Better Auth GET/POST; habilitado por `AUTH_ENABLED` após provisionamento e responde 503 quando não configurado |
@@ -27,7 +27,7 @@
 | /medico/conteudos | Lista editorial; sessão DOCTOR/ADMIN |
 | /medico/conteudos/novo | Criação de rascunho protegido |
 | /medico/conteudos/[id] | Editor, versão e workflow protegido |
-| /medico/agenda | Agenda interna protegida para médico/secretaria |
+| /medico/agenda | Agenda interna protegida para médico/secretaria, com fila de solicitações do paciente |
 | /api/admin/articles | GET/POST editorial protegido |
 | /api/admin/articles/[id] | GET/PATCH editorial protegido |
 | /api/admin/articles/[id]/transition | Transições auditadas do workflow |
@@ -37,6 +37,12 @@
 | /api/medico/appointments/[id]/cancel | POST protegido de cancelamento |
 | /api/medico/availability | POST protegido de regra ou exceção |
 | /api/medico/availability/[id] | DELETE protegido e auditado |
+| /api/paciente/appointment-requests | POST protegido de solicitação pendente, com `Idempotency-Key` |
+| /api/paciente/appointment-requests/[id]/withdraw | POST protegido de retirada da própria pendência, com versão |
+| /api/paciente/appointments/[id]/cancel | POST protegido de cancelamento do próprio atendimento confirmado |
+| /api/medico/appointment-requests | GET protegido da fila de solicitações pendentes |
+| /api/medico/appointment-requests/[id]/approve | POST protegido; aprova e cria a consulta na mesma transação |
+| /api/medico/appointment-requests/[id]/reject | POST protegido; recusa a solicitação preservando o registro |
 | /api/health | Saúde da aplicação, não verifica banco |
 
 O protótipo `/demonstracao.html` foi removido e deve retornar 404. Prontuário, prescrições, mensagens clínicas e demais módulos clínicos continuam ausentes. A área do paciente projeta somente rótulo do serviço, modalidade, estado e horário das próprias consultas. Slugs de tratamento desconhecidos retornam 404.

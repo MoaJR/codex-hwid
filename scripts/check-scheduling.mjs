@@ -12,6 +12,8 @@ export const schedulingCheckNames=Object.freeze([
   'createdEventChain',
   'cancelledEventChain',
   'auditCoverage',
+  'pendingRequestUnique',
+  'approvedRequestLink',
 ]);
 
 /**
@@ -26,6 +28,8 @@ export function evaluateSchedulingIntegrity(aggregate){
     appointments:aggregate.appointments,
     appointmentEvents:aggregate.appointmentEvents,
     appointmentAudits:aggregate.appointmentAudits,
+    appointmentRequests:aggregate.appointmentRequests,
+    pendingRequests:aggregate.pendingRequests,
   };
   const checks={
     singleDoctor:aggregate.doctors===1,
@@ -38,6 +42,8 @@ export function evaluateSchedulingIntegrity(aggregate){
     createdEventChain:aggregate.invalidCreatedChains===0,
     cancelledEventChain:aggregate.invalidCancelledChains===0,
     auditCoverage:aggregate.invalidAuditChains===0,
+    pendingRequestUnique:aggregate.invalidPendingRequests===0,
+    approvedRequestLink:aggregate.invalidApprovedRequests===0,
   };
   const failedChecks=schedulingCheckNames.filter(name=>checks[name]!==true);
   return {operation:'SCHEDULING_INTEGRITY_CHECK',status:failedChecks.length===0?'ready':'invalid',counts,checks,failedChecks};
@@ -48,7 +54,7 @@ export async function readSchedulingIntegrity(db){
   return db.$transaction(async transaction=>{
     // Static utility statement with no user-controlled input.
     await transaction.$executeRawUnsafe('SET TRANSACTION READ ONLY');
-    const [doctorRows,serviceRows,totalRows,eventRows,auditRows,boundsRows,stateRows,doctorOverlapRows,patientOverlapRows,createdRows,cancelledRows,auditCoverageRows]=await Promise.all([
+    const [doctorRows,serviceRows,totalRows,eventRows,auditRows,boundsRows,stateRows,doctorOverlapRows,patientOverlapRows,createdRows,cancelledRows,auditCoverageRows,requestRows,requestPendingRows,requestApprovedRows]=await Promise.all([
       transaction.$queryRaw`
         SELECT COUNT(*)::int AS "doctors",
           COUNT(*) FILTER (WHERE "timeZone"='America/Sao_Paulo')::int AS "expectedTimeZoneDoctors"
@@ -135,11 +141,30 @@ export async function readSchedulingIntegrity(db){
           ON audit."resourceId"=event."resourceId" AND audit."action"=event."action"
         WHERE COALESCE(event."eventCount",0)<>COALESCE(audit."auditCount",0)
       `,
+      transaction.$queryRaw`
+        SELECT
+          (SELECT COUNT(*) FROM "AppointmentRequest")::int AS "appointmentRequests",
+          (SELECT COUNT(*) FROM "AppointmentRequest" WHERE "status"='PENDING')::int AS "pendingRequests"
+      `,
+      transaction.$queryRaw`
+        SELECT COUNT(*)::int AS "invalidPendingRequests" FROM "AppointmentRequest" first_request
+        JOIN "AppointmentRequest" second_request
+          ON first_request."id"::text<second_request."id"::text
+         AND first_request."doctorId"=second_request."doctorId"
+         AND first_request."startsAt"=second_request."startsAt"
+         AND first_request."status"='PENDING' AND second_request."status"='PENDING'
+      `,
+      transaction.$queryRaw`
+        SELECT COUNT(*)::int AS "invalidApprovedRequests" FROM "AppointmentRequest" request
+        LEFT JOIN "Appointment" appointment ON appointment."id"=request."appointmentId"
+        WHERE request."status"='APPROVED' AND (request."appointmentId" IS NULL OR appointment."id" IS NULL)
+      `,
     ]);
     return {
       ...doctorRows[0],...serviceRows[0],...totalRows[0],...eventRows[0],...auditRows[0],
       ...boundsRows[0],...stateRows[0],...doctorOverlapRows[0],...patientOverlapRows[0],
       ...createdRows[0],...cancelledRows[0],...auditCoverageRows[0],
+      ...requestRows[0],...requestPendingRows[0],...requestApprovedRows[0],
     };
   },{isolationLevel:'RepeatableRead'});
 }

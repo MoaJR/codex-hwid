@@ -21,7 +21,7 @@ test('playwright não reaproveita servidor alheio por padrão', async () => {
 });
 
 test('specs não escondem falha com only nem fixme', async () => {
-  for (const spec of ['public', 'identity', 'guards', 'roles']){
+  for (const spec of ['public', 'identity', 'guards', 'roles', 'patient-booking']){
     const source = await read(`tests/e2e/${spec}.spec.ts`);
     assert.doesNotMatch(source, /test\.only\(/, `${spec}.spec.ts não pode usar test.only`);
     assert.doesNotMatch(source, /test\.fixme\(/, `${spec}.spec.ts não pode usar test.fixme`);
