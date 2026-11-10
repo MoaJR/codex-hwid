@@ -1,5 +1,14 @@
 # Progresso — 09/11/2026
 
+## Aceite autenticado da 5A concluído com evidência local — 10/11/2026
+- `npm run e2e:scheduling` → **19/19** contra o build de produção local em `http://localhost:3000` (mesma origem de `BETTER_AUTH_URL`); `npm run scheduling:check` e `npm run privacy:check` → `ready`.
+- `npm run e2e:account` → **14/14**: dois logins, revogação dos outros acessos, senha atual errada recusada, troca efetiva, senha antiga recusada, nova senha aceita e senha original restaurada.
+- Playwright autenticado: **62 passaram, 2 não aplicáveis, 0 falhas** em 1,7 min, com as 8 specs de papel ativas nos dois viewports. As 2 não aplicáveis são regras exclusivas de viewport.
+- O titular com papéis acumulados foi exercitado: `auth:provision --add-role ADMIN` na conta `DOCTOR` (idempotente, com `AuditEvent`) e o painel renderizou **exatamente quatro módulos** — Agenda, Conteúdos, Administração e Minha conta — sem duplicata, confirmando que a Agenda vem do papel `DOCTOR`.
+- **Divergência encontrada e corrigida:** os guardas de `/medico/agenda` e `/medico/conteudos` devolviam à `/conta` quando faltava permissão, contrariando `docs/SECURITY.md` ("uma permissão ausente retorna ao painel sem revelar o módulo"). Agora devolvem a `/painel`, e `tests/protected-route-guards.test.mjs` fixa a regra.
+- **Dois falsos negativos da própria automação, corrigidos:** (1) `e2e:scheduling` seguido de `e2e:account` na mesma janela de 60s estourava o limite de login por IP e o aceite acusava `oldPasswordRejected` falso — agora o script observa o status, espera `Retry-After` e reporta `failedStep` com `status=NNN`; (2) as 8 specs autenticadas faziam 8 logins em segundos — a fixture enfileira os logins (5/min) e repete em `429`.
+- Validação desta rodada: `npm test` 136/136, `npm run typecheck` sem erros, `npm run build:next` concluído. Nenhuma rota nova, nenhuma migration, nenhuma alteração de schema e nenhuma decisão D1–D6 alterada.
+
 ## Correção de drift documental, dívida de cor e dependência órfã — 09/11/2026
 - Documentação corrigida para refletir a remoção do segundo fator de 25/10/2026: `README.md` (dois parágrafos que ainda ofereciam cadastro de autenticador e exigência de 2FA), `docs/ROUTES.md` (`/conta` sem "ativação do autenticador"; `/api/auth/[...all]` descrito por `AUTH_ENABLED` e resposta `503`, não por "somente em Produção") e `docs/SECURITY.md` (nota datada no lugar da frase do QR Code TOTP). `docs/DATABASE.md` recebeu nota datada: 14 tabelas no marco editorial, 20 modelos desde a agenda.
 - `tests/mfa-removal.test.mjs` ganhou guarda de drift: `README.md` e `docs/ROUTES.md` não podem voltar a descrever autenticador, QR Code, códigos de recuperação, "com 2FA" ou verificação em duas etapas.

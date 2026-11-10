@@ -118,3 +118,19 @@ test('o painel deriva os cards dos papéis da sessão, sem lista paralela no cli
   assert.doesNotMatch(source,/'use client'/);
 });
 
+test('permissão ausente devolve ao painel, não à conta',async()=>{
+  // docs/SECURITY.md: "uma permissão ausente retorna ao painel sem revelar o
+  // módulo". Em 09/11/2026 os guardas de agenda e editorial ainda mandavam para
+  // /conta, o que o aceite no navegador reprovou.
+  const expectations=[
+    ['src/server/auth/scheduling-access.ts',/catch\{redirect\('\/painel'\);\}/],
+    ['src/server/auth/editorial-page.ts',/if\(!allowed\)redirect\('\/painel'\);/],
+    ['src/server/auth/panel-access.ts',/catch\{redirect\('\/painel'\);\}/],
+  ];
+  for(const [file,pattern] of expectations){
+    const source=await read(file);
+    assert.match(source,pattern,`${file} deve devolver ao painel`);
+    assert.doesNotMatch(source,/catch\{redirect\('\/conta'\)\}/,`${file} não pode devolver à conta por falta de permissão`);
+  }
+});
+

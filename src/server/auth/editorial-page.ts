@@ -10,6 +10,6 @@ export async function requireEditorialPage(permission:string):Promise<Authentica
   if(context.state==='anonymous')redirect('/login');
   if(context.state==='unavailable')redirect('/conta');
   let allowed=true;try{authorizeSession(context,permission);}catch{allowed=false;}
-  if(!allowed)redirect('/conta');
+  if(!allowed)redirect('/painel');
   return context;
 }

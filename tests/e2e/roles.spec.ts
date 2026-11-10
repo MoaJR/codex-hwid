@@ -37,13 +37,20 @@ test('administrador vê a administração e a agenda só quando também é médi
   }
 });
 
-test('cards do painel não se repetem', async ({page}) => {
+test('cards do painel não se repetem e refletem a união dos papéis', async ({page}) => {
   const accounts = await loadLocalAccounts();
   test.skip(!accounts?.DOCTOR, missingAccounts);
   await signIn(page, accounts!.DOCTOR);
-  const titles = await page.locator('.portal-card h2').allTextContents();
+  const titles = (await page.locator('.portal-card h2').allTextContents()).map(title => title.trim());
   expect(titles.length).toBeGreaterThan(0);
   expect(new Set(titles).size, 'a união de papéis não pode duplicar módulos').toBe(titles.length);
+
+  // Titular com DOCTOR+ADMIN: Agenda, Conteúdos, Administração e Minha conta.
+  // ADMIN não herda a agenda — quando a Agenda aparece, quem autoriza é DOCTOR.
+  const badges = (await page.locator('.portal-meta .status-badge').allTextContents()).map(badge => badge.trim());
+  if(badges.includes('Médico') && badges.includes('Administrador')){
+    expect([...titles].sort()).toEqual(['Administração', 'Agenda', 'Conteúdos', 'Minha conta']);
+  }
 });
 
 test('paciente não acessa a agenda da clínica', async ({page}) => {

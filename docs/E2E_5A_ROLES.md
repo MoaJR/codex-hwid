@@ -145,18 +145,39 @@ já passou. Nenhuma senha é impressa; se a restauração falhar, o resumo traz
 | DOCTOR | 25/10/2026 | ok | ok | ok | via automação HTTP e build local |
 | SECRETARY | 25/10/2026 | ok | ok | ok | via automação HTTP e build local |
 | ADMIN | 25/10/2026 | ok | ok | ok | conta entregue ao responsável |
+| PATIENT | 10/11/2026 | ok | ok | ok | Playwright autenticado no build de produção local; `/medico/agenda` termina em `/painel` |
+| DOCTOR | 10/11/2026 | ok | ok | ok | Playwright autenticado; painel com Agenda e Conteúdos |
+| ADMIN | 10/11/2026 | ok | ok | ok | Playwright autenticado; Administração visível, agenda negada sem papel `DOCTOR` |
+| DOCTOR+ADMIN | 10/11/2026 | ok | ok | ok | titular com papéis acumulados na mesma conta: 4 módulos sem duplicata |
 
 ### Ciclo da agenda
 
 | Data | `npm run e2e:scheduling` | `npm run scheduling:check` | Observações |
 | --- | --- | --- | --- |
 | 25/10/2026 | 19/19 em duas rodadas consecutivas | `ready` | consulta criada, reagendada e cancelada; regra do aceite desativada; nenhum dado pessoal impresso |
+| 10/11/2026 | 19/19 | `ready` | servidor de produção local em `http://localhost:3000`, igual a `BETTER_AUTH_URL`; 8 consultas e 24 eventos/auditorias no check |
 
 ### Segurança da conta
 
 | Data | `npm run e2e:account` | Observações |
 | --- | --- | --- |
 | 25/10/2026 | 14/14 | dois logins, revogação dos outros, senha atual errada recusada, troca e restauração da senha original; endpoints crus em `404` |
+| 10/11/2026 | 14/14 | mesma bateria; a execução anterior havia falhado com `429` por limite de login compartilhado, não por credencial |
+
+### Frontend no navegador (Playwright, Chromium)
+
+| Data | Comando | Resultado | Observações |
+| --- | --- | --- | --- |
+| 10/11/2026 | `E2E_CONFIRM=E2E E2E_BASE_URL=http://localhost:3000 E2E_REUSE_SERVER=1 npm run e2e:frontend` | **62 passaram, 2 não aplicáveis, 0 falhas** (1,7 min) | 8 specs autenticadas ativas nos dois viewports; os 2 não aplicáveis são regras exclusivas de viewport |
+| 10/11/2026 | `npm run privacy:check` | `ready` | agregados apenas; nenhum identificador, horário individual ou conteúdo |
+
+### Correções que o aceite provocou
+
+| Achado | Correção |
+| --- | --- |
+| `/medico/agenda` e `/medico/conteudos` devolviam à conta (`/conta`) quando faltava permissão, contrariando `docs/SECURITY.md` | guardas de agenda e editorial passam a devolver ao painel; teste fixa a regra |
+| `e2e:scheduling` e `e2e:account` na mesma janela de 60s estouravam o limite de login e o aceite acusava falha falsa | aceite da conta observa o status, espera `Retry-After` e reporta `failedStep` com o status |
+| 8 specs autenticadas faziam 8 logins em segundos | fixture enfileira os logins (5/min) e repete em `429` |
 
 ## Próximos passos
 

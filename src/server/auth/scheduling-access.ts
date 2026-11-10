@@ -51,5 +51,5 @@ export async function requireSchedulingPage(permission:string):Promise<{context:
     if(!doctor)throw new Error('scope');
     authorizeSession(context,permission,{appointmentDoctorUserId:doctor.userId});
     return {context,doctor};
-  }catch{redirect('/conta');}
+  }catch{redirect('/painel');}
 }
