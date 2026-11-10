@@ -1,6 +1,10 @@
 import {test, expect} from '@playwright/test';
 import {loadLocalAccounts, signIn} from './fixtures/accounts';
 
+// O login é limitado no servidor (5/min por IP) e a fila da fixture pode esperar
+// uma janela inteira quando outra suíte acabou de autenticar.
+test.describe.configure({timeout: 150_000});
+
 // Aceite autenticado: exige E2E_CONFIRM=E2E, alvo loopback (validado no config)
 // e as identidades fictícias de .env.local.accounts. Sem isso, o teste é
 // declarado como não aplicável em vez de falhar silenciosamente.

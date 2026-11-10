@@ -124,6 +124,8 @@ npm run scheduling:check
 
 O aceite da conta troca a senha da identidade fictícia e restaura o valor original; por causa do limite de 5 tentativas por 15 minutos, ele mantém `.e2e-account.lock` e recusa uma segunda execução antes de 16 minutos.
 
+**Limite de login compartilhado (60s).** O provedor limita `/sign-in/email` a cinco tentativas por minuto **por IP**, contando todas as suítes. Rodar `e2e:scheduling` e `e2e:account` na mesma janela produz `429`, que não é credencial inválida. Desde 09/11/2026 o aceite da conta espera o `Retry-After` e reporta o status observado (`status=429`, `status=401`...) em `failedStep`, sem expor credencial. Ainda assim, deixe ao menos um minuto entre as duas suítes para o aceite ser rápido.
+
 ## 8. Frontend com Playwright
 
 A interface é aceita em navegador real. Uma instalação por máquina:

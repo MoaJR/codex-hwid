@@ -52,18 +52,48 @@ export async function loadLocalAccounts(): Promise<LocalAccounts | null>{
   }
 }
 
+// O provedor limita `/sign-in/email` a 5 tentativas por minuto por IP, contando
+// todas as specs. Sem fila local o aceite autenticado falha com 429.
+const loginLimit = 5;
+const loginWindowMs = 60_000;
+const loginTimes: number[] = [];
+
+async function waitForLoginSlot(){
+  for(;;){
+    const now = Date.now();
+    while(loginTimes.length > 0 && now - loginTimes[0] >= loginWindowMs) loginTimes.shift();
+    if(loginTimes.length < loginLimit){
+      loginTimes.push(now);
+      return;
+    }
+    await new Promise(resolve => setTimeout(resolve, loginWindowMs - (now - loginTimes[0]) + 1_500));
+  }
+}
+
 export async function signIn(page: Page, account: {email: string; password: string}){
-  await page.goto('/login');
-  await page.getByLabel('E-mail').fill(account.email);
-  await page.getByLabel('Senha').fill(account.password);
-  const [response] = await Promise.all([
-    page.waitForResponse(result => result.url().includes('/api/auth/sign-in/email')),
-    page.getByRole('button', {name: 'Entrar com segurança'}).click(),
-  ]);
-  if(response.status() !== 200){
+  let status = 0;
+  for(let attempt = 0; attempt < 3; attempt++){
+    await waitForLoginSlot();
+    await page.goto('/login');
+    await page.getByLabel('E-mail').fill(account.email);
+    await page.getByLabel('Senha').fill(account.password);
+    const [response] = await Promise.all([
+      page.waitForResponse(result => result.url().includes('/api/auth/sign-in/email')),
+      page.getByRole('button', {name: 'Entrar com segurança'}).click(),
+    ]);
+    status = response.status();
+    if(status === 200) break;
+    if(status !== 429) break;
+    // 429 é limite do provedor, não credencial inválida: espera e libera a fila.
+    loginTimes.length = 0;
+    const raw = response.headers()['x-retry-after'] ?? response.headers()['retry-after'];
+    const seconds = Number(raw);
+    await page.waitForTimeout((Number.isFinite(seconds) && seconds > 0 ? seconds : 60) * 1000 + 500);
+  }
+  if(status !== 200){
     // Sem ecoar credencial: só o status e a ação necessária.
     throw new Error(
-      `login recusado (${response.status()}): confira BETTER_AUTH_URL, AUTH_ENABLED e as identidades fictícias locais`,
+      `login recusado (${status}): confira BETTER_AUTH_URL, AUTH_ENABLED e as identidades fictícias locais`,
     );
   }
   await page.waitForURL(/\/painel/);

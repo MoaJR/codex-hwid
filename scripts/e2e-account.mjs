@@ -43,6 +43,23 @@ export async function acquireCooldown(deps={}){
 /** A new local password that never appears in the output. */
 export function rotatePassword(){return randomBytes(18).toString('base64url').slice(0,20);}
 
+/**
+ * Login com status observado. O limitador do provedor é por IP e por janela de
+ * 60s: quando outra suíte autenticou na mesma janela, a resposta é `429` e não
+ * uma rejeição de credencial. Esperar `Retry-After` evita falso negativo.
+ * Só o status numérico pode sair daqui — nunca credencial ou identificador.
+ */
+async function attemptSignIn(baseUrl,email,password){
+  let status=0;
+  for(let attempt=0;attempt<3;attempt++){
+    const result=await new HttpClient(baseUrl).request('/api/auth/sign-in/email',{method:'POST',body:{email,password}});
+    status=result.status;
+    if(status!==429)break;
+    await sleep((result.retryAfter??60)*1000+500);
+  }
+  return status;
+}
+
 /** @param {HttpClient} client @param {string} currentPassword @param {string} newPassword */
 async function changePassword(client,currentPassword,newPassword){
   return client.request('/api/account/password',{method:'POST',body:{currentPassword,newPassword,confirmPassword:newPassword}});
@@ -73,7 +90,7 @@ async function run(options){
   const loginPace=createPacer(5);
   let failedStep=null;let passwordChanged=false;let passwordRestored=false;
   let activeClient=null;let rotatedPassword=null;
-  const expect=(name,condition)=>{if(!condition)throw new Error(`CHECK_FAILED_${name}`);checks[name]=true;};
+  const expect=(name,condition,detail)=>{if(!condition)throw new Error(`CHECK_FAILED_${name}${detail===undefined?'':`:${detail}`}`);checks[name]=true;};
 
   try{
     const first=await signIn(baseUrl,account,loginPace);
@@ -110,8 +127,8 @@ async function run(options){
     expect('passwordChanged',changed.status===200&&changed.payload?.changed===true);
     passwordChanged=true;
 
-    const oldAttempt=await new HttpClient(baseUrl).request('/api/auth/sign-in/email',{method:'POST',body:{email:account.email,password:account.password}});
-    expect('oldPasswordRejected',oldAttempt.status===401);
+    const oldStatus=await attemptSignIn(baseUrl,account.email,account.password);
+    expect('oldPasswordRejected',oldStatus===401,`status=${oldStatus}`);
 
     const rotated=await signIn(baseUrl,{email:account.email,password:rotatedPassword},loginPace);
     activeClient=rotated;checks.newPasswordAccepted=true;
@@ -128,8 +145,8 @@ async function run(options){
     }
     passwordRestored=true;
 
-    await signIn(baseUrl,account,loginPace);
-    checks.originalPasswordAccepted=true;
+    const originalStatus=await attemptSignIn(baseUrl,account.email,account.password);
+    expect('originalPasswordAccepted',originalStatus===200,`status=${originalStatus}`);
   }catch(error){
     failedStep=error instanceof Error?error.message:'UNKNOWN_FAILURE';
   }finally{

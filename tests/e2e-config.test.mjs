@@ -41,3 +41,12 @@ test('specs autenticados exigem confirmação e identidades fictícias locais', 
   assert.match(accounts, /\.env\.local\.accounts/, 'a fixture usa o arquivo de identidades fictícias, fora do Git');
   assert.doesNotMatch(accounts, /console\.log\([^)]*(email|password)/i, 'nunca imprimir credencial');
 });
+
+test('login do navegador respeita o limite do provedor', async () => {
+  // Regressão real de 09/11/2026: 8 logins em segundos estouram o limite de
+  // 5/min do /sign-in/email e o espec autenticado falha com 429.
+  const accounts = await read('tests/e2e/fixtures/accounts.ts');
+  assert.match(accounts, /waitForLoginSlot/, 'a fixture precisa enfileirar os logins');
+  assert.match(accounts, /status !== 429/, '429 precisa ser tratado como limite, não como credencial');
+  assert.match(accounts, /x-retry-after/, 'a espera precisa usar o cabeçalho do provedor');
+});

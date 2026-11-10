@@ -57,6 +57,18 @@ test('senha rotacionada é local, longa e diferente a cada chamada',()=>{
   assert.match(first,/^[A-Za-z0-9_-]+$/);
 });
 
+test('aceite de conta distingue limite do provedor de credencial recusada',async()=>{
+  // Regressão real de 09/11/2026: e2e:scheduling e e2e:account na mesma janela
+  // de 60s estouraram o limite por IP do /sign-in/email e o aceite falhou com
+  // falso negativo em oldPasswordRejected. O status precisa ser observado.
+  const source=await readFile(new URL('scripts/e2e-account.mjs',root),'utf8');
+  assert.match(source,/async function attemptSignIn/,'login com status observado precisa existir');
+  assert.match(source,/if\(status!==429\)break;/,'precisa esperar a janela do provedor');
+  assert.match(source,/oldPasswordRejected',oldStatus===401/,'senha antiga verificada por 401');
+  assert.match(source,/originalPasswordAccepted',originalStatus===200/,'senha restaurada verificada por 200');
+  assert.match(source,/`status=\$\{oldStatus\}`/,'o detalhe da falha precisa expor só o status');
+});
+
 test('aceite de conta recusa argumentos desconhecidos',()=>{
   assert.deepEqual(parseArguments([]).confirm,null);
   assert.throws(()=>parseArguments(['--producao']),/E2E_ARGUMENT_UNKNOWN/);
