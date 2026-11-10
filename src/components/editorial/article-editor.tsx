@@ -40,7 +40,7 @@ export function ArticleEditor({item,canPublish}:Props){
       const data:unknown=await response.json();if(!response.ok){setMessage(errorMessage(data));return;}
       const saved=data&&typeof data==='object'?(data as {item?:unknown}).item:undefined;
       const id=saved&&typeof saved==='object'&&'id' in saved&&typeof saved.id==='string'?saved.id:item?.id;
-      if(id)window.location.assign(`/medico/conteudos/${id}`);else setMessage(genericError);
+      if(id)window.location.assign(`/painel/conteudos/${id}`);else setMessage(genericError);
     }catch{setMessage(genericError);}finally{setBusy(false);}
   }
 
@@ -79,7 +79,7 @@ export function ArticleEditor({item,canPublish}:Props){
           </div>)}
         </section>
       </fieldset>
-      {editable&&<div className="form-actions"><button className="button" type="submit" disabled={busy}>{busy?'Salvando…':item?'Salvar nova versão':'Criar rascunho'}</button><Link href="/medico/conteudos" className="button button-outline">Cancelar</Link></div>}
+      {editable&&<div className="form-actions"><button className="button" type="submit" disabled={busy}>{busy?'Salvando…':item?'Salvar nova versão':'Criar rascunho'}</button><Link href="/painel/conteudos" className="button button-outline">Cancelar</Link></div>}
     </form>
     {item&&<section className="editorial-actions panel" aria-labelledby="editorial-actions-title"><h2 id="editorial-actions-title">Fluxo editorial</h2><p>Alterações de estado usam a versão atual e ficam registradas na auditoria.</p><div className="form-actions">
       {item.status==='DRAFT'&&<><button className="button" type="button" disabled={busy} onClick={()=>transition('SUBMIT_REVIEW')}>Enviar para revisão</button><button className="button button-outline" type="button" disabled={busy} onClick={()=>transition('ARCHIVE')}>Arquivar</button></>}

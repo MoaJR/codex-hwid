@@ -16,7 +16,11 @@ Tudo ausente na lista é negado. Permissões de prontuário, diário, documentos
 | SECRETARY | Agenda, minha conta |
 | ADMIN | Administração, conteúdos, minha conta |
 
-Contas com mais de um papel recebem a união dos módulos autorizados, sem duplicatas. A presença de um cartão não substitui o guard server-side da rota de destino.
+Contas com mais de um papel recebem a união dos módulos autorizados, sem duplicatas, apresentados no menu lateral do dashboard (`navigationForRoles`) e na visão geral. Todos os papéis veem também "Visão geral" e "Minha conta".
+
+## Três perfis de produto (11/2026)
+
+Na interface o produto tem três perfis: **Médico e administrador** (titular; `DOCTOR` e/ou `ADMIN`), **Secretaria** e **Paciente** (`profileForRoles`). É uma apresentação: o enum `Role`, `policy.mjs` e as permissões desta matriz **não mudaram**, e `ADMIN` isolado continua sem agenda. Fundir os papéis no banco exigiria migration e decisão formal. A presença de um cartão não substitui o guard server-side da rota de destino.
 
 ## Titular com dois papéis
 

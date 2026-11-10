@@ -1,6 +1,5 @@
 import type {Metadata} from 'next';
-import Link from 'next/link';
-import {SiteHeader,SiteFooter} from '@/components/site/site-shell';
+import {PageHeader} from '@/components/dashboard/page-header';
 import {PatientBooking} from '@/components/scheduling/patient-booking';
 import {getPatientDashboard,type PatientAppointmentSummary} from '@/modules/account/patient-dashboard';
 import {getPatientBookingOptions} from '@/modules/scheduling/store';
@@ -23,6 +22,9 @@ export default async function PatientPage(){
   const context=await requirePatientPage();
   const dashboard=await getPatientDashboard(context.actor.userId);
   const booking=await getPatientBookingOptions(context.actor.userId);
-  return <><SiteHeader/><main id="main-content"><section className="page-intro container"><span className="eyebrow">Área do paciente</span><h1>Meu acompanhamento.</h1><p>Consulte os atendimentos vinculados com segurança à sua conta e solicite horários do catálogo.</p><div className="form-actions"><Link className="button button-outline" href="/painel">Voltar ao painel</Link><Link className="button button-outline" href="/conta">Minha conta</Link></div></section><section className="container section patient-dashboard">{!dashboard.profileLinked?<div className="panel portal-empty"><h2>Perfil ainda não vinculado.</h2><p>Sua conta está ativa, mas o perfil de paciente ainda precisa ser associado pela equipe responsável.</p></div>:<>{booking.available?<PatientBooking options={booking}/>:<><section className="panel"><p className="eyebrow">Próximos atendimentos</p><h2>Sua agenda</h2><AppointmentList items={dashboard.upcoming} empty="Nenhum atendimento futuro está vinculado à sua conta."/></section><p className="notice">A solicitação de horário está temporariamente indisponível. Fale com a equipe pelos canais oficiais.</p></>}<section className="panel"><p className="eyebrow">Últimos 90 dias</p><h2>Histórico recente</h2><AppointmentList items={dashboard.recent} empty="Nenhum atendimento recente foi encontrado."/></section></>}<p className="notice context-notice">Esta área permite solicitar horários do catálogo, acompanhar a análise e cancelar os próprios atendimentos. Prontuário, prescrições e mensagens clínicas não estão disponíveis neste módulo.</p></section></main><SiteFooter/></>;
+  return <>
+    <PageHeader eyebrow="Atendimento" title="Meu acompanhamento" description="Consulte os atendimentos vinculados com segurança à sua conta e solicite horários do catálogo."/>
+    <div className="patient-dashboard app-stack">{!dashboard.profileLinked?<div className="panel portal-empty"><h2>Perfil ainda não vinculado.</h2><p>Sua conta está ativa, mas o perfil de paciente ainda precisa ser associado pela equipe responsável.</p></div>:<>{booking.available?<PatientBooking options={booking}/>:<><section className="panel"><p className="eyebrow">Próximos atendimentos</p><h2>Sua agenda</h2><AppointmentList items={dashboard.upcoming} empty="Nenhum atendimento futuro está vinculado à sua conta."/></section><p className="notice">A solicitação de horário está temporariamente indisponível. Fale com a equipe pelos canais oficiais.</p></>}<section className="panel"><p className="eyebrow">Últimos 90 dias</p><h2>Histórico recente</h2><AppointmentList items={dashboard.recent} empty="Nenhum atendimento recente foi encontrado."/></section></>}<p className="notice context-notice">Esta área permite solicitar horários do catálogo, acompanhar a análise e cancelar os próprios atendimentos. Prontuário, prescrições e mensagens clínicas não estão disponíveis neste módulo.</p></div>
+  </>;
 }
 

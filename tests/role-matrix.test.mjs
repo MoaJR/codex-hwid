@@ -15,10 +15,10 @@ const accepts=(role,permission,resource={})=>can(actorFor(role),permission,resou
 const moduleIds=roles=>modulesForRoles(roles).map(module=>module.id);
 
 const expectedAccess={
-  PATIENT:{modules:['patient','account'],label:'Paciente'},
-  DOCTOR:{modules:['schedule','content','account'],label:'Médico'},
-  SECRETARY:{modules:['schedule','account'],label:'Secretaria'},
-  ADMIN:{modules:['content','admin','account'],label:'Administrador'},
+  PATIENT:{modules:['overview','patient','account'],label:'Paciente'},
+  DOCTOR:{modules:['overview','schedule','content','account'],label:'Médico'},
+  SECRETARY:{modules:['overview','schedule','account'],label:'Secretaria'},
+  ADMIN:{modules:['overview','content','admin','account'],label:'Administrador'},
 };
 const roles=Object.keys(expectedAccess);
 
@@ -157,8 +157,8 @@ test('papel ausente, desconhecido ou permissão não listada negam por padrão',
 });
 
 test('conta com vários papéis recebe a união dos módulos',()=>{
-  assert.deepEqual(moduleIds(['DOCTOR','ADMIN']),['schedule','content','admin','account']);
-  assert.deepEqual(moduleIds(['PATIENT','SECRETARY']),['patient','schedule','account']);
-  assert.deepEqual(moduleIds(['PATIENT','ROLE_DESCONHECIDO']),['patient','account']);
+  assert.deepEqual(moduleIds(['DOCTOR','ADMIN']),['overview','schedule','content','admin','account']);
+  assert.deepEqual(moduleIds(['PATIENT','SECRETARY']),['overview','patient','schedule','account']);
+  assert.deepEqual(moduleIds(['PATIENT','ROLE_DESCONHECIDO']),['overview','patient','account']);
 });
 

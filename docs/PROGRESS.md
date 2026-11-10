@@ -1,5 +1,12 @@
 # Progresso — 09/11/2026
 
+## Dashboard unificado com menu lateral — 10/11/2026
+- Todas as áreas autenticadas passaram a viver sob `/painel/*` com uma única casca (`src/app/painel/layout.tsx` + `src/components/dashboard/app-shell.tsx`): menu lateral fixo a partir de 901 px e gaveta no mobile, com `aria-expanded`, `aria-controls`, Escape, foco devolvido ao acionador e conteúdo de fundo `inert`.
+- Rotas movidas: `/medico/agenda` → `/painel/agenda`, `/medico/conteudos[/novo|/[id]]` → `/painel/conteudos[...]`, `/admin` → `/painel/administracao`, `/conta` → `/painel/conta`, `/paciente` → `/painel/acompanhamento`. As antigas respondem 308 por `next.config.mjs`; as APIs `/api/*` não mudaram.
+- **Três perfis de interface** (`profileForRoles`): Médico e administrador, Secretaria e Paciente. A unificação é de apresentação: enum `Role`, `UserRole`, `policy.mjs` e provisionamento ficaram intactos e `ADMIN` isolado continua sem agenda.
+- Menu derivado de `navigationForRoles` (mesma fonte dos cartões da visão geral), com `.app-*` em `globals.css` usando apenas tokens novos (`--sidebar-width`, `--topbar-height`, `--app-content-max`, `--z-sidebar`). Sem dark mode.
+- **Validação executada em 10/11/2026:** `npm test` **184/184**, `npm run typecheck` saída 0, `npm run build:next` concluído e conferência HTTP no build local: titular recebe `Visão geral, Agenda, Conteúdos, Administração, Minha conta`; secretária `Visão geral, Agenda, Minha conta`; paciente `Visão geral, Meu acompanhamento, Minha conta`, com 307 nas rotas negadas. Playwright com navegador **não pôde rodar** neste ambiente (`libnspr4.so` ausente); os specs que não exigem navegador passaram, incluindo o novo redirect 308.
+
 ## Transparência da solicitação de horário publicada em `/privacidade` — 10/11/2026
 - A página `/privacidade` deixou de dizer apenas que “pacientes consultam somente os próprios atendimentos” e passou a descrever a operação real da 5B: o paciente consulta os próprios atendimentos, **solicita horários do catálogo**, acompanha a análise da equipe, pode retirar a solicitação antes da decisão e cancela o próprio atendimento confirmado.
 - O texto declara que **a solicitação não reserva o horário** e que a confirmação depende da aprovação da equipe, e registra que o pedido guarda serviço, horário desejado, estado da análise e autoria da decisão — sem motivo, texto livre ou anexo —, coerente com `docs/PRIVACY.md` §2.
@@ -217,6 +224,17 @@
 - Smoke dos portais: home, `/agendar`, blog, API pública e health responderam 200; `/agendar` exibiu o gateway real sem texto demonstrativo; `/demonstracao.html` retornou 404; `/painel`, `/paciente` e `/admin` anônimos terminaram em `/login`. A janela verificada não apresentou erros de runtime.
 - Smoke 4C: `/conta` anônimo terminou em `/login`; `/api/auth/list-sessions` e `/api/auth/change-password` responderam 404; a rota própria rejeitou GET com 405; runtime permaneceu sem erros.
 - Smoke local 4D: a nova rota rejeitou GET, origem externa e corpo fora do contrato; com origem canônica e autenticação desabilitada falhou fechado em 503. O build Next.js incluiu `/api/account/password`. O aceite autenticado passou a ser automatizado em `npm run e2e:account`, executado no PostgreSQL local em 25/10/2026.
+
+- Painel administrativo `/admin` (frontend, 09/11/2026): indicadores editoriais por status, fluxo com percentuais, alcances da conta derivados de `can()`, conteúdos recentes com lista expansível e limites de acesso. Sem mudança de backend, schema ou permissões. Validado com `tests/admin-panel.test.mjs` e `tests/e2e/roles.spec.ts` (10/10 em desktop e mobile, local).
+
+## Passada de qualidade do frontend — 09/11/2026
+- **Overflow real corrigido em 320–390 px** (sem mudança de backend, schema ou permissões): `.portal-grid`/`.portal-card` em `/painel`, `.patient-booking` em `/paciente`, `.editorial-list-item` em `/medico/conteudos`, `.form-grid` com `select` largo e o `h1` de `.page-intro` com palavra longa ("acompanhamento."). Correções só em `src/app/globals.css`, com `min-width:0`, `minmax(0,1fr)`, `overflow-wrap` e `font-size` reduzido abaixo de 400 px.
+- **Novos specs Playwright:** `tests/e2e/admin-responsive.spec.ts` (6 larguras, alvo de 44 px e foco em `/admin`), `tests/e2e/portals-responsive.spec.ts` (`/painel`, `/paciente`, `/conta`, `/medico/agenda`, `/medico/conteudos`, h1 único, overflow, alvos de toque e console) e `tests/e2e/a11y-structure.spec.ts` (idioma, landmarks, skip link, nomes acessíveis, labels, alt, hierarquia de headings, `tabindex` e foco em 9 páginas públicas). Auditoria estrutural sem axe: não substitui revisão com leitor de tela.
+- **Contrato da 5B:** `tests/appointment-request-contract.test.mjs` exige, nas cinco mutações, POST único, `force-dynamic`, origem validada antes da sessão, limite de taxa e erro traduzido; a criação exige `Idempotency-Key` e não aceita identidade do cliente.
+- **Specs de console:** o rastreio de erros passou a começar depois do login, porque o `429` do limite de autenticação não é defeito das páginas.
+- **Revisão estática:** sem `<img>`, sem `dangerouslySetInnerHTML`, sem `include:` amplo em consultas; `use client` só em 8 componentes interativos. `npm run privacy:check` (local, somente leitura) retornou `ready`.
+- **Dívida registrada, não alterada:** o SVG `Botanical` em `src/components/site/site-shell.tsx` ainda tem quatro hex verdes fora de `tokens.css`; trocar exige decisão de design.
+- D1–D6 e D7 não foram tocadas. Nada de commit, push, deploy ou migration.
 
 ## Próximos passos
 Obter a aprovação da retenção da nova tabela (D7) e informar o canal oficial do titular para que `/privacidade` deixe de exibir o campo em confirmação. Dados clínicos reais continuam bloqueados até lá. Os aceites da 5A e da 5B estão registrados em `docs/E2E_5A_ROLES.md`, sempre em loopback e com identidades fictícias.

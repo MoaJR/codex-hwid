@@ -45,7 +45,7 @@ export async function requireSchedulingApi(permission:string):Promise<Scheduling
 export async function requireSchedulingPage(permission:string):Promise<{context:AuthenticatedContext;doctor:SchedulingDoctor}>{
   const context=await getSessionContext();
   if(context.state==='anonymous')redirect('/login');
-  if(context.state==='unavailable')redirect('/conta');
+  if(context.state==='unavailable')redirect('/painel/conta');
   try{
     const doctor=await resolveDoctor(context);
     if(!doctor)throw new Error('scope');

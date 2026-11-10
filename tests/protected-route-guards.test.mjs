@@ -11,12 +11,12 @@ const read=path=>readFile(new URL(path,root),'utf8');
 
 const protectedPages=[
   {file:'src/app/painel/page.tsx',guard:'await requirePanelPage();'},
-  {file:'src/app/paciente/page.tsx',guard:'await requirePatientPage();'},
-  {file:'src/app/admin/page.tsx',guard:"await requirePermissionPage('settings.manage');"},
-  {file:'src/app/medico/agenda/page.tsx',guard:"await requireSchedulingPage('appointment.read');"},
-  {file:'src/app/medico/conteudos/page.tsx',guard:"await requireEditorialPage('content.read');"},
-  {file:'src/app/medico/conteudos/novo/page.tsx',guard:"await requireEditorialPage('content.write');"},
-  {file:'src/app/medico/conteudos/[id]/page.tsx',guard:"await requireEditorialPage('content.read');"},
+  {file:'src/app/painel/acompanhamento/page.tsx',guard:'await requirePatientPage();'},
+  {file:'src/app/painel/administracao/page.tsx',guard:"await requirePermissionPage('settings.manage');"},
+  {file:'src/app/painel/agenda/page.tsx',guard:"await requireSchedulingPage('appointment.read');"},
+  {file:'src/app/painel/conteudos/page.tsx',guard:"await requireEditorialPage('content.read');"},
+  {file:'src/app/painel/conteudos/novo/page.tsx',guard:"await requireEditorialPage('content.write');"},
+  {file:'src/app/painel/conteudos/[id]/page.tsx',guard:"await requireEditorialPage('content.read');"},
 ];
 
 const protectedApis=[
@@ -83,7 +83,7 @@ test('toda API protegida aplica o guarda correto e valida a origem das mutaçõe
 
 test('área do paciente resolve o titular pelo userId da sessão e projeta metadados mínimos',async()=>{
   const [page,dashboard]=await Promise.all([
-    read('src/app/paciente/page.tsx'),
+    read('src/app/painel/acompanhamento/page.tsx'),
     read('src/modules/account/patient-dashboard.ts'),
   ]);
   assert.match(page,/await requirePatientPage\(\);/);
@@ -135,7 +135,7 @@ test('retirada e cancelamento exigem versão e preservam o histórico',async()=>
 });
 
 test('administração não consulta agenda, paciente ou prontuário',async()=>{
-  const source=await read('src/app/admin/page.tsx');
+  const source=await read('src/app/painel/administracao/page.tsx');
   assert.match(source,/await requirePermissionPage\('settings\.manage'\);/);
   assert.match(source,/listEditorialArticles\(\)/);
   assert.doesNotMatch(source,/getPatientDashboard|listSchedulingWorkspace|createAppointment|medical_record|patientId/);
@@ -144,9 +144,9 @@ test('administração não consulta agenda, paciente ou prontuário',async()=>{
 
 test('cada card do painel aponta para uma página implementada e protegida',async()=>{
   const modules=modulesForRoles(['PATIENT','DOCTOR','SECRETARY','ADMIN']);
-  assert.deepEqual(modules.map(module=>module.id),['patient','schedule','content','admin','account']);
+  assert.deepEqual(modules.map(module=>module.id),['overview','patient','schedule','content','admin','account']);
   for(const module of modules){
-    assert.match(module.href,/^\/[a-z]+(?:\/[a-z]+)?$/,`href inválido em ${module.id}`);
+    assert.match(module.href,/^\/painel(?:\/[a-z]+)?$/,`href inválido em ${module.id}`);
     assert.ok(module.title.length>0&&module.description.length>0,`card ${module.id} sem texto real`);
     const pagePath=`src/app${module.href}/page.tsx`;
     await access(new URL(pagePath,root));

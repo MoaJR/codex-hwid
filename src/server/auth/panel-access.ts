@@ -9,7 +9,7 @@ type Resource={patientUserId?:string;assignedDoctorUserIds?:string[];appointment
 export async function requirePanelPage():Promise<AuthenticatedContext>{
   const context=await getSessionContext();
   if(context.state==='anonymous')redirect('/login');
-  if(context.state==='unavailable')redirect('/conta');
+  if(context.state==='unavailable')redirect('/painel/conta');
   return context;
 }
 

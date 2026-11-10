@@ -8,7 +8,7 @@ type AuthenticatedContext=Extract<SessionContext,{state:'authenticated'}>;
 export async function requireEditorialPage(permission:string):Promise<AuthenticatedContext>{
   const context=await getSessionContext();
   if(context.state==='anonymous')redirect('/login');
-  if(context.state==='unavailable')redirect('/conta');
+  if(context.state==='unavailable')redirect('/painel/conta');
   let allowed=true;try{authorizeSession(context,permission);}catch{allowed=false;}
   if(!allowed)redirect('/painel');
   return context;

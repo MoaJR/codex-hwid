@@ -180,3 +180,9 @@ equivalente exato, sem mudança de rendering: `#fff`/`#ffffff` → `--color-surf
 entrada da `legacyAllowlist` que não exista mais no CSS, para a lista não voltar a crescer por
 inércia. A onda 2 (brancos translúcidos e azuis claros) exige decisão de escala de alfa/tints e
 revisão visual por tela.
+
+## 11. Dashboard autenticado (10/11/2026)
+
+- Casca em `src/components/dashboard/app-shell.tsx` (menu lateral fixo ≥ 901px; gaveta abaixo disso, com `aria-expanded`, `aria-controls`, Escape, foco devolvido ao botão e fundo `inert`). Cabeçalho de página em `page-header.tsx`; ícones SVG decorativos em `icons.tsx`.
+- Tokens novos em `tokens.css`: `--sidebar-width`, `--topbar-height`, `--app-content-max`, `--z-sidebar`. Estilos `.app-*` em `globals.css` usam apenas tokens, sem hex novo.
+- Menu em azul profundo com texto claro e item ativo marcado por `aria-current` e barra, além da cor. Sem dark mode.

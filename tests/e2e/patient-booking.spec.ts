@@ -21,7 +21,7 @@ function pendingPanel(page: Page){
  * retira antes de começar, mantendo a suíte idempotente.
  */
 async function clearPending(page: Page){
-  await page.goto('/paciente', {waitUntil: 'domcontentloaded'});
+  await page.goto('/painel/acompanhamento', {waitUntil: 'domcontentloaded'});
   const panel = pendingPanel(page);
   for(let attempt = 0; attempt < 5; attempt++){
     const withdraw = panel.getByRole('button', {name: /^Retirar solicitação/});
@@ -66,14 +66,14 @@ test('paciente vê a solicitação de horário, retira a pendência e mantém a 
     await expect(page.getByText('Nenhum horário livre nesta janela')).toBeVisible();
   }
 
-  expect(errors, `erros de console em /paciente: ${errors.join(' | ')}`).toEqual([]);
+  expect(errors, `erros de console em /painel/acompanhamento: ${errors.join(' | ')}`).toEqual([]);
 });
 
 test('paciente não acessa rotas de equipe nem endpoints administrativos', async ({page}) => {
   const accounts = await loadLocalAccounts();
   test.skip(!accounts?.PATIENT, missingAccounts);
   await signIn(page, accounts!.PATIENT);
-  await page.goto('/medico/agenda');
+  await page.goto('/painel/agenda');
   await expect(page).toHaveURL(/\/painel$/);
   const agenda = await page.request.get('/api/medico/appointment-requests');
   expect(agenda.status()).toBe(403);

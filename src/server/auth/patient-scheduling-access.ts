@@ -46,7 +46,7 @@ export async function requirePatientSchedulingApi(permission:string):Promise<Pat
 export async function requirePatientSchedulingPage(permission:string):Promise<{context:AuthenticatedContext;scope:PatientSchedulingScope}>{
   const context=await getSessionContext();
   if(context.state==='anonymous')redirect('/login');
-  if(context.state==='unavailable')redirect('/conta');
+  if(context.state==='unavailable')redirect('/painel/conta');
   try{
     const scope=await resolveScope(context);
     if(!scope)throw new Error('scope');

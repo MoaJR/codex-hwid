@@ -1,6 +1,6 @@
 import type {Metadata} from 'next';
 import Link from 'next/link';
-import {SiteFooter,SiteHeader} from '@/components/site/site-shell';
+import {PageHeader} from '@/components/dashboard/page-header';
 import {labelsForRoles} from '@/modules/account/panel-access.mjs';
 import {listEditorialArticles,type ArticleStatus} from '@/modules/content/store';
 import {can} from '@/server/authorization';
@@ -29,7 +29,7 @@ export default async function AdminPage(){
   const canEdit=can(actor,'content.write');
   // Agenda, paciente e prontuário nunca vêm do papel administrativo. A checagem
   // abaixo avalia somente ADMIN, com o próprio usuário como recurso: quando a
-  // conta também é médico, a agenda abre pelo papel DOCTOR em /medico/agenda.
+  // conta também é médico, a agenda abre pelo papel DOCTOR em /painel/agenda.
   const scopes=[
     {id:'edit',title:'Preparar e editar rascunhos',detail:'Criar e alterar conteúdos antes da revisão.',allowed:can(actor,'content.write')},
     {id:'review',title:'Enviar para revisão',detail:'Mover um rascunho para a fila de revisão editorial.',allowed:can(actor,'content.submit_review')},
@@ -39,19 +39,9 @@ export default async function AdminPage(){
   ];
   const recent=articles.slice(0,RECENT_LIMIT);
   const remaining=articles.slice(RECENT_LIMIT);
-  return <><SiteHeader/><main id="main-content">
-    <section className="page-intro container">
-      <span className="eyebrow">Administração</span>
-      <h1>Painel administrativo.</h1>
-      <p>Indicadores do conteúdo editorial e os limites reais desta conta. Agenda, pacientes e prontuário não fazem parte deste módulo.</p>
-      <div className="admin-badges" aria-label="Perfis vinculados à conta">{roles.map(role=><span className="status-badge" key={role}>{role}</span>)}</div>
-      <div className="form-actions">
-        <Link className="button" href="/medico/conteudos">Gerenciar conteúdos</Link>
-        <Link className="button button-outline" href="/blog">Ver blog público</Link>
-        <Link className="button button-outline" href="/painel">Voltar ao painel</Link>
-      </div>
-    </section>
-    <section className="container section admin-shell">
+  return <>
+    <PageHeader eyebrow="Gestão" title="Administração" description="Indicadores do conteúdo editorial e os limites reais desta conta. Agenda, pacientes e prontuário não fazem parte deste módulo." meta={<div className="admin-badges" aria-label="Perfis vinculados à conta">{roles.map(role=><span className="status-badge" key={role}>{role}</span>)}</div>} actions={<><Link className="button" href="/painel/conteudos">Gerenciar conteúdos</Link><Link className="button button-outline" href="/blog">Ver blog público</Link></>}/>
+    <section className="admin-shell">
       <section className="admin-block" aria-labelledby="admin-overview-title">
         <div className="admin-section-head">
           <h2 id="admin-overview-title">Visão editorial</h2>
@@ -71,7 +61,7 @@ export default async function AdminPage(){
           {total===0?(
             <div className="admin-empty">
               <p>Nenhum conteúdo cadastrado ainda. O primeiro rascunho inicia o fluxo editorial.</p>
-              {canEdit&&<Link className="button" href="/medico/conteudos/novo">Criar primeiro rascunho</Link>}
+              {canEdit&&<Link className="button" href="/painel/conteudos/novo">Criar primeiro rascunho</Link>}
             </div>
           ):(
             <>
@@ -109,23 +99,23 @@ export default async function AdminPage(){
             {recent.map(article=><article className="admin-article" key={article.id}>
               <div className="admin-article-main">
                 <span className={`status-badge status-${article.status.toLowerCase()}`}>{statusSingular[article.status]}</span>
-                <h3><Link href={`/medico/conteudos/${article.id}`}>{article.title}</Link></h3>
+                <h3><Link href={`/painel/conteudos/${article.id}`}>{article.title}</Link></h3>
                 <p className="admin-article-meta">{article.category} · versão {article.version} · atualizado em {dateTime.format(new Date(article.updatedAt))}</p>
               </div>
               <div className="admin-article-actions">
                 {article.status==='PUBLISHED'&&<Link className="text-link" href={`/blog/${article.slug}`}>Ver no site <span aria-hidden="true">→</span></Link>}
-                <Link className="text-link" href={`/medico/conteudos/${article.id}`}>Abrir <span aria-hidden="true">→</span></Link>
+                <Link className="text-link" href={`/painel/conteudos/${article.id}`}>Abrir <span aria-hidden="true">→</span></Link>
               </div>
             </article>)}
           </div>
           {total===0&&<div className="admin-empty">
             <p>Nenhum conteúdo cadastrado. O blog público continua exibindo o que já está publicado.</p>
-            {canEdit&&<Link className="button" href="/medico/conteudos/novo">Criar rascunho</Link>}
+            {canEdit&&<Link className="button" href="/painel/conteudos/novo">Criar rascunho</Link>}
           </div>}
           {remaining.length>0&&<details className="admin-disclosure">
             <summary>Ver todos os {total} conteúdos</summary>
             <ul className="admin-disclosure-list">
-              {remaining.map(article=><li key={article.id}><span className={`status-badge status-${article.status.toLowerCase()}`}>{statusSingular[article.status]}</span><Link href={`/medico/conteudos/${article.id}`}>{article.title}</Link><span className="admin-disclosure-meta">{dateTime.format(new Date(article.updatedAt))}</span></li>)}
+              {remaining.map(article=><li key={article.id}><span className={`status-badge status-${article.status.toLowerCase()}`}>{statusSingular[article.status]}</span><Link href={`/painel/conteudos/${article.id}`}>{article.title}</Link><span className="admin-disclosure-meta">{dateTime.format(new Date(article.updatedAt))}</span></li>)}
             </ul>
           </details>}
         </section>
@@ -137,11 +127,11 @@ export default async function AdminPage(){
           <p>Esta área reúne apenas conteúdo editorial e as configurações autorizadas. O perfil administrativo pode preparar conteúdos; a publicação no site continua exclusiva do médico titular.</p>
           <p>Agenda, dados de pacientes e prontuário não são liberados por herança administrativa.</p>
           <div className="admin-aside-actions">
-            <Link className="button button-outline" href="/conta">Segurança da conta</Link>
-            <Link className="button button-outline" href="/painel">Módulos do painel</Link>
+            <Link className="button button-outline" href="/painel/conta">Segurança da conta</Link>
+            <Link className="button button-outline" href="/painel">Visão geral</Link>
           </div>
         </aside>
       </div>
     </section>
-  </main><SiteFooter/></>;
+  </>;
 }

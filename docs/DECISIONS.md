@@ -155,3 +155,11 @@ Decisões operacionais registradas: no máximo uma pendência ativa por paciente
 
 A retenção da nova tabela foi proposta em `docs/PRIVACY.md` como **D7** (5 anos após a decisão) e permanece **pendente de aprovação** do responsável; `retention:apply` apenas reporta as pendências expiradas e não apaga solicitações, consultas ou auditoria.
 
+
+## 2026-11-10 — Dashboard unificado com menu lateral e três perfis de interface
+
+**Contexto.** O painel era uma grade de cartões e cada área (`/admin`, `/medico/*`, `/conta`, `/paciente`) era uma página isolada com cabeçalho e rodapé do site público. O titular é a mesma pessoa em `DOCTOR` e `ADMIN`.
+
+**Escolha.** (1) Todas as áreas autenticadas passam a viver sob `/painel/*` dentro de um dashboard com menu lateral único (gaveta no mobile), alimentado por `navigationForRoles`. (2) A interface expõe três perfis — Médico e administrador, Secretaria e Paciente — derivados dos papéis gravados (`profileForRoles`). (3) As rotas antigas redirecionam com 308 para as novas.
+
+**Consequências.** A unificação é **somente de apresentação**: `Role`, `UserRole`, `policy.mjs`, provisionamento e guards server-side não mudaram; `ADMIN` isolado continua sem agenda por herança e o acesso à agenda do titular vem de `DOCTOR`. Fundir os papéis no banco (3 valores no enum) fica **pendente de decisão formal** e de migration própria. Não há dark mode: os componentes usam tokens (`--sidebar-width`, `--topbar-height`, `--z-sidebar`) para permitir a evolução.

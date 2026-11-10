@@ -1,16 +1,23 @@
 import type {Metadata} from 'next';
 import Link from 'next/link';
-import {SiteHeader,SiteFooter} from '@/components/site/site-shell';
-import {SignOutButton} from '@/components/auth/sign-out-button';
-import {labelsForRoles,modulesForRoles} from '@/modules/account/panel-access.mjs';
+import {Icon} from '@/components/dashboard/icons';
+import {PageHeader} from '@/components/dashboard/page-header';
+import {labelsForRoles,modulesForRoles,profileLabelForRoles} from '@/modules/account/panel-access.mjs';
 import {requirePanelPage} from '@/server/auth/panel-access';
 
 export const dynamic='force-dynamic';
-export const metadata:Metadata={title:'Painel | Dr. Douglas Vaz',robots:{index:false,follow:false}};
+export const metadata:Metadata={title:'Visão geral | Dr. Douglas Vaz',robots:{index:false,follow:false}};
 
 export default async function PanelPage(){
   const context=await requirePanelPage();
-  const modules=modulesForRoles(context.actor.roles);
+  const modules=modulesForRoles(context.actor.roles).filter(module=>module.id!=='overview');
+  const profile=profileLabelForRoles(context.actor.roles);
   const roles=labelsForRoles(context.actor.roles);
-  return <><SiteHeader/><main id="main-content"><section className="page-intro container"><span className="eyebrow">Área segura</span><h1>Olá, {context.user.name}.</h1><p>Acesse somente os módulos liberados para o seu perfil.</p><div className="portal-meta" aria-label="Perfis vinculados">{roles.map(role=><span className="status-badge" key={role}>{role}</span>)}</div></section><section className="container section"><div className="portal-grid">{modules.map(module=><Link className="panel portal-card" href={module.href} key={module.id}><span className="portal-card-icon" aria-hidden="true">{module.symbol}</span><div><h2>{module.title}</h2><p>{module.description}</p><span className="text-link">Abrir módulo <span aria-hidden="true">→</span></span></div></Link>)}</div>{modules.length===0&&<div className="panel portal-empty"><h2>Nenhum módulo vinculado.</h2><p>Sua conta está autenticada, mas ainda não possui um perfil operacional. Procure a equipe responsável pelo acesso.</p><Link className="button button-outline" href="/conta">Abrir minha conta</Link></div>}<div className="portal-signout"><SignOutButton/></div></section></main><SiteFooter/></>;
+  const firstName=context.user.name.trim().split(/\s+/)[0]||context.user.name;
+  return <>
+    <PageHeader eyebrow="Visão geral" title={`Olá, ${firstName}.`} description="Acesse os módulos liberados para o seu perfil." meta={<>{profile&&<span className="status-badge">{profile}</span>}<span className="visually-hidden">Papéis vinculados: {roles.join(', ')}</span></>}/>
+    {modules.length>0
+      ?<ul className="app-module-grid" aria-label="Módulos disponíveis">{modules.map(module=><li key={module.id}><Link className="app-module-card" href={module.href}><span className="app-module-icon"><Icon name={module.icon} size={22}/></span><span className="app-module-text"><strong>{module.title}</strong><span>{module.description}</span></span><span className="app-module-arrow" aria-hidden="true">→</span></Link></li>)}</ul>
+      :<div className="app-card app-empty"><h2>Nenhum módulo vinculado.</h2><p>Sua conta está autenticada, mas ainda não possui um perfil operacional. Procure a equipe responsável pelo acesso.</p><Link className="button button-outline" href="/painel/conta">Abrir minha conta</Link></div>}
+  </>;
 }

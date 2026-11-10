@@ -118,6 +118,12 @@
   --z-overlay: 200;
   --z-modal: 300;
   --z-toast: 400;
+  --z-sidebar: 250;
+
+  /* --- Layout do painel (dashboard) ------------------------------------ */
+  --sidebar-width: 272px;
+  --topbar-height: 56px;
+  --app-content-max: 1120px;
 
   /* --- Movimento ------------------------------------------------------- */
   --motion-fast: 150ms;

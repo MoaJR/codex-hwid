@@ -77,7 +77,7 @@ Prisma Postgres `prisma-postgres-yellow-helmet` confirmado pela API da Vercel co
 Fase atual: 5A aceita com evidência local e 5B implementada com solicitação aprovada pela equipe. Login, CMS, agenda operacional interna, solicitação de horário pelo paciente e o fluxo próprio de troca de senha estão implementados. O painel do paciente permite solicitar horário do catálogo, retirar a própria pendência e cancelar o próprio atendimento; o painel administrativo mostra apenas recursos editoriais autorizados, sem agenda, pacientes ou prontuário. Os próximos aceites são a bateria autenticada no navegador, a fila de solicitações com aprovação e recusa no build local e a decisão de retenção D7; dados clínicos reais continuam bloqueados.
 
 ## Autenticação e portais — marcos 4B/4D
-`/login`, `/painel` e `/conta` usam Better Auth. Após login, `/painel` apresenta os módulos permitidos pelos papéis `PATIENT`, `DOCTOR`, `SECRETARY` e `ADMIN`. A conta permite encerrar os outros acessos ativos e alterar a própria senha. Provisionamento e segurança da conta deixam eventos de auditoria sem conteúdo clínico. O acesso permanece desabilitado por padrão fora do ambiente configurado e as APIs falham fechadas enquanto não configurado. Não há conta/senha padrão ou cadastro público.
+`/login`, `/painel` e `/painel/conta` usam Better Auth. Após login, `/painel` apresenta os módulos permitidos pelos papéis `PATIENT`, `DOCTOR`, `SECRETARY` e `ADMIN`. A conta permite encerrar os outros acessos ativos e alterar a própria senha. Provisionamento e segurança da conta deixam eventos de auditoria sem conteúdo clínico. O acesso permanece desabilitado por padrão fora do ambiente configurado e as APIs falham fechadas enquanto não configurado. Não há conta/senha padrão ou cadastro público.
 
 ```sh
 npm run auth:check
@@ -89,7 +89,7 @@ Contas são provisionadas somente em terminal confiável; a senha é solicitada 
 npm run auth:provision -- --email usuario@exemplo.com --name "Nome" --role DOCTOR --confirm PROVISIONAR
 ```
 
-Para criar um administrador, use uma identidade própria e o papel `ADMIN`. Esse perfil acessa `/admin` e o CMS editorial, mas não recebe agenda ou prontuário:
+Para criar um administrador, use uma identidade própria e o papel `ADMIN`. Esse perfil acessa `/painel/administracao` e o CMS editorial, mas não recebe agenda ou prontuário:
 
 ```sh
 npm run auth:provision -- --email ADMIN_EMAIL --name "Administrador" --role ADMIN --confirm PROVISIONAR
@@ -102,4 +102,4 @@ Na Vercel, `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` e `AUTH_ENABLED=true` estão 
 A integração Vercel já tem acesso à equipe `moajrs-projects`. O projeto, o storage e os nomes das variáveis foram verificados sem descriptografar secrets. Em `/conta`, o usuário pode encerrar os outros acessos ativos e alterar a própria senha; a sessão atual é preservada e as ações são auditadas sem expor tokens ou detalhes de dispositivo.
 
 ## CMS editorial — marco 3B
-Após login, médicos e administradores autorizados acessam `/medico/conteudos`. O fluxo usa rascunho, revisão, publicação e arquivamento reversível. Administradores podem escrever e enviar para revisão; somente o papel `DOCTOR` publica ou retira um texto publicado. Toda mutação exige origem canônica, usa controle de versão e grava ator, ação e artigo na auditoria. O conteúdo é renderizado como texto/blocos React, sem HTML arbitrário.
+Após login, médicos e administradores autorizados acessam `/painel/conteudos`. O fluxo usa rascunho, revisão, publicação e arquivamento reversível. Administradores podem escrever e enviar para revisão; somente o papel `DOCTOR` publica ou retira um texto publicado. Toda mutação exige origem canônica, usa controle de versão e grava ator, ação e artigo na auditoria. O conteúdo é renderizado como texto/blocos React, sem HTML arbitrário.

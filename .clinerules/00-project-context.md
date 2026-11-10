@@ -27,6 +27,7 @@ Se houver conflito, siga nesta ordem: decisão mais recente em `DECISIONS.md` �
 ## Estado e escopo atual
 - Next.js App Router, React e TypeScript; monólito modular.
 - Prisma + PostgreSQL; Better Auth; deploy na Vercel.
+- Áreas autenticadas vivem sob `/painel/*` em um dashboard de menu lateral único (`src/app/painel/layout.tsx`); `/admin`, `/conta`, `/paciente` e `/medico/*` respondem 308 para o equivalente em `/painel/*` (`next.config.mjs`).
 - Produto atual: site público, identidade e sessão, `/painel`, portal do paciente (leitura da própria agenda, solicitação de horário do catálogo com aprovação da equipe e cancelamento do próprio atendimento), portal médico/secretaria para agenda, CMS editorial e área administrativa editorial.
 - Agenda operacional 5A é interna e controlada. `/agendar` não é agendamento público real.
 - Não implementar prontuário, prescrições, mensagens clínicas, documentos, uploads, pagamentos, lembretes ou autoagendamento 5B sem autorização formal e controles prévios.

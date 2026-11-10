@@ -2,12 +2,12 @@ import {test, expect} from '@playwright/test';
 
 const protectedPages = [
   '/painel',
-  '/conta',
-  '/paciente',
-  '/admin',
-  '/medico/agenda',
-  '/medico/conteudos',
-  '/medico/conteudos/novo',
+  '/painel/conta',
+  '/painel/acompanhamento',
+  '/painel/administracao',
+  '/painel/agenda',
+  '/painel/conteudos',
+  '/painel/conteudos/novo',
 ];
 
 for(const path of protectedPages){

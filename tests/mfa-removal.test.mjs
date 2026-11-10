@@ -39,7 +39,7 @@ test('sessão, autorização e configuração não dependem de MFA',async()=>{
 });
 
 test('login, conta e painel não anunciam verificação em duas etapas',async()=>{
-  for(const file of ['src/components/auth/login-form.tsx','src/app/conta/page.tsx','src/modules/account/panel-access.mjs']){
+  for(const file of ['src/components/auth/login-form.tsx','src/app/painel/conta/page.tsx','src/modules/account/panel-access.mjs']){
     const source=await read(file);
     assert.doesNotMatch(source,/twoFactor|verificar-acesso|duas etapas/i,file);
     assert.doesNotMatch(source,/\bMFA\b/,file);
