@@ -1,25 +1,22 @@
-# CLINE_START.md — instruções de entrada para o agente
+# CLINE_START — entrada obrigatória
 
-Leia este arquivo antes de qualquer tarefa. As regras completas estão em `.clinerules/`.
+Antes de executar qualquer tarefa:
 
-## Ordem de leitura
-1. `.clinerules/00-project-context.md`
-2. `.clinerules/13-automation-agent-safety.md`
-3. Regras específicas para a tarefa (arquitetura, UI, mobile, acessibilidade, segurança, RBAC, banco, APIs, testes).
-4. Documentos `docs/` indicados no contexto do projeto.
+1. Leia `docs/CLINE_NEXT.md` inteiro. Este arquivo informa o último estado e o próximo passo; atualize-o no encerramento.
+2. Leia `.clinerules/00-project-context.md` e `.clinerules/13-automation-agent-safety.md`.
+3. Leia as regras específicas da tarefa em `.clinerules/`.
+4. Leia `docs/PRODUCT_BASELINE.md`, `docs/VISUAL_IDENTITY.md`, `docs/UX_NAVIGATION.md` e os documentos técnicos pertinentes.
 
-## Regras críticas resumidas
-- Não ler `.env*`, não acessar banco de Produção e não usar dados reais.
-- Não implementar prontuário, prescrições, mensagens clínicas, documentos, uploads, pagamentos, lembretes ou autoagendamento 5B sem aprovação e controles.
-- D1–D6 de privacidade estão pendentes; não alterar status nem liberar Fase 5B.
-- O TOTP/2FA foi removido em 25/10/2026; documentos históricos da Fase 4 não autorizam reintroduzi-lo.
-- Autorização negada por padrão; papéis e titularidade vêm do servidor.
-- UI mobile-first, WCAG 2.2 AA como alvo, tokens globais e suporte aos temas existentes.
-- Não fazer deploy, push, commit, migrations ou mudanças remotas sem confirmação.
-- Rodar `npm test`, `npm run typecheck` e `npm run build:next` quando aplicável.
-- Ao terminar, relatar alterações, testes reais, limitações e decisões pendentes.
+## Contexto que não pode ser perdido
+- Produto exclusivo do Dr. Douglas Vaz; não é SaaS e não é multi-tenant.
+- Médico e administrador são a mesma pessoa, na mesma conta e no mesmo painel profissional. Não criar duas áreas nem seletor de papel para o titular.
+- Portal do paciente tem navegação própria e acesso estritamente aos dados do titular.
+- Painel profissional: sidebar desktop persistente/colapsável; mobile com drawer e navegação inferior quando útil.
+- Portal paciente: sidebar desktop e adaptação mobile própria.
+- Identidade oficial: azul `#0367A6`, `#023859`, `#0378A6`, `#049DBF`, cinza `#F2F2F2`; DM Sans principal e Gantari complementar. Assets originais em `docs/identidade visual/`.
+- Não criar telas para módulos inexistentes; verificar código e decisões atuais.
+- Trabalhar com autonomia nas mudanças locais solicitadas; confirmação somente para ações externas/irreversíveis e riscos reais.
+- Nunca usar segredos ou dados reais de pacientes.
 
-## Documentos essenciais
-`docs/ARCHITECTURE.md`, `docs/DATABASE.md`, `docs/DECISIONS.md`, `docs/PERMISSIONS.md`, `docs/ROUTES.md`, `docs/SECURITY.md`, `docs/PRIVACY.md`, `docs/INTEGRATIONS.md`, `docs/LOCAL_DEVELOPMENT.md`, `docs/PROGRESS.md`.
-
-Estas regras foram elaboradas a partir do pacote de documentação fornecido em 09/11/2026. Reavalie o estado do código antes de assumir que qualquer descrição histórica continua atual.
+## Critérios de entrega
+Executar os checks aplicáveis, revisar desktop e mobile, documentar alterações e atualizar `docs/CLINE_NEXT.md` com o próximo passo específico para o próximo chat.

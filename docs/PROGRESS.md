@@ -1,5 +1,15 @@
 # Progresso — 09/11/2026
 
+## Navegação do painel: sidebar recolhível e barra inferior mobile — 11/11/2026
+- Auditoria da casca já entregue em 10/11 (`src/app/painel/layout.tsx` + `src/components/dashboard/app-shell.tsx`): menu único, perfis e redirects 308 estavam prontos; faltavam três itens previstos em `docs/UX_NAVIGATION.md` e `.clinerules/03` — sidebar **colapsável** com tooltip e rótulos acessíveis, **título da seção** na topbar e **barra inferior** opcional no mobile.
+- Modelo puro em `src/modules/account/panel-access.mjs`: `shortTitle` nos módulos, `mobileNavigationForRoles` (até três destinos + `hasMore`; `admin` nunca entra na barra) e `sectionForPath` (rota exata vence, aninhada usa o prefixo mais específico, `/painel` só casa exato). Nenhuma mudança em `Role`, `UserRole`, `policy.mjs`, schema ou provisionamento: é apresentação, os guards continuam nas páginas e APIs.
+- `AppShell`: `data-collapsed` troca `--sidebar-current-width` (272 px ↔ 76 px) e o `.app-body` acompanha; a preferência fica em `localStorage` e é aplicada **depois** da hidratação (`data-ready`), então não há atributo divergente no HTML nem animação no carregamento. Recolhida, os rótulos são clipados (seguem na árvore de acessibilidade e na busca por texto), o `title` funciona como tooltip nativa e o wordmark dá lugar ao monograma "DV". O botão "Sair da conta" recebeu `<span>` no rótulo para poder ser clipado sem perder o nome acessível.
+- Topbar mobile passa a exibir a seção atual; a barra inferior tem `aria-label` próprio ("Navegação rápida do painel") para não colidir com o menu principal, `aria-current`, indicador além da cor, alvos de 44 px, `env(safe-area-inset-bottom)` e o botão "Mais opções do menu", que reutiliza a gaveta. A barra some com a gaveta aberta e o conteúdo reserva `--app-bottom-nav-height`.
+- Tokens novos em `src/styles/tokens.css`: `--sidebar-width-collapsed: 76px` e `--app-bottom-nav-height: 60px`; nenhum hex novo.
+- Documentação atualizada: `docs/UX_NAVIGATION.md` (seção "Estado implementado"), `docs/DESIGN_SYSTEM.md §11`, `docs/ARCHITECTURE.md` (as rotas `/paciente` e `/admin` descritas como atuais foram corrigidas para `/painel/acompanhamento` e `/painel/administracao`), `docs/ROUTES.md` (descrição da casca), `docs/DECISIONS.md` (decisão de 11/11 sobre recolhimento, topbar e barra inferior).
+- **Validação executada em 11/11/2026:** `npm test` **188/188** (três guardas novas em `tests/panel-access.test.mjs` e uma em `tests/design-tokens.test.mjs`), `npm run typecheck` saída 0 e `npm run build:next` concluído. `@playwright/test` 1.65.0 foi instalado em `node_modules` (o `package-lock.json` não mudou) e o Chromium 1254 baixado. Com o build final servido em `127.0.0.1:3000`, `public.spec.ts` + `a11y-structure.spec.ts` + `identity.spec.ts` + `dashboard-shell.spec.ts` terminaram em **56 passaram / 16 não aplicáveis / 0 falhas**; os 14 não aplicáveis de `dashboard-shell.spec.ts` são os aceites autenticados, que exigem `.env.local.accounts` — neste ambiente o arquivo existe apenas como `env.local.accounts` (sem o ponto inicial) e não foi lido, copiado nem renomeado.
+- **Layout verificado em navegador real** (harness local fora do repositório, com o CSS compilado e marcação equivalente à do `AppShell`): 320/360/390/768/900 px com barra inferior fixa, itens de 44 px, reserva de 108 px no conteúdo e zero overflow; 901/1024/1280/1440 px com sidebar de 272 px, conteúdo deslocado e sem barra; recolhida = 76 px, rótulo clipado em 1×1, monograma visível e zero overflow; gaveta em 320 px visível, 272 px de largura, barra oculta. O harness revelou e permitiu corrigir um defeito real: a barra inferior herdava `display:none` e não declarava `display:block` no breakpoint, ou seja, nunca apareceria.
+
 ## Dashboard unificado com menu lateral — 10/11/2026
 - Todas as áreas autenticadas passaram a viver sob `/painel/*` com uma única casca (`src/app/painel/layout.tsx` + `src/components/dashboard/app-shell.tsx`): menu lateral fixo a partir de 901 px e gaveta no mobile, com `aria-expanded`, `aria-controls`, Escape, foco devolvido ao acionador e conteúdo de fundo `inert`.
 - Rotas movidas: `/medico/agenda` → `/painel/agenda`, `/medico/conteudos[/novo|/[id]]` → `/painel/conteudos[...]`, `/admin` → `/painel/administracao`, `/conta` → `/painel/conta`, `/paciente` → `/painel/acompanhamento`. As antigas respondem 308 por `next.config.mjs`; as APIs `/api/*` não mudaram.
@@ -239,3 +249,14 @@
 ## Próximos passos
 Obter a aprovação da retenção da nova tabela (D7) e informar o canal oficial do titular para que `/privacidade` deixe de exibir o campo em confirmação. Dados clínicos reais continuam bloqueados até lá. Os aceites da 5A e da 5B estão registrados em `docs/E2E_5A_ROLES.md`, sempre em loopback e com identidades fictícias.
 Não usar dados pessoais ou de saúde reais até os controles operacionais e a política de privacidade estarem validados.
+
+---
+
+## Atualização de produto e UX — 10/11/2026
+
+- Baseline reafirmado: aplicação exclusiva do consultório do Dr. Douglas Vaz; não é SaaS nem multi-tenant.
+- Médico e administrador são a mesma pessoa e devem usar uma única conta/Área profissional.
+- Diretriz de UX: sidebar profissional no desktop, navegação adaptada no mobile; portal do paciente com navegação própria desktop/mobile.
+- Identidade visual oficial incorporada em `docs/identidade visual/` e documentada em `docs/VISUAL_IDENTITY.md`.
+- Documentos de referência adicionados: `PRODUCT_BASELINE.md`, `UX_NAVIGATION.md`, `VISUAL_IDENTITY.md`, `CLINE_NEXT.md`.
+- Próximo trabalho recomendado: auditar o código real de layouts, navegação e rotas autenticadas; mapear o que já existe versus o baseline; então implementar a shell profissional unificada e o portal do paciente responsivo, sem duplicar módulos ou inventar funcionalidades.

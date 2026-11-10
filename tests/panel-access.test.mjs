@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {labelsForRoles,modulesForRoles,navigationForRoles,profileForRoles,profileLabelForRoles} from '../src/modules/account/panel-access.mjs';
+import {labelsForRoles,mobileNavigationForRoles,modulesForRoles,navigationForRoles,profileForRoles,profileLabelForRoles,sectionForPath} from '../src/modules/account/panel-access.mjs';
 
 function moduleIds(roles){return modulesForRoles(roles).map(module=>module.id);}
 function navIds(roles){return navigationForRoles(roles).flatMap(group=>group.items.map(item=>item.id));}
@@ -80,3 +80,45 @@ test('layout do painel exige sessão e o menu não substitui os guards das pági
   assert.match(layout,/redirect\('\/login'\)/);
   assert.match(layout,/getSessionContext\(\)/);
 });
+
+test('navegação inferior do mobile usa no máximo três destinos já autorizados',()=>{
+  assert.deepEqual(mobileNavigationForRoles(['PATIENT']).items.map(item=>item.id),['overview','patient','account']);
+  assert.equal(mobileNavigationForRoles(['PATIENT']).hasMore,false);
+  assert.deepEqual(mobileNavigationForRoles(['SECRETARY']).items.map(item=>item.id),['overview','schedule','account']);
+  assert.equal(mobileNavigationForRoles(['SECRETARY']).hasMore,false);
+  assert.deepEqual(mobileNavigationForRoles(['DOCTOR']).items.map(item=>item.id),['overview','schedule','content']);
+  assert.equal(mobileNavigationForRoles(['DOCTOR']).hasMore,true);
+
+  for(const roles of [['PATIENT'],['SECRETARY'],['DOCTOR'],['DOCTOR','ADMIN'],['ADMIN']]){
+    const {items}=mobileNavigationForRoles(roles);
+    assert.ok(items.length<=3,`${roles} excede a barra inferior`);
+    const authorized=new Set(navIds(roles));
+    for(const item of items) assert.ok(authorized.has(item.id),`${item.id} não está autorizado para ${roles}`);
+    assert.equal(new Set(items.map(item=>item.id)).size,items.length);
+    // Rótulo curto é do produto, não permissão; sempre presente para caber no mobile.
+    for(const item of items) assert.equal(typeof item.shortTitle,'string');
+  }
+});
+
+test('navegação inferior não promove administração nem agenda a quem não tem a permissão',()=>{
+  for(const roles of [['PATIENT'],['SECRETARY'],['DOCTOR'],['ADMIN'],['DOCTOR','ADMIN']]){
+    const ids=mobileNavigationForRoles(roles).items.map(item=>item.id);
+    assert.ok(!ids.includes('admin'),`${roles} não pode ter administração na barra inferior`);
+    if(!roles.includes('DOCTOR')&&!roles.includes('SECRETARY')) assert.ok(!ids.includes('schedule'),`${roles} não pode ter agenda na barra inferior`);
+    if(roles.includes('PATIENT')) assert.ok(!ids.includes('schedule'));
+  }
+  assert.deepEqual(mobileNavigationForRoles(undefined),{items:[],hasMore:false});
+});
+
+test('seção atual do cabeçalho acompanha rota exata e rotas aninhadas',()=>{
+  const navigation=navigationForRoles(['DOCTOR','ADMIN']);
+  assert.equal(sectionForPath(navigation,'/painel')?.id,'overview');
+  assert.equal(sectionForPath(navigation,'/painel/agenda')?.id,'schedule');
+  assert.equal(sectionForPath(navigation,'/painel/conteudos/abc-123')?.id,'content');
+  assert.equal(sectionForPath(navigation,'/painel/conteudos/novo')?.id,'content');
+  assert.equal(sectionForPath(navigation,'/painel/desconhecido'),null);
+  assert.equal(sectionForPath(navigation,'/'),null);
+  assert.equal(sectionForPath(undefined,'/painel'),null);
+  assert.equal(sectionForPath(navigation,undefined),null);
+});
+

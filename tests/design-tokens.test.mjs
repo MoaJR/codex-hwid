@@ -130,6 +130,28 @@ test('legibilidade: piso de 12px para texto e alvos de toque no menu', async () 
   assert.match(css, /\.mobile-navigation summary\{[^}]*min-height:44px/, 'acionador do menu mobile precisa de 44px de altura');
 });
 
+test('casca do painel: sidebar recolhível e barra inferior mantêm rótulos e alvos', async () => {
+  const [tokens, css] = await Promise.all([
+    read('src/styles/tokens.css'),
+    read('src/app/globals.css'),
+  ]);
+  assert.match(tokens, /--sidebar-width-collapsed:\s*76px/, 'a sidebar recolhida precisa de largura própria');
+  assert.match(tokens, /--app-bottom-nav-height:\s*60px/);
+  assert.match(css, /\.app-shell\[data-collapsed="true"\]/, 'a casca precisa de um estado recolhido');
+  assert.match(
+    css,
+    /\.app-bottom-nav a,\.app-bottom-nav button\{[^}]*min-height:44px/,
+    'item da barra inferior precisa de 44px de altura',
+  );
+  // Recolher esconde o rótulo visualmente, mas ele continua no DOM: o nome
+  // acessível é preservado por clip, nunca por remoção do texto.
+  assert.match(
+    css,
+    /\.app-shell\[data-collapsed="true"\] \.app-nav-link span,[\s\S]*?clip:rect\(0 0 0 0\)/,
+    'rótulos recolhidos precisam ser clipados, não removidos',
+  );
+});
+
 test('tokens referenciados existem e alfa não é colado em var()', async () => {
   const [tokens, globals] = await Promise.all([
     read('src/styles/tokens.css'),

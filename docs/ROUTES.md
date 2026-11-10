@@ -17,7 +17,7 @@
 | /blog/[slug] | Artigo publicado; rascunhos retornam 404 |
 | /api/articles | Lista pública de metadados; sem escrita |
 | /login | Entrada ativa em Produção para validação controlada |
-| /painel | Visão geral do dashboard autenticado. `src/app/painel/layout.tsx` fornece o menu lateral (gaveta no mobile) com a união dos módulos permitidos pelos papéis da sessão; todas as rotas `/painel/*` compartilham essa casca |
+| /painel | Visão geral do dashboard autenticado. `src/app/painel/layout.tsx` fornece a casca (menu lateral agrupado, recolhível no desktop, gaveta no mobile e barra inferior com até três destinos frequentes); todas as rotas `/painel/*` compartilham essa casca |
 | /painel/acompanhamento | Próximos atendimentos, histórico recente, solicitação de horário do catálogo e cancelamento do próprio atendimento |
 | /painel/administracao | Painel administrativo editorial (indicadores por status, fluxo, alcances da conta, conteúdos recentes); exige `settings.manage`, sem dados clínicos, agenda ou pacientes |
 | /painel/conta | Perfil, troca de senha e encerramento de outros acessos; sem acesso clínico |
@@ -48,3 +48,11 @@
 Rotas anteriores (`/admin`, `/conta`, `/paciente`, `/medico/agenda`, `/medico/conteudos[/novo|/:id]`) respondem redirecionamento permanente (308) para o equivalente em `/painel/*`, definido em `next.config.mjs`; o redirecionamento não concede acesso, pois cada página nova mantém o guard server-side. As APIs `/api/medico/*`, `/api/paciente/*` e `/api/admin/*` não mudaram.
 
 O protótipo `/demonstracao.html` foi removido e deve retornar 404. Prontuário, prescrições, mensagens clínicas e demais módulos clínicos continuam ausentes. A área do paciente projeta somente rótulo do serviço, modalidade, estado e horário das próprias consultas. Slugs de tratamento desconhecidos retornam 404.
+
+---
+
+## Navegação atual — diretriz de apresentação
+
+As rotas canônicas existentes permanecem como fonte da verdade técnica até que uma migração seja necessária. A UI deve apresentar uma Área profissional única para o titular médico/admin e um Portal do paciente separado. Não expor `/admin` e `/medico/*` como dois painéis independentes para a mesma pessoa. Se rotas legadas distintas continuarem existindo, elas podem permanecer como destinos técnicos protegidos, mas devem ser agrupadas na mesma shell profissional e não gerar navegação duplicada.
+
+Qualquer consolidação de paths exige mapear links internos, redirects, APIs, testes e deep links antes de alterar. Ver `docs/UX_NAVIGATION.md`.

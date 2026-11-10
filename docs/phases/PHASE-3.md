@@ -21,3 +21,5 @@ Prisma Postgres está conectado ao projeto Vercel `vaz`; migrations e inspeção
 
 ## Limites
 Os textos precisam de revisão clínica para a versão definitiva. Foto original extraída do ZIP fornecido pelo usuário e incluída em public/images/dr-douglas-vaz.png, sem alterações no arquivo. DoctorPortrait usa o asset na home e na página Sobre; biografia e CRM/RQE continuam pendentes de confirmação.
+
+> **Nota de vigência (10/11/2026):** este documento é histórico. Para o produto atual, prevalecem `docs/PRODUCT_BASELINE.md`, `docs/DECISIONS.md`, `docs/UX_NAVIGATION.md` e `docs/VISUAL_IDENTITY.md`. Médico e administrador são a mesma pessoa e usam uma única Área profissional; o produto não é SaaS nem multi-tenant. Não use descrições antigas de perfis/painéis como instrução atual.

@@ -163,3 +163,23 @@ A retenção da nova tabela foi proposta em `docs/PRIVACY.md` como **D7** (5 ano
 **Escolha.** (1) Todas as áreas autenticadas passam a viver sob `/painel/*` dentro de um dashboard com menu lateral único (gaveta no mobile), alimentado por `navigationForRoles`. (2) A interface expõe três perfis — Médico e administrador, Secretaria e Paciente — derivados dos papéis gravados (`profileForRoles`). (3) As rotas antigas redirecionam com 308 para as novas.
 
 **Consequências.** A unificação é **somente de apresentação**: `Role`, `UserRole`, `policy.mjs`, provisionamento e guards server-side não mudaram; `ADMIN` isolado continua sem agenda por herança e o acesso à agenda do titular vem de `DOCTOR`. Fundir os papéis no banco (3 valores no enum) fica **pendente de decisão formal** e de migration própria. Não há dark mode: os componentes usam tokens (`--sidebar-width`, `--topbar-height`, `--z-sidebar`) para permitir a evolução.
+
+---
+
+## Decisão de produto — instância única e painel unificado (10/11/2026)
+
+O sistema é uma aplicação própria do consultório do Dr. Douglas Vaz, não um SaaS. O Dr. Douglas Vaz é o único médico e também o administrador; essas funções pertencem à mesma pessoa e devem ser apresentadas em uma única conta e uma única Área profissional. Não deve existir alternância Médico/Admin nem duas navegações para o titular. A união dos grants técnicos existentes deve resultar em uma navegação sem duplicatas. O portal do paciente é uma experiência separada.
+
+A interface profissional deve usar sidebar desktop persistente/colapsável e navegação mobile adaptada (drawer e, quando útil, bottom navigation). O portal do paciente terá navegação própria com a mesma identidade visual. A identidade oficial e os assets estão em `docs/identidade visual/`; as regras estão em `docs/VISUAL_IDENTITY.md`.
+
+Esta decisão atualiza a apresentação e a organização de navegação; não autoriza por si só novos módulos clínicos, novos dados coletados ou mudanças de segurança, privacidade, schema ou permissões. Documentos de fases anteriores que descrevam ADMIN e DOCTOR como pessoas distintas ficam como histórico e devem ser lidos à luz desta decisão.
+
+---
+
+## 2026-11-11 — Sidebar recolhível e barra inferior derivada das permissões
+
+**Contexto.** A casca de 10/11 já tinha menu único, gaveta acessível e redirects 308, mas a sidebar do desktop não recolhia, a topbar mobile mostrava um título fixo (“Painel”) e o mobile dependia apenas da gaveta, mesmo para perfis com poucos destinos.
+
+**Escolha.** (1) A sidebar desktop recolhe para 76 px (`--sidebar-width-collapsed`) e a preferência fica em `localStorage`, aplicada **depois** da hidratação para não gerar mismatch nem animação no carregamento. (2) Recolhida, os rótulos são clipados em vez de removidos: o nome acessível permanece e o `title` oferece tooltip nativa — um pseudo-elemento de tooltip seria recortado pelo `overflow-y:auto` da sidebar. (3) A topbar mobile exibe a seção atual via `sectionForPath`. (4) A barra inferior mostra no máximo três destinos prioritários (`overview`, `schedule`, `content`, `patient`, `account` filtrados pelas permissões) mais “Mais opções do menu”, que abre a mesma gaveta; `admin` nunca entra na barra.
+
+**Consequências.** Continuam sendo apenas apresentação: nenhuma permissão, rota, schema ou provisionamento mudou, e cada página mantém o guard próprio. Em 320 px a barra cabe com alvos de 44 px e o conteúdo reserva `--app-bottom-nav-height`; perfis com mais de três módulos alcançam o restante pela gaveta. A decisão de limitar a três destinos e de deixar `admin` fora da barra pode ser revista se a operação passar a usar a administração como destino frequente no celular.

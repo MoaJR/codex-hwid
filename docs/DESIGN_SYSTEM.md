@@ -181,8 +181,11 @@ entrada da `legacyAllowlist` que não exista mais no CSS, para a lista não volt
 inércia. A onda 2 (brancos translúcidos e azuis claros) exige decisão de escala de alfa/tints e
 revisão visual por tela.
 
-## 11. Dashboard autenticado (10/11/2026)
+## 11. Dashboard autenticado (10/11/2026, ampliado em 11/11/2026)
 
 - Casca em `src/components/dashboard/app-shell.tsx` (menu lateral fixo ≥ 901px; gaveta abaixo disso, com `aria-expanded`, `aria-controls`, Escape, foco devolvido ao botão e fundo `inert`). Cabeçalho de página em `page-header.tsx`; ícones SVG decorativos em `icons.tsx`.
-- Tokens novos em `tokens.css`: `--sidebar-width`, `--topbar-height`, `--app-content-max`, `--z-sidebar`. Estilos `.app-*` em `globals.css` usam apenas tokens, sem hex novo.
+- Tokens em `tokens.css`: `--sidebar-width`, `--sidebar-width-collapsed`, `--topbar-height`, `--app-content-max`, `--app-bottom-nav-height`, `--z-sidebar`. Estilos `.app-*` em `globals.css` usam apenas tokens, sem hex novo.
 - Menu em azul profundo com texto claro e item ativo marcado por `aria-current` e barra, além da cor. Sem dark mode.
+- **Sidebar recolhível (11/11/2026)**: `data-collapsed` no `.app-shell` troca `--sidebar-current-width` entre 272 px e 76 px, com transição só depois de restaurar a preferência (`data-ready`). Recolhida, os rótulos são clipados (continuam acessíveis), os ícones ficam centralizados, o wordmark vira o monograma “DV” e o `title` funciona como tooltip nativa. `.app-body` acompanha a largura pela mesma variável.
+- **Barra inferior mobile (11/11/2026)**: `aria-label` próprio (“Navegação rápida do painel”), até três destinos com rótulo curto, `aria-current`, indicador superior e fundo `--color-primary-soft` no ativo, alvos de 44 px e `env(safe-area-inset-bottom)`. O botão “Mais opções do menu” reaproveita a gaveta; a barra some com a gaveta aberta e o conteúdo reserva `--app-bottom-nav-height`.
+- **Topbar mobile** exibe o título da seção atual resolvido por `sectionForPath`, com truncamento por reticências e contraste AA.

@@ -19,3 +19,5 @@ Sem alteração no schema e sem APIs clínicas novas. O agendamento usa estado R
 
 ## Continuação
 Expandir o design system conforme os domínios e criar blog/CMS. Retomar Prisma e definir identidade/MFA antes de implementar operações autenticadas. O calendário real precisará de bloqueios transacionais contra sobreposição no PostgreSQL.
+
+> **Nota de vigência (10/11/2026):** este documento é histórico. Para o produto atual, prevalecem `docs/PRODUCT_BASELINE.md`, `docs/DECISIONS.md`, `docs/UX_NAVIGATION.md` e `docs/VISUAL_IDENTITY.md`. Médico e administrador são a mesma pessoa e usam uma única Área profissional; o produto não é SaaS nem multi-tenant. Não use descrições antigas de perfis/painéis como instrução atual.
