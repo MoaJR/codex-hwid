@@ -1,6 +1,6 @@
 # Privacidade e operação de dados
 
-**Situação: pendente de aprovação.** Este é um registro técnico do que a plataforma já trata e das decisões que ainda faltam. Ele não substitui parecer jurídico e não autoriza uso de dados pessoais ou de saúde reais. Enquanto as decisões da seção 5 não forem aprovadas pelo responsável, a Fase 5B permanece bloqueada e o ambiente deve operar somente com identidades fictícias.
+**Situação: D1–D6 aprovadas em 10/11/2026; Fase 5B autorizada para implementação.** As decisões da seção 5 foram aprovadas pelo responsável (registro na seção 8 e em `docs/DECISIONS.md`) e as consequências técnicas já foram executadas: rotina de retenção (`npm run retention:apply`) e teste de restauração (`docs/BACKUP_RESTORE.md`). O uso com dado real de paciente continua condicionado à publicação do canal oficial do titular em `/privacidade`. Este documento não substitui parecer jurídico.
 
 Atualizado em 25/10/2026. Fatos conferidos em `prisma/schema.prisma`, no código de `src/`, nos scripts de aceite e na configuração registrada em `docs/INTEGRATIONS.md`.
 
@@ -57,18 +57,18 @@ Observações verificadas:
 - Não existe rotina de retenção, anonimização ou expurgo automatizado. Nada é apagado fisicamente hoje; cancelamentos preservam o registro e os eventos.
 - `npm run privacy:check` (somente local) produz contagens agregadas, idade em dias inteiros do registro mais antigo por categoria e booleanos de consistência, para dimensionar D3, D5 e D6. Ela não imprime identidade, contato, token, identificador de recurso ou horário individual, recusa qualquer banco que não seja `localhost`, `127.0.0.1` ou `::1` e não faz parte do build de produção.
 
-## 5. Decisões pendentes
+## 5. Decisões registradas
 
-Nenhuma decisão abaixo foi tomada pelo agente. Cada linha precisa de aprovação explícita do responsável e registro em `docs/DECISIONS.md` antes de qualquer dado real.
+As seis decisões abaixo foram aprovadas pelo responsável em 10/11/2026 com os defaults descritos e registradas em `docs/DECISIONS.md`. O único item ainda aberto é o **canal oficial do titular** (D1), que não pode ser inventado e precisa ser publicado em `/privacidade` antes de qualquer dado real de paciente.
 
 | ID | Decisão | Status |
 | --- | --- | --- |
-| D1 | Controlador, encarregado e canal do titular | pendente |
-| D2 | Bases legais por finalidade | pendente |
-| D3 | Retenção e expurgo por categoria | pendente |
-| D4 | Subprocessadores e transferência internacional | pendente |
-| D5 | Backup, restauração e continuidade | pendente |
-| D6 | Resposta a incidentes e comunicação | pendente |
+| D1 | Controlador, encarregado e canal do titular | aprovada em 10/11/2026 — canal do titular pendente |
+| D2 | Bases legais por finalidade | aprovada em 10/11/2026 |
+| D3 | Retenção e expurgo por categoria | aprovada em 10/11/2026 |
+| D4 | Subprocessadores e transferência internacional | aprovada em 10/11/2026 |
+| D5 | Backup, restauração e continuidade | aprovada em 10/11/2026 |
+| D6 | Resposta a incidentes e comunicação | aprovada em 10/11/2026 |
 
 ### D1 — Controlador, encarregado e canal do titular
 
@@ -108,14 +108,14 @@ Nenhuma decisão abaixo foi tomada pelo agente. Cada linha precisa de aprovaçã
 
 ## 6. Critérios para liberar a Fase 5B
 
-A Fase 5B (agendamento pelo paciente autenticado) só começa quando todos os itens abaixo forem verdadeiros:
+A Fase 5B (agendamento pelo paciente autenticado) está **autorizada para implementação** desde 10/11/2026. O uso com dado real de paciente exige todos os itens abaixo:
 
-1. D1 a D6 aprovadas pelo responsável e registradas em `docs/DECISIONS.md`.
-2. `/privacidade` publicando controlador, encarregado, canal do titular, finalidades, bases legais, retenção, operadores e direitos.
-3. Retenção definida com pelo menos uma execução registrada, mesmo que manual.
-4. Teste de restauração documentado em ambiente descartável.
-5. Revisão confirmando que a 5B não coleta categoria nova além de identidade autenticada, serviço, modalidade e horário.
-6. `npm test`, `npm run typecheck`, `npm run build:next` e os aceites `e2e:scheduling`/`e2e:account` aprovados no PostgreSQL local, com identidades fictícias.
+1. D1 a D6 aprovadas pelo responsável e registradas em `docs/DECISIONS.md`. **Cumprido em 10/11/2026.**
+2. `/privacidade` publicando controlador, encarregado, canal do titular, finalidades, bases legais, retenção, operadores e direitos. **Pendente do canal oficial do titular** — os demais itens já estão aprovados.
+3. Retenção definida com pelo menos uma execução registrada, mesmo que manual. **Cumprido em 10/11/2026** (`npm run retention:apply`).
+4. Teste de restauração documentado em ambiente descartável. **Cumprido em 10/11/2026** (`docs/BACKUP_RESTORE.md`).
+5. Revisão confirmando que a 5B não coleta categoria nova além de identidade autenticada, serviço, modalidade e horário. **A executar na implementação da 5B.**
+6. `npm test`, `npm run typecheck`, `npm run build:next` e os aceites `e2e:scheduling`/`e2e:account` aprovados no PostgreSQL local, com identidades fictícias. **Cumprido em 10/11/2026** (ver `docs/E2E_5A_ROLES.md`).
 
 ## 7. Proibições vigentes
 
@@ -123,18 +123,18 @@ A Fase 5B (agendamento pelo paciente autenticado) só começa quando todos os it
 - Não usar dados de saúde reais, ainda que fornecidos espontaneamente, em nenhuma tela ou banco.
 - Não abrir prontuário, prescrição, documento, upload, mensagem clínica ou pagamento antes dos controles correspondentes.
 - Não conectar o Cline ao banco de produção nem ler `.env*`.
-- Não anunciar política de privacidade aprovada, prazos, endereço, CRM, RQE ou contato que não tenham sido confirmados pelo responsável.
+- Não anunciar endereço, CRM, RQE, preço ou contato que não tenham sido confirmados pelo responsável. A política aprovada em 10/11/2026 pode ser publicada; o canal do titular entra apenas quando o endereço oficial for informado.
 
 ## 8. Registro de aprovação
 
-Preencher apenas com aprovação real. Enquanto a linha estiver pendente, a decisão não existe para fins de operação.
+Preencher apenas com aprovação real. As linhas abaixo foram preenchidas em 10/11/2026 com a aprovação explícita do responsável; qualquer novo item aberto volta a exigir aprovação antes de operar com dado real.
 
 | ID | Decisão | Aprovador | Data | Evidência |
 | --- | --- | --- | --- | --- |
-| D1 | Controlador, encarregado e canal do titular | pendente | pendente | pendente |
-| D2 | Bases legais por finalidade | pendente | pendente | pendente |
-| D3 | Retenção e expurgo por categoria | pendente | pendente | pendente |
-| D4 | Subprocessadores e transferência internacional | pendente | pendente | pendente |
-| D5 | Backup, restauração e continuidade | pendente | pendente | pendente |
-| D6 | Resposta a incidentes e comunicação | pendente | pendente | pendente |
+| D1 | Controlador, encarregado e canal do titular | Responsável | 10/11/2026 | pacote de defaults aprovado; canal do titular ainda não informado |
+| D2 | Bases legais por finalidade | Responsável | 10/11/2026 | `docs/DECISIONS.md`, entrada de 2026-11-10 |
+| D3 | Retenção e expurgo por categoria | Responsável | 10/11/2026 | `docs/DECISIONS.md`; primeira execução em `npm run retention:apply` |
+| D4 | Subprocessadores e transferência internacional | Responsável | 10/11/2026 | `docs/DECISIONS.md`; lista a publicar em `/privacidade` |
+| D5 | Backup, restauração e continuidade | Responsável | 10/11/2026 | `docs/BACKUP_RESTORE.md`, execução de 10/11/2026 |
+| D6 | Resposta a incidentes e comunicação | Responsável | 10/11/2026 | `docs/DECISIONS.md`, entrada de 2026-11-10 |
 

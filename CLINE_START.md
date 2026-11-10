@@ -13,7 +13,7 @@ Este repositório **não começa do zero**. Preserve o que já está publicado e
 7. `docs/ROUTES.md`
 8. `docs/DECISIONS.md`
 9. `docs/LOCAL_DEVELOPMENT.md`
-10. `docs/PRIVACY.md` — registro das decisões de privacidade pendentes de aprovação
+10. `docs/PRIVACY.md` — registro das decisões de privacidade (D1–D6 aprovadas em 10/11/2026; canal do titular pendente)
 
 Antes de propor código, execute `git status`, leia a implementação relacionada e informe: fase atual, objetivo pequeno da entrega, arquivos previstos e critérios de aceite.
 
@@ -50,7 +50,7 @@ Antes de propor código, execute `git status`, leia a implementação relacionad
 - Não conecte o Cline ao banco de Produção.
 - Se faltarem dependências no Windows, execute `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1 -InstallMissing`; respeite pedidos visíveis de administrador/reinício e não improvise outro banco.
 - Nunca invente CRM, RQE, biografia, preços, endereço ou contatos do médico.
-- As decisões de privacidade estão registradas como pendentes em `docs/PRIVACY.md`; não declare política aprovada, prazo de retenção ou controlador sem aprovação do responsável.
+- D1–D6 estão aprovadas em `docs/PRIVACY.md`; a Fase 5B está autorizada, mas dado real de paciente só depois do canal do titular publicado. Não invente contato, CRM, RQE, prazo de retenção ou endereço.
 - Preserve autorização negada por padrão e validação no servidor.
 - Identidade, papel e titularidade vêm da sessão e do banco, nunca do cliente.
 - Paciente acessa somente recursos ligados ao próprio `userId`.

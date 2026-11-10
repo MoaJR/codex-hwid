@@ -1,5 +1,13 @@
 # Progresso — 09/11/2026
 
+## D1–D6 aprovadas, retenção executada e restauração testada — 10/11/2026
+- O responsável aprovou os seis defaults de privacidade em 10/11/2026. `docs/PRIVACY.md` §5/§8 e `docs/DECISIONS.md` passaram a registrar a aprovação com aprovador, data e evidência; o único item aberto é o **canal oficial do titular** (D1), que não foi inventado e precisa ser informado antes de dado real de paciente.
+- **D3 executada:** `scripts/apply-retention.mjs` (`npm run retention:apply`) com dry-run por padrão, recusa de banco não local, confirmação explícita (`--confirm RETENCAO`) e saída apenas agregada. O primeiro expurgo registrado removeu 15 sessões expiradas, 4 registros de verificação e 2 limites de API; consulta e auditoria são apenas reportadas porque as FKs `Restrict` exigem procedimento próprio. Cinco testes novos cobrem prazos, guarda local, confirmação e ausência de identificador na saída.
+- **D5 documentada:** `docs/BACKUP_RESTORE.md` registra o procedimento e a execução real — dump em 0,52 s (90.853 bytes), restauração em 1,21 s em banco descartável, contagens idênticas (21 tabelas, 5 migrations, 4 usuários, 8 consultas, 24 eventos, 97 auditorias, 4 artigos, 27 sessões) e descarte do banco de teste.
+- **Regra da 5B alterada:** `.clinerules/00-project-context.md`, `CLINE_START.md`, `README.md` e `docs/PRIVACY.md` §6 passam a declarar a 5B **autorizada para implementação** (inclusive com dado fictício), mantendo o uso com dado real condicionado ao canal publicado em `/privacidade`. Nenhum controle de autorização, auditoria ou retenção foi relaxado.
+- `/privacidade` publica agora controlador, encarregado, finalidades, bases legais, retenção (5 e 20 anos), operadores, transferência internacional e backup, com o canal do titular explicitamente em confirmação. `tests/privacy-record.test.mjs` foi reescrito para o novo estado: exige aprovador/data/evidência nas seis decisões, proíbe aprovação pendente e impede declarar o canal publicado sem endereço oficial.
+- Validação: `npm test` 141/141, `npm run typecheck` e `npm run build:next` sem erros. Nenhuma migration, nenhuma alteração de schema e nenhuma rota nova.
+
 ## Aceite autenticado da 5A concluído com evidência local — 10/11/2026
 - `npm run e2e:scheduling` → **19/19** contra o build de produção local em `http://localhost:3000` (mesma origem de `BETTER_AUTH_URL`); `npm run scheduling:check` e `npm run privacy:check` → `ready`.
 - `npm run e2e:account` → **14/14**: dois logins, revogação dos outros acessos, senha atual errada recusada, troca efetiva, senha antiga recusada, nova senha aceita e senha original restaurada.

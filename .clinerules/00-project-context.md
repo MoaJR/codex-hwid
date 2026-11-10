@@ -31,7 +31,7 @@ Se houver conflito, siga nesta ordem: decisão mais recente em `DECISIONS.md` �
 - Agenda operacional 5A é interna e controlada. `/agendar` não é agendamento público real.
 - Não implementar prontuário, prescrições, mensagens clínicas, documentos, uploads, pagamentos, lembretes ou autoagendamento 5B sem autorização formal e controles prévios.
 - Somente identidades e dados inteiramente fictícios em desenvolvimento, testes, screenshots e demonstrações.
-- As decisões D1–D6 de privacidade permanecem pendentes. Não tratar a política como aprovada nem liberar a Fase 5B.
+- D1–D6 foram aprovadas em 10/11/2026 (`docs/PRIVACY.md` §8 e `docs/DECISIONS.md`). A Fase 5B está autorizada para implementação, inclusive com dado fictício. Dado real de paciente continua condicionado à publicação do canal oficial do titular em `/privacidade`. Nunca relaxe retenção, auditoria ou autorização para viabilizar a 5B.
 
 ## Princípios de execução
 1. Investigue o código existente antes de editar; preserve padrões e APIs já estabelecidos.
