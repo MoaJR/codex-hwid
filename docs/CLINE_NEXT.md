@@ -41,6 +41,14 @@ Não faça deploy/publicação, alterações remotas, operações destrutivas em
   - `next-env.d.ts` aparece modificado no Git por efeito do build.
 - Estado atual: casca profissional única com menu agrupado, sidebar recolhível no desktop, gaveta acessível e barra inferior no mobile; portal do paciente usa a mesma casca com navegação própria (Visão geral, Meu acompanhamento, Minha conta) e sem itens profissionais. Suíte unitária, typecheck e build verdes; aceites autenticados pendentes por falta de `.env.local`.
 
+## Registro de infraestrutura — 11/11/2026
+- Sintoma: `git push` falhava com `ERROR: Permission to MoaJR/codex-hwid.git denied to ZoomproStudio`, embora `git ls-remote origin` funcionasse (o repositório é público, então a leitura anônima mascarava o problema de escrita).
+- Causa: o remote usava `git@github.com:MoaJR/codex-hwid.git` e `~/.ssh/config` não possui bloco `Host github.com`; o SSH oferecia a chave padrão `~/.ssh/id_ed25519`, que o GitHub associa à conta **ZoomproStudio**, sem permissão de escrita neste repositório. A chave `~/.ssh/id_ed25519_github_pessoal` corresponde à conta **MoaJR** (dona do repositório).
+- Correção aplicada (somente configuração local, nenhum arquivo de produto alterado): `git remote set-url origin git@github-pessoal:MoaJR/codex-hwid.git`, usando o alias `github-pessoal` já existente com `IdentitiesOnly yes`.
+- Verificações: `ssh -T git@github-pessoal` → `Hi MoaJR!`; `git push origin main` → `8bbe29d..13e35f7`; `git status -sb` → `## main...origin/main` sem `ahead`; `git ls-tree -r origin/main` → apenas `.env.example` entre os arquivos `.env*`, nenhum segredo publicado.
+- Regra prática para próximas sessões: repositórios da conta pessoal (`MoaJR`) devem usar o alias `github-pessoal:` na URL do remote; repositórios da empresa usam `github-zoompro:`. Não altere `Host github.com` globalmente sem revisar todos os repositórios, porque isso troca a identidade padrão do SSH.
+- Pendência de decisão: o commit `13e35f7` está assinado como `Zoompro <dev@zoomprostudio.com.br>` (configuração global de `user.name`/`user.email`). Mantido como está por não haver autorização para reescrever o commit. Se a autoria precisar ser `MoaJR`, o ajuste é `git commit --amend --reset-author` com `-c user.name/-c user.email` pontuais, sem alterar o `.gitconfig` global.
+
 ## Próxima tarefa
 ### 1. Executar os aceites autenticados da casca (bloqueado por ambiente)
 - **Objetivo:** rodar `npm run e2e:frontend` com o build servido em loopback e identidades **fictícias** locais, validando os 5 aceites novos de `tests/e2e/dashboard-shell.spec.ts` e a regressão de `portals-responsive.spec.ts` e `roles.spec.ts`.
